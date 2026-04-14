@@ -25,7 +25,8 @@ export async function processPayment(debtorId: string, amountPaid: number, dateS
     .select('*')
     .eq('debtor_id', debtorId)
     .eq('is_paid', false)
-    .order('date', { ascending: true });
+    .order('date', { ascending: true })
+    .order('created_at', { ascending: true }); // Tie-breaker for identical dates
 
   if (fetchError) throw fetchError;
   if (!debts) return { success: true, logs: [] };
@@ -132,6 +133,7 @@ export async function addConsolidatedDebt(debtorId: string, items: { name: strin
       debtor_id: debtorId,
       description,
       amount: total,
+      date: new Date().toISOString(), // Explicitly set current date
       is_paid: false,
     });
 

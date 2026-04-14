@@ -15,8 +15,16 @@ export default function GlobalDashboard({ onAddCustomer }: GlobalDashboardProps)
     new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(amount);
 
   const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
-    return date.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
+    try {
+      const date = new Date(dateStr);
+      // Check for invalid date or "ghost" 1969/1970 dates
+      if (isNaN(date.getTime()) || date.getFullYear() < 1980) {
+        return 'Reciente';
+      }
+      return date.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
+    } catch (e) {
+      return 'Reciente';
+    }
   };
 
   return (
