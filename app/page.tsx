@@ -32,7 +32,7 @@ export default function Home() {
     fetchProducts();
   }, [fetchCustomers, fetchGlobalMetrics, fetchProducts]);
 
-  const filteredProducts = products.filter(p => 
+  const filteredProducts = products.filter(p =>
     p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     p.category?.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -109,7 +109,7 @@ export default function Home() {
           <>
             {/* Guidance Message */}
             {isCartEmpty && (
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="mb-8 p-6 rounded-3xl bg-amber-50 border border-amber-100 flex items-center gap-4 text-amber-700 shadow-inner group"
@@ -117,7 +117,7 @@ export default function Home() {
                 <div className="h-10 w-10 rounded-full bg-white flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
                   <MousePointer2 size={18} />
                 </div>
-                <p className="font-sans font-bold text-sm tracking-tight text-amber-900/70 capitalize">
+                <p className="font-sans font-bold text-sm tracking-tight text-amber-900/70">
                   🛒 Toca los productos para agregarlos al pedido
                 </p>
               </motion.div>
@@ -133,7 +133,7 @@ export default function Home() {
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.9 }}
-                    transition={{ 
+                    transition={{
                       type: "spring",
                       stiffness: 400,
                       damping: 30

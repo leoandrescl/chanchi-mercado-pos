@@ -86,7 +86,7 @@ export default function InventoryPage() {
             <p className="font-serif text-2xl text-slate-300 italic">No se encontraron productos</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-8">
             <AnimatePresence>
               {filteredProducts.map((p) => (
                 <motion.div
@@ -95,18 +95,18 @@ export default function InventoryPage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95 }}
-                  className="group relative bg-white rounded-[2.5rem] border border-slate-100 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500"
+                  className="group relative bg-white rounded-[1.5rem] md:rounded-[2.5rem] border border-slate-100 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500"
                 >
                   {/* Favorite Toggle (Absolute) */}
                   <button
                     onClick={() => toggleFavorite(p.id)}
-                    className={`absolute top-6 left-6 z-20 h-10 w-10 rounded-full flex items-center justify-center transition-all shadow-sm active:scale-90 ${
+                    className={`absolute top-4 left-4 md:top-6 md:left-6 z-20 h-8 w-8 md:h-10 md:w-10 rounded-full flex items-center justify-center transition-all shadow-sm active:scale-90 ${
                       p.is_favorite 
                         ? 'bg-amber-400 text-white shadow-amber-200 shadow-lg scale-110' 
                         : 'bg-white/80 backdrop-blur-sm text-slate-300 hover:text-amber-400'
                     }`}
                   >
-                    <Star size={18} fill={p.is_favorite ? 'currentColor' : 'none'} />
+                    <Star size={16} className="md:w-[18px] md:h-[18px]" fill={p.is_favorite ? 'currentColor' : 'none'} />
                   </button>
 
                   {/* Product Visual */}
@@ -118,12 +118,12 @@ export default function InventoryPage() {
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                       />
                     ) : (
-                      <div className="w-full h-full flex flex-col items-center justify-center p-8 text-center bg-gradient-to-br from-slate-50 to-slate-100">
-                        <h3 className="font-serif text-4xl text-slate-200 leading-tight uppercase tracking-tighter transition-all group-hover:text-slate-300">
+                      <div className="w-full h-full flex flex-col items-center justify-center p-4 md:p-8 text-center bg-gradient-to-br from-slate-50 to-slate-100">
+                        <h3 className="font-serif text-2xl md:text-4xl text-slate-200 leading-tight uppercase tracking-tighter transition-all group-hover:text-slate-300">
                           {p.name}
                         </h3>
                         {p.category && (
-                          <span className="mt-4 px-3 py-1 rounded-full bg-white/50 text-[9px] font-bold uppercase tracking-widest text-slate-400">
+                          <span className="mt-2 md:mt-4 px-3 py-1 rounded-full bg-white/50 text-[8px] md:text-[9px] font-bold uppercase tracking-widest text-slate-400">
                             {p.category}
                           </span>
                         )}
@@ -131,33 +131,33 @@ export default function InventoryPage() {
                     )}
                     
                     {/* Action Overlay */}
-                    <div className="absolute inset-0 bg-slate-900/0 group-hover:bg-slate-900/40 transition-all duration-500 flex items-center justify-center opacity-0 group-hover:opacity-100 gap-3">
+                    <div className="absolute inset-0 bg-slate-900/0 group-hover:bg-slate-900/40 transition-all duration-500 flex items-center justify-center opacity-0 group-hover:opacity-100 gap-2 md:gap-3">
                       <button
                         onClick={() => setEditingProduct(p)}
-                        className="h-12 w-12 bg-white rounded-full flex items-center justify-center text-slate-900 shadow-xl hover:scale-110 transition-transform active:scale-95"
+                        className="h-10 w-10 md:h-12 md:w-12 bg-white rounded-full flex items-center justify-center text-slate-900 shadow-xl hover:scale-110 transition-transform active:scale-95"
                       >
-                        <Edit3 size={20} />
+                        <Edit3 size={18} className="md:w-5 md:h-5" />
                       </button>
                       <button
                         onClick={() => handleDelete(p.id, p.name)}
-                        className="h-12 w-12 bg-rose-500 rounded-full flex items-center justify-center text-white shadow-xl hover:scale-110 transition-transform active:scale-95"
+                        className="h-10 w-10 md:h-12 md:w-12 bg-rose-500 rounded-full flex items-center justify-center text-white shadow-xl hover:scale-110 transition-transform active:scale-95"
                       >
-                        <Trash2 size={20} />
+                        <Trash2 size={18} className="md:w-5 md:h-5" />
                       </button>
                     </div>
                   </div>
 
                   {/* Info Panel */}
-                  <div className="p-8">
-                    <div className="flex justify-between items-start mb-2">
-                       <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-amber-500">
+                  <div className="p-4 md:p-8">
+                    <div className="flex justify-between items-start mb-1 md:mb-2">
+                       <span className="text-[8px] md:text-[10px] font-bold uppercase tracking-[0.2em] text-amber-500">
                         {p.category || 'General'}
                       </span>
-                      <span className="font-serif text-xl font-bold text-slate-900 italic">
+                      <span className="font-serif text-sm md:text-xl font-bold text-slate-900 italic">
                         {formatPrice(p.price)}
                       </span>
                     </div>
-                    <h3 className="font-serif text-2xl text-slate-900 leading-tight">
+                    <h3 className="font-serif text-base md:text-2xl text-slate-900 leading-tight truncate">
                       {p.name}
                     </h3>
                   </div>
