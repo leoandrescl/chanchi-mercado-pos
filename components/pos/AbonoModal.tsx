@@ -14,6 +14,7 @@ export default function AbonoModal({ onClose }: AbonoModalProps) {
   const { customers, selectedCustomerId, updateBalance, fetchGlobalMetrics } = useCustomers();
   const { addTransaction } = useTransactions();
   const [amount, setAmount] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const customer = customers.find((c) => c.id === selectedCustomerId);
   if (!customer) return null;
@@ -26,6 +27,7 @@ export default function AbonoModal({ onClose }: AbonoModalProps) {
     const val = parseInt(amount);
     if (isNaN(val) || val <= 0) return;
 
+    setIsSubmitting(true);
     try {
       // Process payment in Supabase (FIFO)
       await processPayment(customer.id, val);
@@ -43,6 +45,8 @@ export default function AbonoModal({ onClose }: AbonoModalProps) {
     } catch (err) {
       console.error('Error processing payment:', err);
       alert('Error al registrar el abono.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -100,9 +104,14 @@ export default function AbonoModal({ onClose }: AbonoModalProps) {
           <button
             type="submit"
             id="btn-submit-abono"
-            className="w-full h-14 rounded-2xl bg-slate-900 text-white flex items-center justify-center font-semibold hover:bg-slate-800 active:scale-[0.99] transition-all duration-200 shadow-lg"
+            disabled={isSubmitting || !amount}
+            className="w-full h-14 rounded-2xl bg-slate-900 text-white flex items-center justify-center font-semibold hover:bg-slate-800 active:scale-[0.99] transition-all duration-200 shadow-lg disabled:opacity-50"
           >
-            <span className="font-serif text-lg italic">Confirmar Pago</span>
+            {isSubmitting ? (
+              <div className="h-5 w-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+            ) : (
+              <span className="font-serif text-lg italic">Confirmar Pago</span>
+            )}
           </button>
         </form>
       </div>

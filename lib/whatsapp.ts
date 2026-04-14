@@ -2,6 +2,7 @@ export interface SaleDetails {
   customerName: string;
   phone: string;
   total: number;
+  previousBalance: number;
   newBalance: number;
   items: { name: string; quantity: number }[];
 }
@@ -10,6 +11,7 @@ export function generateWhatsAppLink({
   customerName,
   phone,
   total,
+  previousBalance,
   newBalance,
   items,
 }: SaleDetails): string {
@@ -28,12 +30,16 @@ export function generateWhatsAppLink({
 
   const message = `Hola ${customerName}! 👋
 
-Se ha registrado una nueva venta en *ChanchiMercado POS*:
-💰 *Monto:* ${formatPrice(total)}
-📊 *Tu Nuevo Saldo:* ${formatPrice(newBalance)}
+He registrado tu compra por *${formatPrice(total)}*.
 
 *Detalle:*
 ${itemsList}
+
+--------------------------
+📉 *Saldo Anterior:* ${formatPrice(previousBalance)}
+➕ *Esta Compra:* ${formatPrice(total)}
+💰 *TOTAL ACUMULADO:* ${formatPrice(newBalance)}
+--------------------------
 
 Gracias por tu preferencia! 🐷`;
 
