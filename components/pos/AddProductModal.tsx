@@ -46,7 +46,7 @@ export default function AddProductModal({ onClose }: AddProductModalProps) {
       console.error('Error adding product:', err);
       // Supabase code for unique violation
       if (err.code === '23505') {
-        setError(`Ya existe un producto llamado "${name}"`);
+        setError('Este producto ya existe en tu lista');
       } else {
         setError('Error al guardar el producto. Inténtalo de nuevo.');
       }

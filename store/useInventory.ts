@@ -40,6 +40,9 @@ export const useInventory = create<InventoryStore>()(
       },
 
       addProduct: async (data) => {
+        // Ensure state is fresh before checking/adding
+        await get().fetchProducts();
+        
         const { data: newProd, error } = await supabase
           .from('products')
           .insert(data)

@@ -36,7 +36,7 @@ export default function ProductModal({ product, onClose, onSave }: ProductModalP
     } catch (err: any) {
       console.error('Error saving product:', err);
       if (err.code === '23505') {
-        setError(`Ya existe un producto llamado "${name}"`);
+        setError('Este producto ya existe en tu lista');
       } else {
         setError(err.message || 'Error al guardar el producto.');
       }
