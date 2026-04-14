@@ -9,17 +9,19 @@ import AddProductModal from '@/components/pos/AddProductModal';
 import Link from 'next/link';
 import { useCustomers } from '@/store/useCustomers';
 import { useInventory } from '@/store/useInventory';
-import { PlusCircle, History, ReceiptText, ShoppingBag } from 'lucide-react';
+import GlobalDashboard from '@/components/pos/GlobalDashboard';
+import { PlusCircle, History, ReceiptText, ShoppingBag, LayoutDashboard } from 'lucide-react';
 
 export default function Home() {
   const [isAbonoOpen, setIsAbonoOpen] = useState(false);
   const [isAddProductOpen, setIsAddProductOpen] = useState(false);
-  const { selectedCustomerId, fetchCustomers } = useCustomers();
+  const { selectedCustomerId, fetchCustomers, fetchGlobalMetrics } = useCustomers();
   const { products } = useInventory();
 
   useEffect(() => {
     fetchCustomers();
-  }, [fetchCustomers]);
+    fetchGlobalMetrics();
+  }, [fetchCustomers, fetchGlobalMetrics]);
 
   return (
     <div className="min-h-screen bg-white">
@@ -72,37 +74,43 @@ export default function Home() {
       {/* ─── CUSTOMER SELECTOR RIBBON ─── */}
       <CustomerSelector />
 
-      {/* ─── MAIN CONTENT ─── */}
-      <main className="mx-auto w-full max-w-3xl px-6 py-10 pb-56">
+        {/* ─── MAIN CONTENT ─── */}
+        <main className="mx-auto w-full max-w-3xl px-6 py-10 pb-56">
 
-        {/* Section Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-3">
-            <ShoppingBag size={20} strokeWidth={1.5} className="text-amber-400" />
-            <h2 className="font-serif text-xl text-slate-700 tracking-tight">Menú de Hoy</h2>
-          </div>
-          <span className="text-xs font-medium text-slate-300 tracking-widest">{products.length} items</span>
-        </div>
+          {!selectedCustomerId ? (
+            <GlobalDashboard />
+          ) : (
+            <>
+              {/* Section Header */}
+              <div className="flex items-center justify-between mb-8">
+                <div className="flex items-center gap-3">
+                  <ShoppingBag size={20} strokeWidth={1.5} className="text-amber-400" />
+                  <h2 className="font-serif text-xl text-slate-700 tracking-tight">Menú de Hoy</h2>
+                </div>
+                <span className="text-xs font-medium text-slate-300 tracking-widest">{products.length} items</span>
+              </div>
 
-        {/* Product Grid */}
-        <div className="flex flex-col gap-4">
-          {products.map((product) => (
-            <ProductCard
-              key={product.id}
-              id={product.id}
-              name={product.name}
-              price={product.price}
-              image={product.image}
-            />
-          ))}
-        </div>
+              {/* Product Grid */}
+              <div className="flex flex-col gap-4">
+                {products.map((product) => (
+                  <ProductCard
+                    key={product.id}
+                    id={product.id}
+                    name={product.name}
+                    price={product.price}
+                    image={product.image}
+                  />
+                ))}
+              </div>
 
-        {/* Boutique Footer */}
-        <footer className="mt-20 flex flex-col items-center opacity-20">
-          <div className="h-px w-8 bg-slate-900 mb-5" />
-          <span className="font-serif italic text-xs text-slate-900">Sabores de autor</span>
-        </footer>
-      </main>
+              {/* Boutique Footer */}
+              <footer className="mt-20 flex flex-col items-center opacity-20">
+                <div className="h-px w-8 bg-slate-900 mb-5" />
+                <span className="font-serif italic text-xs text-slate-900">Sabores de autor</span>
+              </footer>
+            </>
+          )}
+        </main>
 
       {/* ─── OVERLAYS ─── */}
       <FloatingCart />

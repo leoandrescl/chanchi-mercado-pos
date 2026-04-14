@@ -11,7 +11,7 @@ interface AbonoModalProps {
 }
 
 export default function AbonoModal({ onClose }: AbonoModalProps) {
-  const { customers, selectedCustomerId, updateBalance } = useCustomers();
+  const { customers, selectedCustomerId, updateBalance, fetchGlobalMetrics } = useCustomers();
   const { addTransaction } = useTransactions();
   const [amount, setAmount] = useState('');
 
@@ -29,6 +29,7 @@ export default function AbonoModal({ onClose }: AbonoModalProps) {
     try {
       // Process payment in Supabase (FIFO)
       await processPayment(customer.id, val);
+      await fetchGlobalMetrics();
 
       updateBalance(customer.id, -val);
       addTransaction({

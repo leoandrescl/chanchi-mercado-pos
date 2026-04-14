@@ -17,6 +17,10 @@ interface CustomerStore {
   updateBalance: (id: string, amount: number) => void;
   getSelectedCustomer: () => Customer | undefined;
   fetchCustomers: () => Promise<void>;
+  globalTotal: number;
+  lastMovements: any[];
+  isFetchingMetrics: boolean;
+  fetchGlobalMetrics: () => Promise<void>;
 }
 
 export const useCustomers = create<CustomerStore>()(
@@ -24,6 +28,9 @@ export const useCustomers = create<CustomerStore>()(
     (set, get) => ({
       customers: [],
       selectedCustomerId: null,
+      globalTotal: 0,
+      lastMovements: [],
+      isFetchingMetrics: false,
       addCustomer: (data) => {
         const newCustomer: Customer = {
           ...data,
@@ -71,6 +78,33 @@ export const useCustomers = create<CustomerStore>()(
         formattedCustomers.sort((a, b) => a.name.localeCompare(b.name));
 
         set({ customers: formattedCustomers });
+        // Also update global metrics whenever we refresh customers
+        get().fetchGlobalMetrics();
+      },
+      fetchGlobalMetrics: async () => {
+        set({ isFetchingMetrics: true });
+        // 1. Fetch total unpaid debt
+        const { data: totalData, error: totalError } = await supabase
+          .from('debts')
+          .select('amount')
+          .eq('is_paid', false);
+
+        if (!totalError && totalData) {
+          const total = totalData.reduce((acc, d) => acc + d.amount, 0);
+          set({ globalTotal: total });
+        }
+
+        // 2. Fetch last 5 movements
+        const { data: movements, error: movementsError } = await supabase
+          .from('debts')
+          .select('*, debtors(name)')
+          .order('date', { ascending: false })
+          .limit(5);
+
+        if (!movementsError && movements) {
+          set({ lastMovements: movements });
+        }
+        set({ isFetchingMetrics: false });
       },
     }),
     {

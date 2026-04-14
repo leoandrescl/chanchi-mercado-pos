@@ -12,7 +12,7 @@ export default function FloatingCart() {
   const getTotal = useCart((state) => state.getTotal);
   const clearCart = useCart((state) => state.clearCart);
 
-  const { customers, selectedCustomerId, updateBalance } = useCustomers();
+  const { customers, selectedCustomerId, updateBalance, fetchGlobalMetrics } = useCustomers();
   const { addTransaction } = useTransactions();
 
   const total = getTotal();
@@ -28,7 +28,9 @@ export default function FloatingCart() {
   const handleCheckout = () => {
     if (selectedCustomer) {
       // Create debt in Supabase
-      addConsolidatedDebt(selectedCustomer.id, items, total).catch(console.error);
+      addConsolidatedDebt(selectedCustomer.id, items, total)
+        .then(() => fetchGlobalMetrics())
+        .catch(console.error);
 
       updateBalance(selectedCustomer.id, total);
       addTransaction({
