@@ -5,6 +5,7 @@ import { useCustomers } from '@/store/useCustomers';
 import { useTransactions } from '@/store/useTransactions';
 import { X } from 'lucide-react';
 import { processPayment } from '@/lib/actions/paymentLogic';
+import { toast } from 'sonner';
 
 interface AbonoModalProps {
   onClose: () => void;
@@ -41,10 +42,11 @@ export default function AbonoModal({ onClose }: AbonoModalProps) {
         amount: val,
       });
 
+      toast.success("Abono procesado correctamente 💰");
       onClose();
     } catch (err) {
       console.error('Error processing payment:', err);
-      alert('Error al registrar el abono.');
+      toast.error('Error de conexión. Inténtalo de nuevo ❌');
     } finally {
       setIsSubmitting(false);
     }

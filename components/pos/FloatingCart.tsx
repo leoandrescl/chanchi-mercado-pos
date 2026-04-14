@@ -6,6 +6,8 @@ import { useCustomers } from '@/store/useCustomers';
 import { useTransactions } from '@/store/useTransactions';
 import { ShoppingCart, X, ArrowRight, Wallet, Send } from 'lucide-react';
 import { addConsolidatedDebt } from '@/lib/actions/paymentLogic';
+import { toast } from 'sonner';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function FloatingCart() {
   const items = useCart((state) => state.items);
@@ -29,8 +31,7 @@ export default function FloatingCart() {
 
   const handleCheckout = async (sendWhatsApp: boolean = false) => {
     if (!selectedCustomer) {
-      alert('Venta realizada por ' + formatPrice(total));
-      clearCart();
+      toast.error('Selecciona un cliente para fiar');
       return;
     }
 
@@ -56,6 +57,8 @@ export default function FloatingCart() {
       // 4. Refresh global view
       await fetchGlobalMetrics();
 
+      toast.success("Deuda registrada con éxito ✅");
+
       // 5. Conditional WhatsApp logic
       if (sendWhatsApp) {
         const { generateWhatsAppLink } = await import('@/lib/whatsapp');
@@ -73,7 +76,7 @@ export default function FloatingCart() {
       clearCart();
     } catch (err) {
       console.error('Checkout error:', err);
-      alert('Error al registrar la venta. Inténtalo de nuevo.');
+      toast.error('Error de conexión. Inténtalo de nuevo ❌');
     } finally {
       setIsProcessing(false);
     }
@@ -81,7 +84,7 @@ export default function FloatingCart() {
 
   return (
     <div className="fixed bottom-6 left-1/2 z-50 w-[calc(100%-2rem)] max-w-3xl -translate-x-1/2 animate-in fade-in slide-in-from-bottom-8 duration-500">
-      <div className="bg-white/80 backdrop-blur-md border border-white/60 rounded-3xl shadow-[0_20px_60px_-10px_rgba(0,0,0,0.15),0_0_0_1px_rgba(251,191,36,0.08)] overflow-hidden">
+      <div className="bg-white/90 backdrop-blur-md border border-white/60 rounded-3xl shadow-[0_20px_60px_-10px_rgba(0,0,0,0.15),0_0_0_1px_rgba(251,191,36,0.08)] overflow-hidden">
 
         {/* Cart summary row */}
         <div className="flex items-center justify-between px-6 py-5">
@@ -92,9 +95,17 @@ export default function FloatingCart() {
               <div className="h-14 w-14 rounded-2xl bg-slate-900 flex items-center justify-center text-white shadow-lg">
                 <ShoppingCart size={22} strokeWidth={1.5} />
               </div>
-              <div className="absolute -right-1.5 -top-1.5 h-6 w-6 rounded-full bg-amber-400 border-2 border-white flex items-center justify-center">
-                <span className="text-[11px] font-semibold text-slate-900 leading-none tabular-nums">{itemCount}</span>
-              </div>
+              <AnimatePresence mode="popLayout">
+                <motion.div 
+                  key={itemCount}
+                  initial={{ scale: 0.5, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ type: "spring", stiffness: 500, damping: 25 }}
+                  className="absolute -right-1.5 -top-1.5 h-6 w-6 rounded-full bg-amber-400 border-2 border-white flex items-center justify-center"
+                >
+                  <span className="text-[11px] font-bold text-slate-900 leading-none tabular-nums">{itemCount}</span>
+                </motion.div>
+              </AnimatePresence>
             </div>
 
             {/* Total */}

@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Product } from '@/store/useInventory';
 import { X, Check, Tag, DollarSign, Package } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface ProductModalProps {
   product?: Product; // If provided, we are editing
@@ -32,6 +33,8 @@ export default function ProductModal({ product, onClose, onSave }: ProductModalP
         price: priceNum,
         category: category.trim() || undefined,
       });
+      
+      toast.success(product ? "Cambios guardados con éxito ✨" : "Producto añadido al catálogo 🍔");
       onClose();
     } catch (err: any) {
       console.error('Error saving product:', err);

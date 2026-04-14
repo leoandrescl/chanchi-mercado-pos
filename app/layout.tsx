@@ -13,10 +13,7 @@ const playfair = Playfair_Display({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: 'ChanchiMercado · POS',
-  description: 'Sistema de punto de venta y fiados para ChanchiMercado.',
-};
+import { Toaster } from 'sonner';
 
 export default function RootLayout({
   children,
@@ -30,6 +27,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col font-sans">
         <AuthGuard>{children}</AuthGuard>
+        <Toaster position="top-center" expand={false} richColors />
       </body>
     </html>
   );
