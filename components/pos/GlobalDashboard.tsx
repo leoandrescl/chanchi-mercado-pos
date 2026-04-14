@@ -2,7 +2,8 @@
 
 import React from 'react';
 import { useCustomers } from '@/store/useCustomers';
-import { TrendingUp, Clock, ArrowUpRight, ArrowDownRight, Wallet, UserPlus, Eye, EyeOff } from 'lucide-react';
+import { TrendingUp, Clock, ArrowUpRight, ArrowDownRight, Wallet, UserPlus, Eye, EyeOff, Package } from 'lucide-react';
+import Link from 'next/link';
 
 interface GlobalDashboardProps {
   onAddCustomer: () => void;
@@ -58,7 +59,7 @@ export default function GlobalDashboard({ onAddCustomer }: GlobalDashboardProps)
             )}
           </div>
 
-          <div className="mt-6">
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
             <button
               id="btn-add-customer-main"
               onClick={onAddCustomer}
@@ -69,6 +70,16 @@ export default function GlobalDashboard({ onAddCustomer }: GlobalDashboardProps)
                 Nuevo Cliente
               </span>
             </button>
+
+            <Link
+              href="/inventory"
+              className="flex items-center gap-2 rounded-full bg-white/5 hover:bg-white/10 backdrop-blur-md px-4 py-1.5 border border-white/10 transition-all active:scale-[0.98]"
+            >
+              <Package size={14} className="text-emerald-400" />
+              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/80">
+                Inventario
+              </span>
+            </Link>
           </div>
         </div>
       </div>

@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { supabase } from '@/lib/supabase';
 
 export interface Product {
   id: string;
@@ -7,38 +8,77 @@ export interface Product {
   price: number;
   image?: string;
   category?: string;
+  created_at?: string;
 }
 
 interface InventoryStore {
   products: Product[];
-  addProduct: (product: Omit<Product, 'id'>) => void;
-  removeProduct: (id: string) => void;
-  updateProduct: (id: string, product: Partial<Product>) => void;
+  isFetching: boolean;
+  fetchProducts: () => Promise<void>;
+  addProduct: (product: Omit<Product, 'id' | 'created_at'>) => Promise<void>;
+  updateProduct: (id: string, product: Partial<Product>) => Promise<void>;
+  removeProduct: (id: string) => Promise<void>;
 }
 
 export const useInventory = create<InventoryStore>()(
   persist(
-    (set) => ({
-      products: [
-        { id: '1', name: 'Sopaipilla', price: 500, category: 'Frituras' },
-        { id: '2', name: 'Papas Fritas', price: 1200, category: 'Frituras' },
-        { id: '3', name: 'Bebida 350cc', price: 1000, category: 'Bebidas' },
-        { id: '4', name: 'Empanada', price: 1500, category: 'Masas' },
-      ],
-      addProduct: (data) => {
-        const newProduct: Product = {
-          ...data,
-          id: `prod-${Date.now()}-${Math.random().toString(36).substring(2, 5)}`,
-        };
-        set((state) => ({ products: [...state.products, newProduct] }));
+    (set, get) => ({
+      products: [],
+      isFetching: false,
+      
+      fetchProducts: async () => {
+        set({ isFetching: true });
+        const { data, error } = await supabase
+          .from('products')
+          .select('*')
+          .order('name', { ascending: true });
+        
+        if (!error && data) {
+          set({ products: data });
+        }
+        set({ isFetching: false });
       },
-      removeProduct: (id) => {
-        set((state) => ({ products: state.products.filter((p) => p.id !== id) }));
+
+      addProduct: async (data) => {
+        const { data: newProd, error } = await supabase
+          .from('products')
+          .insert(data)
+          .select()
+          .single();
+        
+        if (!error && newProd) {
+          set((state) => ({ products: [...state.products, newProd].sort((a,b) => a.name.localeCompare(b.name)) }));
+        } else if (error) {
+          throw error;
+        }
       },
-      updateProduct: (id, data) => {
-        set((state) => ({
-          products: state.products.map((p) => (p.id === id ? { ...p, ...data } : p)),
-        }));
+
+      updateProduct: async (id, data) => {
+        const { error } = await supabase
+          .from('products')
+          .update(data)
+          .eq('id', id);
+        
+        if (!error) {
+          set((state) => ({
+            products: state.products.map((p) => (p.id === id ? { ...p, ...data } : p)),
+          }));
+        } else {
+          throw error;
+        }
+      },
+
+      removeProduct: async (id) => {
+        const { error } = await supabase
+          .from('products')
+          .delete()
+          .eq('id', id);
+        
+        if (!error) {
+          set((state) => ({ products: state.products.filter((p) => p.id !== id) }));
+        } else {
+          throw error;
+        }
       },
     }),
     {

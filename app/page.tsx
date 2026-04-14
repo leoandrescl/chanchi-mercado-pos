@@ -18,12 +18,13 @@ export default function Home() {
   const [isAddProductOpen, setIsAddProductOpen] = useState(false);
   const [isAddCustomerOpen, setIsAddCustomerOpen] = useState(false);
   const { selectedCustomerId, fetchCustomers, fetchGlobalMetrics } = useCustomers();
-  const { products } = useInventory();
+  const { products, fetchProducts } = useInventory();
 
   useEffect(() => {
     fetchCustomers();
     fetchGlobalMetrics();
-  }, [fetchCustomers, fetchGlobalMetrics]);
+    fetchProducts();
+  }, [fetchCustomers, fetchGlobalMetrics, fetchProducts]);
 
   return (
     <div className="min-h-screen bg-white">
