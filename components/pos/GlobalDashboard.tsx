@@ -24,6 +24,16 @@ export default function GlobalDashboard({ onAddCustomer }: GlobalDashboardProps)
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-top-4 duration-700">
+      {/* Onboarding Greeting */}
+      <div className="px-2 pt-4">
+        <h1 className="font-serif text-3xl text-slate-900 italic leading-tight">
+          ¡Hola! 👋
+        </h1>
+        <p className="text-slate-400 font-sans text-sm mt-3 leading-relaxed">
+          Para empezar a fiar, primero debes <strong className="text-amber-500 font-bold underline decoration-amber-200 underline-offset-4">seleccionar un cliente</strong> en la barra superior.
+        </p>
+      </div>
+
       {/* ─── MASTER METRIC CARD ─── */}
       <div className="relative overflow-hidden rounded-[2rem] bg-slate-900 px-8 py-8 text-white shadow-xl">
         {/* Decorative Background Elements */}

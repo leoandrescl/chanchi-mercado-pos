@@ -4,11 +4,13 @@ import React, { useState } from 'react';
 import { useCustomers } from '@/store/useCustomers';
 import { Users, Search, X, UserCheck, Smartphone, History } from 'lucide-react';
 import CustomerHistory from '@/components/customers/CustomerHistory';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function CustomerSelector() {
   const { customers, selectedCustomerId, selectCustomer } = useCustomers();
   const [isOpen, setIsOpen] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [isInfoExpanded, setIsInfoExpanded] = useState(false);
   const [search, setSearch] = useState('');
 
   const selectedCustomer = customers.find((c) => c.id === selectedCustomerId);
@@ -23,79 +25,97 @@ export default function CustomerSelector() {
   return (
     <>
       {/* ─── CUSTOMER STATUS RIBBON ─── */}
-      <div className="sticky top-20 z-40 w-full bg-amber-50 border-b border-amber-100 shadow-sm">
-        <button
-          id="btn-customer-selector"
-          onClick={() => setIsOpen(true)}
-          className="mx-auto flex w-full max-w-3xl items-center justify-between px-6 py-7 transition-colors hover:bg-amber-100/40 active:bg-amber-100/60"
-        >
-          {/* Left — customer identity */}
-          <div className="flex items-center gap-4">
-            <div className={`flex h-10 w-10 items-center justify-center rounded-full transition-colors ${selectedCustomer ? 'bg-amber-400 text-white' : 'bg-amber-200 text-amber-500'}`}>
-              {selectedCustomer ? <UserCheck size={18} strokeWidth={2} /> : <Users size={18} strokeWidth={1.5} />}
-            </div>
-            <div className="text-left leading-tight">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.25em] text-amber-500 mb-0.5">
-                {selectedCustomer ? 'Cliente Actual' : 'Sin cliente'}
-              </p>
-              <div className="flex items-baseline gap-2">
-                <h3 className={`font-serif text-xl tracking-tight shrink-0 ${selectedCustomer ? 'text-slate-900' : 'text-slate-300'}`}>
-                  {selectedCustomer ? selectedCustomer.name : 'Seleccionar cliente'}
-                </h3>
-                {selectedCustomer && (
-                  <button 
-                    onClick={(e) => { e.stopPropagation(); setIsOpen(true); }}
-                    className="text-[9px] font-bold text-amber-500/60 hover:text-amber-600 transition-colors uppercase tracking-wider"
-                  >
-                    (Cambiar)
-                  </button>
-                )}
+      <div className="sticky top-20 z-40 w-full bg-white border-b border-slate-100 shadow-[0_4px_20px_-5px_rgba(0,0,0,0.05)]">
+        <div className="mx-auto w-full max-w-3xl">
+          <div className="flex items-center justify-between px-6 py-6 transition-colors">
+            {/* Left — Huge Name & Identity */}
+            <div className="flex items-center gap-5">
+              <div className={`flex h-12 w-12 items-center justify-center rounded-2xl transition-all duration-500 shadow-inner ${selectedCustomer ? 'bg-amber-400 text-white rotate-3' : 'bg-slate-100 text-slate-300'}`}>
+                {selectedCustomer ? <UserCheck size={22} strokeWidth={2.5} /> : <Users size={22} strokeWidth={1.5} />}
+              </div>
+              <div className="text-left leading-none">
+                <p className="text-[9px] font-bold uppercase tracking-[0.3em] text-amber-500/60 mb-2">
+                  {selectedCustomer ? 'Cliente Actual' : 'Esperando Cliente'}
+                </p>
+                <div className="flex flex-col">
+                  <h3 className={`font-serif text-3xl tracking-tight transition-all duration-300 ${selectedCustomer ? 'text-slate-900 italic' : 'text-slate-200'}`}>
+                    {selectedCustomer ? selectedCustomer.name : 'Nadie seleccionado'}
+                  </h3>
+                  
+                  {selectedCustomer && (
+                    <div className="flex items-center gap-3 mt-3">
+                      <button 
+                        onClick={() => setIsOpen(true)}
+                        className="px-4 py-1.5 rounded-full bg-amber-100 text-amber-700 text-[10px] font-bold uppercase tracking-wider hover:bg-amber-500 hover:text-white transition-all shadow-sm active:scale-95"
+                      >
+                        Cambiar Cliente
+                      </button>
+                      
+                      <button 
+                        onClick={() => setIsInfoExpanded(!isInfoExpanded)}
+                        className={`flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider transition-colors ${isInfoExpanded ? 'text-slate-900 font-black underline decoration-amber-400/50' : 'text-slate-400'}`}
+                      >
+                        {isInfoExpanded ? 'Cerrar Cuenta' : 'Ver Cuenta'}
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
+
+            {/* Right — Big Search Trigger when no customer */}
+            {!selectedCustomer && (
+              <button 
+                onClick={() => setIsOpen(true)}
+                className="h-14 px-6 rounded-2xl bg-amber-400 text-white font-bold flex items-center gap-3 shadow-lg shadow-amber-200 hover:bg-amber-500 transition-all active:scale-95 animate-pulse"
+              >
+                <Search size={20} />
+                <span className="text-sm uppercase tracking-widest">Buscar</span>
+              </button>
+            )}
           </div>
 
-          {/* Right — balance + History Action */}
-          {selectedCustomer ? (
-            <div className="flex items-center gap-4">
-              <div className="flex flex-col gap-2">
-                <button
-                  id="btn-view-history"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setIsHistoryOpen(true);
-                  }}
-                  className="flex items-center gap-2 rounded-xl border border-amber-200 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-amber-500 hover:bg-amber-100 transition-colors"
-                >
-                  <History size={14} strokeWidth={2} />
-                  Historial
-                </button>
-                <button
-                  id="btn-quick-whatsapp"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                     const link = `https://wa.me/${selectedCustomer.whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent(`Hola ${selectedCustomer.name}! te envío el detalle de tus consumos en ChanchiMercado 👋\n\nTu saldo pendiente actual es de *${formatBalance(selectedCustomer.balance)}*.\n\nGracias! 🐷`)}`;
-                    window.open(link, '_blank');
-                  }}
-                  className="flex items-center gap-2 rounded-xl bg-emerald-500 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-white hover:bg-emerald-600 transition-colors shadow-sm"
-                >
-                  <Smartphone size={14} strokeWidth={2} />
-                  Enviar Detalle
-                </button>
-              </div>
-              <div className="text-right leading-tight">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.25em] text-amber-500 mb-0.5">Total Fiado</p>
-                <span className={`font-mono text-xl font-semibold tabular-nums ${selectedCustomer.balance < 0 ? 'text-rose-500' : 'text-emerald-600'}`}>
-                  {formatBalance(selectedCustomer.balance)}
-                </span>
-              </div>
-            </div>
-          ) : (
-            <span className="text-xs font-medium text-amber-400 flex items-center gap-1">
-              <Search size={14} strokeWidth={1.5} />
-              Buscar
-            </span>
-          )}
-        </button>
+          {/* Collapsible Info Panel */}
+          <AnimatePresence>
+            {selectedCustomer && isInfoExpanded && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                className="overflow-hidden border-t border-slate-50 bg-slate-50/50"
+              >
+                <div className="px-6 py-6 flex flex-wrap items-center justify-between gap-6">
+                  <div className="flex gap-4">
+                    <button
+                      onClick={() => setIsHistoryOpen(true)}
+                      className="flex items-center gap-2 rounded-xl bg-white border border-slate-200 px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-600 hover:border-slate-900 hover:text-slate-900 transition-all shadow-sm"
+                    >
+                      <History size={16} strokeWidth={2} />
+                      Historial
+                    </button>
+                    <button
+                      onClick={() => {
+                         const link = `https://wa.me/${selectedCustomer.whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent(`Hola ${selectedCustomer.name}! te envío el detalle de tus consumos en ChanchiMercado 👋\n\nTu saldo pendiente actual es de *${formatBalance(selectedCustomer.balance)}*.\n\nGracias! 🐷`)}`;
+                        window.open(link, '_blank');
+                      }}
+                      className="flex items-center gap-2 rounded-xl bg-emerald-500 px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-white hover:bg-emerald-600 transition-all shadow-md"
+                    >
+                      <Smartphone size={16} strokeWidth={2} />
+                      WhatsApp
+                    </button>
+                  </div>
+                  
+                  <div className="text-right">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-400 mb-1">Total acumulado en libreta</p>
+                    <span className={`font-mono text-3xl font-bold tabular-nums tracking-tighter ${selectedCustomer.balance < 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
+                      {formatBalance(selectedCustomer.balance)}
+                    </span>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
 
       {/* ─── FULL-SCREEN SEARCH MODAL ─── */}

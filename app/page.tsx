@@ -10,8 +10,9 @@ import AddCustomerModal from '@/components/customers/AddCustomerModal';
 import Link from 'next/link';
 import { useCustomers } from '@/store/useCustomers';
 import { useInventory } from '@/store/useInventory';
+import { useCart } from '@/store/useCart';
 import GlobalDashboard from '@/components/pos/GlobalDashboard';
-import { PlusCircle, ShoppingBag, LayoutDashboard } from 'lucide-react';
+import { PlusCircle, ShoppingBag, LayoutDashboard, MousePointer2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Home() {
@@ -21,6 +22,9 @@ export default function Home() {
   const [searchTerm, setSearchTerm] = useState('');
   const { selectedCustomerId, fetchCustomers, fetchGlobalMetrics } = useCustomers();
   const { products, fetchProducts } = useInventory();
+  const { items } = useCart();
+
+  const isCartEmpty = items.length === 0;
 
   useEffect(() => {
     fetchCustomers();
@@ -86,8 +90,8 @@ export default function Home() {
               <ShoppingBag className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-amber-400 transition-colors" size={18} />
               <input
                 type="text"
-                placeholder="¿Qué busca el cliente hoy?"
-                className="w-full bg-slate-50 border border-slate-100 rounded-2xl pl-12 pr-4 py-4 text-sm font-medium text-slate-900 placeholder:text-slate-300 focus:bg-white focus:border-amber-200 focus:outline-none transition-all shadow-sm"
+                placeholder="🔍 Busca un producto por nombre..."
+                className="w-full bg-slate-50 border border-slate-100 rounded-2xl pl-12 pr-4 py-4 text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-amber-200 focus:outline-none transition-all shadow-sm"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -103,6 +107,22 @@ export default function Home() {
           <GlobalDashboard onAddCustomer={() => setIsAddCustomerOpen(true)} />
         ) : (
           <>
+            {/* Guidance Message */}
+            {isCartEmpty && (
+              <motion.div 
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-8 p-6 rounded-3xl bg-amber-50 border border-amber-100 flex items-center gap-4 text-amber-700 shadow-inner group"
+              >
+                <div className="h-10 w-10 rounded-full bg-white flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
+                  <MousePointer2 size={18} />
+                </div>
+                <p className="font-sans font-bold text-sm tracking-tight text-amber-900/70 capitalize">
+                  🛒 Toca los productos para agregarlos al pedido
+                </p>
+              </motion.div>
+            )}
+
             {/* High-Density Grid */}
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
               <AnimatePresence mode="popLayout">
