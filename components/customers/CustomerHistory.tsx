@@ -44,22 +44,13 @@ export default function CustomerHistory({ debtorId }: CustomerHistoryProps) {
     new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(amount);
 
   const formatDate = (dateStr: string) => {
-    try {
-      const date = new Date(dateStr);
-      // Check for invalid date or "ghost" 1969/1970 dates
-      if (isNaN(date.getTime()) || date.getFullYear() < 1980) {
-        return 'Fecha pendiente';
-      }
-      return date.toLocaleDateString('es-CL', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-      });
-    } catch (e) {
-      return 'Fecha pendiente';
-    }
+    return new Intl.DateTimeFormat('es-CL', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    }).format(new Date(dateStr));
   };
 
   if (loading) {
