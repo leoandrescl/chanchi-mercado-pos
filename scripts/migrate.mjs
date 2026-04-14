@@ -28,11 +28,11 @@ const db = new sqlite3.Database(DB_PATH, (err) => {
   console.log("✅ Conectado a la base de datos legacy (libreta.db)");
 });
 
-async function migrate() {
+async function sync() {
   try {
-    console.log("\n🚀 [MIGRACIÓN] Iniciando proceso de importación...");
+    console.log("\n🚀 [SYNC] Iniciando sincronización de datos legacy...");
 
-    // 1. Obtener Deudores
+    // 1. Obtener Deudores de SQLite
     const debtors = await new Promise((resolve, reject) => {
       db.all("SELECT * FROM debtors", (err, rows) => {
         if (err) reject(err);
@@ -40,33 +40,34 @@ async function migrate() {
       });
     });
 
-    console.log(`📦 [MIGRACIÓN] ${(debtors).length} clientes encontrados.`);
+    console.log(`📦 [SYNC] ${(debtors as any[]).length} clientes encontrados en SQLite.`);
 
-    const debtorIdMap = new Map();
+    const debtorLegacyToUuidMap = new Map();
 
-    for (const debtor of (debtors)) {
-      process.stdout.write(`⏳ [MIGRACIÓN] Procesando: [${debtor.name}]... `);
+    for (const debtor of (debtors as any[])) {
+      process.stdout.write(`⏳ [SYNC] Sincronizando Deudor: [${debtor.name}]... `);
       
       const { data, error } = await supabase
         .from('debtors')
-        .insert({
+        .upsert({
+          legacy_id: debtor.id,
           name: debtor.name,
           phone: debtor.phone,
           created_at: debtor.created_at
-        })
+        }, { onConflict: 'legacy_id' })
         .select()
         .single();
 
       if (error) {
-        console.log(`❌ (Error: ${error.message})`);
+        console.log(`❌ Error: ${error.message}`);
         continue;
       }
       
-      debtorIdMap.set(debtor.id, data.id);
-      console.log(`✅ (ID: ${data.id})`);
+      debtorLegacyToUuidMap.set(debtor.id, data.id);
+      console.log(`✅ (UUID: ${data.id})`);
     }
 
-    // 2. Obtener Deudas
+    // 2. Obtener Deudas de SQLite
     const debts = await new Promise((resolve, reject) => {
       db.all("SELECT * FROM debts", (err, rows) => {
         if (err) reject(err);
@@ -74,41 +75,44 @@ async function migrate() {
       });
     });
 
-    console.log(`\n📦 [MIGRACIÓN] ${(debts).length} registros de deuda encontrados.`);
+    console.log(`\n📦 [SYNC] ${(debts as any[]).length} registros de deuda encontrados en SQLite.`);
 
     let successCount = 0;
-    for (const debt of (debts)) {
-      const newDebtorId = debtorIdMap.get(debt.debtor_id);
-      if (!newDebtorId) {
+    for (const debt of (debts as any[])) {
+      const supabaseDebtorId = debtorLegacyToUuidMap.get(debt.debtor_id);
+      
+      if (!supabaseDebtorId) {
+        console.warn(`⚠️ [SYNC] Saltando deuda ID ${debt.id}: No se encontró deudor UUID para legacy_id ${debt.debtor_id}`);
         continue;
       }
 
       const { error } = await supabase
         .from('debts')
-        .insert({
-          debtor_id: newDebtorId,
+        .upsert({
+          legacy_id: debt.id,
+          debtor_id: supabaseDebtorId,
           description: debt.description,
           amount: debt.amount,
           date: debt.date,
           is_paid: debt.is_paid === 1
-        });
+        }, { onConflict: 'legacy_id' });
 
       if (error) {
-        console.error(`❌ [MIGRACIÓN] Error en deuda ID ${debt.id}:`, error.message);
+        console.error(`❌ [SYNC] Error en deuda legacy_id ${debt.id}:`, error.message);
       } else {
         successCount++;
       }
     }
 
-    console.log(`\n✨ [MIGRACIÓN] Proceso finalizado.`);
-    console.log(`📊 Clientes migrados: ${debtorIdMap.size}`);
-    console.log(`📊 Deudas migradas: ${successCount}`);
+    console.log(`\n✨ [SYNC] Proceso finalizado con éxito.`);
+    console.log(`📊 Deudores procesados: ${(debtors as any[]).length}`);
+    console.log(`📊 Deudas sincronizadas (Upsert): ${successCount}`);
     
   } catch (err) {
-    console.error("\n💥 [MIGRACIÓN] Error fatal:", err);
+    console.error("\n💥 [SYNC] Error fatal durante la sincronización:", err);
   } finally {
     db.close();
   }
 }
 
-migrate();
+sync();
