@@ -50,7 +50,7 @@ export default function AbonoModal({ onClose }: AbonoModalProps) {
     }
   };
 
-  const newBalance = amount ? customer.balance + parseInt(amount || '0') : customer.balance;
+  const newBalance = amount ? customer.balance - parseInt(amount || '0') : customer.balance;
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200">
@@ -91,14 +91,12 @@ export default function AbonoModal({ onClose }: AbonoModalProps) {
           </div>
 
           {/* Balance preview */}
-          {amount && (
-            <div className="flex items-center justify-between rounded-xl bg-slate-50 border border-slate-100 px-5 py-4 animate-in fade-in duration-200">
-              <span className="text-xs font-semibold uppercase tracking-widest text-slate-400">Saldo resultante</span>
-              <span className={`font-mono text-lg font-semibold tabular-nums ${newBalance < 0 ? 'text-rose-500' : 'text-emerald-600'}`}>
-                {formatBalance(newBalance)}
-              </span>
-            </div>
-          )}
+          <div className="flex items-center justify-between rounded-xl bg-slate-50 border border-slate-100 px-5 py-4 animate-in fade-in duration-200">
+            <span className="text-xs font-semibold uppercase tracking-widest text-slate-400">Saldo resultante</span>
+            <span className={`font-mono text-lg font-semibold tabular-nums ${newBalance <= 0 ? 'text-emerald-600' : 'text-slate-600'}`}>
+              {formatBalance(newBalance)}
+            </span>
+          </div>
 
           {/* Confirm button */}
           <button
