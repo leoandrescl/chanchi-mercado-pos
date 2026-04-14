@@ -57,16 +57,16 @@ const ProductCard = memo(({ id, name, price, image, isFavorite }: ProductCardPro
       </div>
 
       {/* Info Overlay / Footer */}
-      <div className="p-1.5 bg-white text-left space-y-0">
-        <h3 className="font-sans text-[9px] font-bold text-slate-800 truncate leading-tight group-hover:text-amber-600 transition-colors">
+      <div className="p-2.5 bg-white text-left space-y-0.5">
+        <h3 className="font-sans text-[10px] font-black text-slate-800 truncate leading-tight group-hover:text-amber-600 transition-colors uppercase tracking-tighter">
           {name}
         </h3>
         <div className="flex items-center justify-between">
-          <span className="font-serif text-[10px] font-bold text-slate-900 italic tracking-tight">
+          <span className="font-serif text-xs font-black text-slate-900 italic tracking-tight underline decoration-amber-200 underline-offset-2">
             {formatPrice(price)}
           </span>
-          <div className="h-3 w-3 rounded-full bg-amber-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-            <ShoppingBag size={6} className="text-amber-400" />
+          <div className="h-4 w-4 rounded-full bg-amber-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+            <ShoppingBag size={8} className="text-amber-400" />
           </div>
         </div>
       </div>

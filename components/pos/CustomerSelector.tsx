@@ -27,35 +27,37 @@ export default function CustomerSelector() {
       {/* ─── CUSTOMER STATUS RIBBON ─── */}
       <div className="sticky top-20 z-40 w-full bg-white border-b border-slate-100 shadow-[0_4px_20px_-5px_rgba(0,0,0,0.05)]">
         <div className="mx-auto w-full max-w-3xl">
-          <div className="flex items-center justify-between px-6 py-6 transition-colors">
+          <div className="flex items-center justify-between px-6 py-8 transition-colors">
             {/* Left — Huge Name & Identity */}
-            <div className="flex items-center gap-5">
-              <div className={`flex h-12 w-12 items-center justify-center rounded-2xl transition-all duration-500 shadow-inner ${selectedCustomer ? 'bg-amber-400 text-white rotate-3' : 'bg-slate-100 text-slate-300'}`}>
-                {selectedCustomer ? <UserCheck size={22} strokeWidth={2.5} /> : <Users size={22} strokeWidth={1.5} />}
+            <div className="flex items-center gap-6">
+              <div className={`flex h-16 w-16 items-center justify-center rounded-[1.5rem] transition-all duration-500 shadow-inner ${selectedCustomer ? 'bg-amber-400 text-white rotate-3' : 'bg-slate-100 text-slate-300'}`}>
+                {selectedCustomer ? <UserCheck size={28} strokeWidth={2.5} /> : <Users size={28} strokeWidth={1.5} />}
               </div>
               <div className="text-left leading-none">
-                <p className="text-[9px] font-bold uppercase tracking-[0.3em] text-amber-500/60 mb-2">
+                <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-amber-500/60 mb-3">
                   {selectedCustomer ? 'Cliente Actual' : 'Esperando Cliente'}
                 </p>
                 <div className="flex flex-col">
-                  <h3 className={`font-serif text-3xl tracking-tight transition-all duration-300 ${selectedCustomer ? 'text-slate-900 italic' : 'text-slate-200'}`}>
+                  <h3 className={`font-serif text-4xl tracking-tight transition-all duration-300 ${selectedCustomer ? 'text-slate-900 italic' : 'text-slate-200'}`}>
                     {selectedCustomer ? selectedCustomer.name : 'Nadie seleccionado'}
                   </h3>
                   
                   {selectedCustomer && (
-                    <div className="flex items-center gap-3 mt-3">
+                    <div className="flex items-center gap-4 mt-5">
                       <button 
                         onClick={() => setIsOpen(true)}
-                        className="px-4 py-1.5 rounded-full bg-amber-100 text-amber-700 text-[10px] font-bold uppercase tracking-wider hover:bg-amber-500 hover:text-white transition-all shadow-sm active:scale-95"
+                        className="px-8 py-5 rounded-2xl bg-amber-400 text-slate-900 text-xs font-black uppercase tracking-widest hover:bg-amber-500 transition-all shadow-[0_8px_25px_-5px_rgba(251,191,36,0.5)] active:scale-95 flex items-center gap-2"
                       >
+                        <Users size={16} />
                         Cambiar Cliente
                       </button>
                       
                       <button 
                         onClick={() => setIsInfoExpanded(!isInfoExpanded)}
-                        className={`flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider transition-colors ${isInfoExpanded ? 'text-slate-900 font-black underline decoration-amber-400/50' : 'text-slate-400'}`}
+                        className={`flex items-center gap-2 px-6 py-5 rounded-2xl text-xs font-bold uppercase tracking-widest transition-all ${isInfoExpanded ? 'bg-slate-900 text-white shadow-lg' : 'bg-slate-100 text-slate-500 hover:bg-slate-200 shadow-sm'}`}
                       >
-                        {isInfoExpanded ? 'Cerrar Cuenta' : 'Ver Cuenta'}
+                        {isInfoExpanded ? <X size={16} /> : <Search size={16} />}
+                        {isInfoExpanded ? 'Cerrar' : 'Ver Cuenta'}
                       </button>
                     </div>
                   )}
@@ -150,16 +152,16 @@ export default function CustomerSelector() {
           </div>
 
           {/* Results List */}
-          <div className="flex-1 overflow-y-auto px-6 py-4 space-y-3">
+          <div className="flex-1 overflow-y-auto px-6 py-6 space-y-4">
 
             {/* Clear selection */}
             <button
               id="btn-clear-customer"
               onClick={() => { selectCustomer(null); setIsOpen(false); setSearch(''); }}
-              className="w-full flex items-center gap-3 px-5 py-4 rounded-xl border border-dashed border-slate-200 text-slate-400 hover:border-rose-200 hover:text-rose-400 hover:bg-rose-50 transition-all duration-200"
+              className="w-full flex items-center justify-center gap-4 px-6 py-6 rounded-2xl border border-dashed border-slate-200 text-slate-400 hover:border-rose-200 hover:text-rose-400 hover:bg-rose-50 transition-all duration-200 shadow-sm"
             >
-              <X size={16} strokeWidth={1.5} />
-              <span className="font-sans text-sm font-medium">Limpiar selección</span>
+              <X size={20} strokeWidth={1.5} />
+              <span className="font-sans text-base font-bold uppercase tracking-widest">Limpiar selección actual</span>
             </button>
 
             {filteredCustomers.map((c) => (
@@ -167,27 +169,27 @@ export default function CustomerSelector() {
                 key={c.id}
                 id={`btn-customer-${c.id}`}
                 onClick={() => { selectCustomer(c.id); setIsOpen(false); setSearch(''); }}
-                className={`w-full flex items-center justify-between px-5 py-5 rounded-xl border transition-all duration-200 ${
+                className={`w-full flex items-center justify-between px-6 py-8 rounded-3xl border transition-all duration-200 ${
                   selectedCustomerId === c.id
-                    ? 'border-amber-300 bg-amber-50 shadow-sm'
-                    : 'border-slate-100 bg-white hover:border-amber-200 hover:bg-amber-50/50 hover:shadow-sm'
+                    ? 'border-amber-300 bg-amber-50 shadow-lg scale-[1.02]'
+                    : 'border-slate-100 bg-white hover:border-amber-200 hover:bg-amber-50/50 hover:shadow-md'
                 }`}
               >
-                <div className="flex items-center gap-4 text-left">
-                  <div className={`flex h-12 w-12 items-center justify-center rounded-full ${selectedCustomerId === c.id ? 'bg-amber-400 text-white' : 'bg-slate-100 text-slate-400'}`}>
-                    <Users size={20} strokeWidth={1.5} />
+                <div className="flex items-center gap-6 text-left">
+                  <div className={`flex h-16 w-16 items-center justify-center rounded-2xl ${selectedCustomerId === c.id ? 'bg-amber-400 text-white' : 'bg-slate-100 text-slate-400'}`}>
+                    <Users size={24} strokeWidth={1.5} />
                   </div>
                   <div className="leading-tight">
-                    <p className="font-serif text-xl text-slate-900">{c.name}</p>
-                    <p className="flex items-center gap-1.5 text-xs font-medium text-slate-400 mt-0.5">
-                      <Smartphone size={11} strokeWidth={1.5} />
+                    <p className="font-serif text-2xl text-slate-900 font-bold">{c.name}</p>
+                    <p className="flex items-center gap-2 text-sm font-medium text-slate-400 mt-1">
+                      <Smartphone size={14} strokeWidth={1.5} />
                       {c.whatsapp}
                     </p>
                   </div>
                 </div>
                 <div className="text-right leading-tight">
-                  <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 mb-1">Saldo</p>
-                  <span className={`font-mono text-lg font-semibold tabular-nums ${c.balance < 0 ? 'text-rose-500' : 'text-emerald-600'}`}>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">Saldo Total</p>
+                  <span className={`font-mono text-xl font-bold tabular-nums ${c.balance < 0 ? 'text-rose-500' : 'text-emerald-600'}`}>
                     {formatBalance(c.balance)}
                   </span>
                 </div>

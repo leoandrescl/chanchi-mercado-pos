@@ -97,46 +97,50 @@ export default function FloatingCart() {
           {/* ─── SUMMARY BAR ─── */}
           <div 
             onClick={() => setIsExpanded(!isExpanded)}
-            className="flex items-center justify-between px-8 py-6 cursor-pointer hover:bg-slate-50 transition-colors relative z-10"
+            className="flex items-center justify-between px-8 py-8 cursor-pointer hover:bg-slate-50 transition-colors relative z-10"
           >
-            <div className="flex items-center gap-5">
+            <div className="flex items-center gap-6">
               <div className="relative">
-                <div className="h-14 w-14 rounded-2xl bg-slate-900 flex items-center justify-center text-white shadow-lg">
-                  <ShoppingCart size={22} strokeWidth={1.5} />
+                <div className="h-16 w-16 rounded-[1.5rem] bg-slate-900 flex items-center justify-center text-white shadow-lg">
+                  <ShoppingCart size={28} strokeWidth={1.5} />
                 </div>
                 <AnimatePresence mode="popLayout">
                   <motion.div 
                     key={itemCount}
                     initial={{ scale: 0.5, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
-                    className="absolute -right-1.5 -top-1.5 h-6 w-6 rounded-full bg-amber-400 border-2 border-white flex items-center justify-center pointer-events-none"
+                    className="absolute -right-2 -top-2 h-8 w-8 rounded-full bg-amber-400 border-[3px] border-white flex items-center justify-center pointer-events-none shadow-md"
                   >
-                    <span className="text-[11px] font-bold text-slate-900 leading-none">{itemCount}</span>
+                    <span className="text-xs font-black text-slate-900 leading-none">{itemCount}</span>
                   </motion.div>
                 </AnimatePresence>
               </div>
               <div className="leading-tight">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.25em] text-slate-400 mb-1">Total Pedido</p>
-                <span className="font-sans text-3xl font-medium text-slate-900 tracking-tight tabular-nums">
-                  {formatPrice(total)}
-                </span>
+                <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-slate-400 mb-1">Total Pedido</p>
+                <div className="flex items-baseline gap-1">
+                  <span className="font-serif text-4xl font-black text-slate-900 tracking-tight tabular-nums">
+                    {formatPrice(total)}
+                  </span>
+                </div>
               </div>
             </div>
             
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-6">
               {!isExpanded && (
-                <div className="flex items-center gap-2 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-slate-300">
+                <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.2em] text-slate-300">
                   Ver Detalle
-                  <ChevronUp size={14} />
+                  <div className="h-10 w-10 rounded-full border border-slate-100 flex items-center justify-center bg-white shadow-sm">
+                    <ChevronUp size={20} className="text-slate-400" />
+                  </div>
                 </div>
               )}
               {isExpanded && (
                 <button
                   onClick={(e) => { e.stopPropagation(); clearCart(); setIsExpanded(false); }}
-                  className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest text-rose-500 hover:bg-rose-50 transition-colors"
+                  className="flex items-center justify-center h-14 w-14 rounded-2xl bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white transition-all shadow-sm active:scale-95 border border-rose-100"
+                  title="Vaciar Carrito"
                 >
-                  <Trash2 size={14} />
-                  Vaciar
+                  <Trash2 size={24} />
                 </button>
               )}
             </div>
@@ -151,43 +155,43 @@ export default function FloatingCart() {
                 exit={{ height: 0, opacity: 0 }}
                 className="overflow-hidden bg-slate-50/50"
               >
-                <div className="px-8 pb-32 pt-2 space-y-4 max-h-[50vh] overflow-y-auto">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-slate-400 mb-4 px-1">Artículos en el carrito</p>
+                <div className="px-8 pb-32 pt-4 space-y-6 max-h-[50vh] overflow-y-auto">
+                  <p className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400 mb-6 px-1">Artículos en el pedido</p>
                   
                   {items.map((item) => (
                     <div 
                       key={item.id} 
-                      className="flex items-center justify-between p-4 bg-white rounded-2xl border border-slate-100 shadow-sm"
+                      className="flex items-center justify-between p-6 bg-white rounded-[2rem] border border-slate-100 shadow-sm"
                     >
                       <div className="flex-1">
-                        <h4 className="font-sans font-bold text-slate-900 text-sm leading-tight">{item.name}</h4>
-                        <p className="text-xs text-slate-400 font-medium mt-1">{formatPrice(item.price)} c/u</p>
+                        <h4 className="font-serif text-lg font-bold text-slate-900 leading-tight italic">{item.name}</h4>
+                        <p className="text-xs text-slate-400 font-bold mt-1 uppercase tracking-widest">{formatPrice(item.price)} </p>
                       </div>
 
-                      <div className="flex items-center gap-6">
-                        <div className="flex items-center gap-3 bg-slate-100 rounded-xl p-1">
+                      <div className="flex items-center gap-8">
+                        <div className="flex items-center gap-5 bg-slate-50 rounded-[1.5rem] p-2 border border-slate-100">
                           <button
                             onClick={(e) => { e.stopPropagation(); removeItem(item.id); }}
-                            className="h-8 w-8 flex items-center justify-center rounded-lg bg-white text-slate-600 hover:text-slate-900 shadow-sm active:scale-90 transition-all"
+                            className="h-14 w-14 flex items-center justify-center rounded-xl bg-white text-slate-600 hover:text-rose-500 shadow-md active:scale-90 transition-all border border-slate-100"
                           >
-                            <Minus size={14} />
+                            <Minus size={20} strokeWidth={2.5} />
                           </button>
-                          <span className="w-6 text-center text-sm font-bold text-slate-900 tabular-nums">{item.quantity}</span>
+                          <span className="w-8 text-center text-xl font-black text-slate-900 tabular-nums">{item.quantity}</span>
                           <button
                             onClick={(e) => { e.stopPropagation(); addItem(item); }}
-                            className="h-8 w-8 flex items-center justify-center rounded-lg bg-white text-slate-600 hover:text-slate-900 shadow-sm active:scale-90 transition-all"
+                            className="h-14 w-14 flex items-center justify-center rounded-xl bg-white text-slate-600 hover:text-emerald-500 shadow-md active:scale-90 transition-all border border-slate-100"
                           >
-                            <Plus size={14} />
+                            <Plus size={20} strokeWidth={2.5} />
                           </button>
                         </div>
 
-                        <div className="w-20 text-right leading-tight">
-                          <p className="text-xs font-bold text-slate-900">{formatPrice(item.price * item.quantity)}</p>
+                        <div className="w-24 text-right">
+                          <p className="text-lg font-black text-slate-900 tracking-tight">{formatPrice(item.price * item.quantity).replace('$', '').trim()}</p>
                           <button 
                             onClick={(e) => { e.stopPropagation(); deleteItem(item.id); }}
-                            className="text-[9px] font-bold text-rose-400 uppercase tracking-tighter hover:text-rose-600 transition-colors"
+                            className="text-[10px] font-black text-rose-400 uppercase tracking-widest hover:text-rose-600 transition-colors mt-1 underline underline-offset-4"
                           >
-                            Eliminar
+                            Quitar
                           </button>
                         </div>
                       </div>

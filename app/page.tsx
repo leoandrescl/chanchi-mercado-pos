@@ -41,39 +41,45 @@ export default function Home() {
     <div className="min-h-screen bg-white flex flex-col">
 
       {/* ─── FIXED GLASSMORPHISM HEADER ─── */}
-      <header className="sticky top-0 left-0 right-0 z-50 h-20 bg-white/95 backdrop-blur-md border-b border-amber-50 flex items-center">
+      <header className="sticky top-0 left-0 right-0 z-50 h-24 bg-white/95 backdrop-blur-md border-b border-amber-50 flex items-center">
         <div className="mx-auto w-full max-w-3xl flex items-center justify-between px-6">
           {/* Brand */}
           <Link href="/" className="flex flex-col leading-none group">
             <span className="font-serif text-2xl text-slate-900 tracking-tight">ChanchiMercado</span>
-            <span className="text-[9px] font-medium uppercase tracking-[0.35em] text-amber-400 mt-0.5">Mercado & POS</span>
+            <span className="text-[9px] font-bold uppercase tracking-[0.35em] text-amber-400 mt-1">Mercado & POS</span>
           </Link>
 
           {/* Nav Actions */}
-          <nav className="flex items-center gap-1">
+          <nav className="flex items-center gap-2">
             <button
               id="btn-add-product"
               onClick={() => setIsAddProductOpen(true)}
-              className="flex flex-col items-center justify-center gap-1 px-4 py-2 rounded-xl text-slate-400 hover:bg-amber-50 hover:text-amber-600 transition-all duration-200"
+              className="flex flex-col items-center justify-center gap-2 px-5 py-3 rounded-2xl text-slate-400 hover:bg-amber-50 hover:text-amber-600 transition-all duration-200"
             >
-              <PlusCircle size={20} strokeWidth={1.5} />
-              <span className="text-[8px] font-bold uppercase tracking-widest">Añadir</span>
+              <div className="h-10 w-10 flex items-center justify-center">
+                <PlusCircle size={28} strokeWidth={1.5} />
+              </div>
+              <span className="text-[9px] font-black uppercase tracking-widest leading-none">Añadir</span>
             </button>
 
             <Link
               href="/clientes"
-              className="flex flex-col items-center justify-center gap-1 px-4 py-2 rounded-xl text-slate-400 hover:bg-amber-50 hover:text-amber-600 transition-all duration-200"
+              className="flex flex-col items-center justify-center gap-2 px-5 py-3 rounded-2xl text-slate-400 hover:bg-emerald-50 hover:text-emerald-600 transition-all duration-200"
             >
-              <PlusCircle size={20} strokeWidth={1.5} className="rotate-45" />
-              <span className="text-[8px] font-bold uppercase tracking-widest">Deudores</span>
+              <div className="h-10 w-10 flex items-center justify-center">
+                <PlusCircle size={28} strokeWidth={1.5} className="rotate-45" />
+              </div>
+              <span className="text-[9px] font-black uppercase tracking-widest leading-none">Deudores</span>
             </Link>
 
             <Link
               href="/inventario"
-              className="flex flex-col items-center justify-center gap-1 px-4 py-2 rounded-xl text-slate-400 hover:bg-amber-50 hover:text-amber-600 transition-all duration-200"
+              className="flex flex-col items-center justify-center gap-2 px-5 py-3 rounded-2xl text-slate-400 hover:bg-amber-50 hover:text-amber-600 transition-all duration-200"
             >
-              <LayoutDashboard size={20} strokeWidth={1.5} />
-              <span className="text-[8px] font-bold uppercase tracking-widest">Inventario</span>
+              <div className="h-10 w-10 flex items-center justify-center">
+                <LayoutDashboard size={28} strokeWidth={1.5} />
+              </div>
+              <span className="text-[9px] font-black uppercase tracking-widest leading-none">Inventario</span>
             </Link>
           </nav>
         </div>
