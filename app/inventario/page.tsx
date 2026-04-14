@@ -2,14 +2,14 @@
 
 import React, { useState, useEffect } from 'react';
 import { useInventory, Product } from '@/store/useInventory';
-import { Search, Plus, Edit3, Trash2, ArrowLeft, Package, LayoutGrid, List } from 'lucide-react';
+import { Search, Plus, Edit3, Trash2, ArrowLeft, Package, LayoutGrid, List, Star } from 'lucide-react';
 import Link from 'next/link';
 import ProductModal from '@/components/inventory/ProductModal';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 
 export default function InventoryPage() {
-  const { products, fetchProducts, updateProduct, removeProduct, addProduct, isFetching } = useInventory();
+  const { products, fetchProducts, updateProduct, removeProduct, addProduct, toggleFavorite, isFetching } = useInventory();
   const [search, setSearch] = useState('');
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isAdding, setIsAdding] = useState(false);
@@ -97,6 +97,18 @@ export default function InventoryPage() {
                   exit={{ opacity: 0, scale: 0.95 }}
                   className="group relative bg-white rounded-[2.5rem] border border-slate-100 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500"
                 >
+                  {/* Favorite Toggle (Absolute) */}
+                  <button
+                    onClick={() => toggleFavorite(p.id)}
+                    className={`absolute top-6 left-6 z-20 h-10 w-10 rounded-full flex items-center justify-center transition-all shadow-sm active:scale-90 ${
+                      p.is_favorite 
+                        ? 'bg-amber-400 text-white shadow-amber-200 shadow-lg scale-110' 
+                        : 'bg-white/80 backdrop-blur-sm text-slate-300 hover:text-amber-400'
+                    }`}
+                  >
+                    <Star size={18} fill={p.is_favorite ? 'currentColor' : 'none'} />
+                  </button>
+
                   {/* Product Visual */}
                   <div className="aspect-[4/5] bg-slate-50 overflow-hidden relative">
                     {p.image ? (

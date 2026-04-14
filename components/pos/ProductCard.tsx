@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import { useCart } from '@/store/useCart';
-import { ShoppingBag } from 'lucide-react';
+import { ShoppingBag, Star } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { playPop } from '@/lib/audio';
 
@@ -9,9 +9,10 @@ interface ProductCardProps {
   name: string;
   price: number;
   image?: string;
+  isFavorite?: boolean;
 }
 
-const ProductCard = memo(({ id, name, price, image }: ProductCardProps) => {
+const ProductCard = memo(({ id, name, price, image, isFavorite }: ProductCardProps) => {
   const addItem = useCart((state) => state.addItem);
 
   const formatPrice = (amount: number) =>
@@ -32,6 +33,11 @@ const ProductCard = memo(({ id, name, price, image }: ProductCardProps) => {
     >
       {/* Product Image / Fallback */}
       <div className="aspect-square relative w-full bg-slate-50 flex items-center justify-center overflow-hidden border-b border-slate-50">
+        {isFavorite && (
+          <div className="absolute top-2 right-2 z-10 h-7 w-7 bg-amber-400 text-white rounded-full flex items-center justify-center shadow-lg shadow-amber-200">
+            <Star size={14} fill="currentColor" />
+          </div>
+        )}
         {image ? (
           <img 
             src={image} 
