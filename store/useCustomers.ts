@@ -7,17 +7,20 @@ export interface Customer {
   name: string;
   whatsapp: string;
   balance: number;
+  legacy_id?: number | null;
 }
 
 interface CustomerStore {
   customers: Customer[];
   selectedCustomerId: string | null;
-  addCustomer: (customer: Omit<Customer, 'id' | 'balance'>) => void;
+  addCustomer: (customer: Omit<Customer, 'id' | 'balance' | 'legacy_id'>) => void;
   selectCustomer: (id: string | null) => void;
   updateBalance: (id: string, amount: number) => void;
   getSelectedCustomer: () => Customer | undefined;
   fetchCustomers: () => Promise<void>;
   addCustomerSupabase: (name: string, phone: string) => Promise<any>;
+  updateCustomerSupabase: (id: string, name: string, phone: string) => Promise<void>;
+  deleteCustomerSupabase: (id: string) => Promise<void>;
   globalTotal: number;
   lastMovements: any[];
   isFetchingMetrics: boolean;
@@ -75,6 +78,7 @@ export const useCustomers = create<CustomerStore>()(
             name: d.name,
             whatsapp: d.phone || '',
             balance,
+            legacy_id: d.legacy_id,
           };
         });
 
@@ -124,6 +128,31 @@ export const useCustomers = create<CustomerStore>()(
         // Refresh customers to include the new one
         await get().fetchCustomers();
         return data;
+      },
+      updateCustomerSupabase: async (id: string, name: string, phone: string) => {
+        const cleanPhone = phone.replace(/\D/g, '');
+        const { error } = await supabase
+          .from('debtors')
+          .update({ name, phone: cleanPhone, updated_at: new Date().toISOString() })
+          .eq('id', id);
+
+        if (error) throw error;
+        await get().fetchCustomers();
+      },
+      deleteCustomerSupabase: async (id: string) => {
+        const { error } = await supabase
+          .from('debtors')
+          .delete()
+          .eq('id', id);
+
+        if (error) throw error;
+        
+        // Deselect if active
+        if (get().selectedCustomerId === id) {
+          set({ selectedCustomerId: null });
+        }
+        
+        await get().fetchCustomers();
       },
       toggleGlobalBalance: () => set((state) => ({ showGlobalBalance: !state.showGlobalBalance })),
     }),

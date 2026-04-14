@@ -57,11 +57,19 @@ export default function Home() {
             </button>
 
             <Link
+              href="/clientes"
+              className="flex flex-col items-center justify-center gap-1 px-4 py-2 rounded-xl text-slate-400 hover:bg-amber-50 hover:text-amber-600 transition-all duration-200"
+            >
+              <PlusCircle size={20} strokeWidth={1.5} className="rotate-45" />
+              <span className="text-[8px] font-bold uppercase tracking-widest">Deudores</span>
+            </Link>
+
+            <Link
               href="/inventario"
               className="flex flex-col items-center justify-center gap-1 px-4 py-2 rounded-xl text-slate-400 hover:bg-amber-50 hover:text-amber-600 transition-all duration-200"
             >
               <LayoutDashboard size={20} strokeWidth={1.5} />
-              <span className="text-[8px] font-bold uppercase tracking-widest">Gestión</span>
+              <span className="text-[8px] font-bold uppercase tracking-widest">Inventario</span>
             </Link>
           </nav>
         </div>
