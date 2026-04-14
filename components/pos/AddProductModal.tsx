@@ -14,6 +14,8 @@ export default function AddProductModal({ onClose }: AddProductModalProps) {
   const [price, setPrice] = useState('');
   const [image, setImage] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -24,12 +26,33 @@ export default function AddProductModal({ onClose }: AddProductModalProps) {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !price) return;
-    addProduct({ name, price: parseInt(price), image: image || undefined, category: 'Nuevo' });
-    setIsSuccess(true);
-    setTimeout(onClose, 1800);
+
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      await addProduct({ 
+        name: name.trim(), 
+        price: parseInt(price), 
+        image: image || undefined, 
+        category: 'Nuevo' 
+      });
+      setIsSuccess(true);
+      setTimeout(onClose, 1500);
+    } catch (err: any) {
+      console.error('Error adding product:', err);
+      // Supabase code for unique violation
+      if (err.code === '23505') {
+        setError(`Ya existe un producto llamado "${name}"`);
+      } else {
+        setError('Error al guardar el producto. Inténtalo de nuevo.');
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -105,14 +128,27 @@ export default function AddProductModal({ onClose }: AddProductModalProps) {
                 </div>
               </div>
 
+              {error && (
+                <div className="p-3 rounded-xl bg-rose-50 border border-rose-100 text-rose-500 text-[11px] font-medium text-center animate-in fade-in zoom-in-95">
+                  {error}
+                </div>
+              )}
+
               {/* Submit */}
               <button
                 type="submit"
                 id="btn-submit-product"
-                className="w-full h-14 rounded-2xl bg-slate-900 text-white flex items-center justify-center gap-3 font-semibold tracking-tight hover:bg-slate-800 active:scale-[0.99] transition-all duration-200 shadow-lg mt-2"
+                disabled={isSubmitting}
+                className="w-full h-14 rounded-2xl bg-slate-900 text-white flex items-center justify-center gap-3 font-semibold tracking-tight hover:bg-slate-800 active:scale-[0.99] transition-all duration-200 shadow-lg mt-2 disabled:opacity-50"
               >
-                <Plus size={18} strokeWidth={2} />
-                <span className="font-serif text-lg italic">Guardar en el Menú</span>
+                {isSubmitting ? (
+                  <div className="h-5 w-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                ) : (
+                  <>
+                    <Plus size={18} strokeWidth={2} />
+                    <span className="font-serif text-lg italic">Guardar en el Menú</span>
+                  </>
+                )}
               </button>
             </form>
           </>

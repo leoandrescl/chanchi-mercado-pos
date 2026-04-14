@@ -34,7 +34,12 @@ export default function ProductModal({ product, onClose, onSave }: ProductModalP
       });
       onClose();
     } catch (err: any) {
-      setError(err.message || 'Error al guardar el producto.');
+      console.error('Error saving product:', err);
+      if (err.code === '23505') {
+        setError(`Ya existe un producto llamado "${name}"`);
+      } else {
+        setError(err.message || 'Error al guardar el producto.');
+      }
     } finally {
       setIsSaving(false);
     }
