@@ -94,7 +94,7 @@ export default function AbonoModal({ onClose }: AbonoModalProps) {
 
           {/* Balance preview */}
           <div className="flex items-center justify-between rounded-xl bg-slate-50 border border-slate-100 px-5 py-4 animate-in fade-in duration-200">
-            <span className="text-xs font-semibold uppercase tracking-widest text-slate-400">Saldo resultante</span>
+            <span className="text-xs font-semibold uppercase tracking-widest text-slate-400">Queda por pagar</span>
             <span className={`font-mono text-lg font-semibold tabular-nums ${newBalance <= 0 ? 'text-emerald-600' : 'text-slate-600'}`}>
               {formatBalance(newBalance)}
             </span>

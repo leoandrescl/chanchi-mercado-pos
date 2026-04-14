@@ -41,7 +41,7 @@ export function generateMonthlyReport({
     .map((item) => `• ${formatDate(item.date)}: ${item.description} (${formatPrice(item.amount)})`)
     .join('\n');
 
-  const message = `Hola ${customerName}! 👋
+  const message = `Hola ${customerName}! te envío el detalle de tus consumos en ChanchiMercado 👋
 
 Aquí tienes el resumen de tu cuenta de *${monthName}*:
 
@@ -49,8 +49,8 @@ Aquí tienes el resumen de tu cuenta de *${monthName}*:
 ${itemsList}
 
 --------------------------
-📅 *Resumen del Mes:* ${formatPrice(monthlyTotal)}
-💰 *SALDO TOTAL AL DÍA:* ${formatPrice(historicalBalance)}
+📅 *Total del Mes:* ${formatPrice(monthlyTotal)}
+💰 *TOTAL PENDIENTE:* ${formatPrice(historicalBalance)}
 --------------------------
 
 Quedo atenta a cualquier duda. ¡Gracias! 🐷`;
@@ -80,7 +80,7 @@ export function generateWhatsAppLink({
     .map((item) => `- ${item.name} (x${item.quantity})`)
     .join('\n');
 
-  const message = `Hola ${customerName}! 👋
+  const message = `Hola ${customerName}! te envío el detalle de tus consumos en ChanchiMercado 👋
 
 He registrado tu compra por *${formatPrice(total)}*.
 
@@ -88,9 +88,9 @@ He registrado tu compra por *${formatPrice(total)}*.
 ${itemsList}
 
 --------------------------
-📉 *Saldo Anterior:* ${formatPrice(previousBalance)}
+📉 *Acumulado Previo:* ${formatPrice(previousBalance)}
 ➕ *Esta Compra:* ${formatPrice(total)}
-💰 *TOTAL ACUMULADO:* ${formatPrice(newBalance)}
+💰 *TOTAL AL DÍA:* ${formatPrice(newBalance)}
 --------------------------
 
 Gracias por tu preferencia! 🐷`;

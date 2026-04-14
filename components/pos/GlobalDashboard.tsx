@@ -72,7 +72,7 @@ export default function GlobalDashboard({ onAddCustomer }: GlobalDashboardProps)
             </button>
 
             <Link
-              href="/inventory"
+              href="/inventario"
               className="flex items-center gap-2 rounded-full bg-white/5 hover:bg-white/10 backdrop-blur-md px-4 py-1.5 border border-white/10 transition-all active:scale-[0.98]"
             >
               <Package size={14} className="text-emerald-400" />

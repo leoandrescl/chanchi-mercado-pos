@@ -27,7 +27,7 @@ export default function CustomerSelector() {
         <button
           id="btn-customer-selector"
           onClick={() => setIsOpen(true)}
-          className="mx-auto flex w-full max-w-3xl items-center justify-between px-6 py-5 transition-colors hover:bg-amber-100/40 active:bg-amber-100/60"
+          className="mx-auto flex w-full max-w-3xl items-center justify-between px-6 py-7 transition-colors hover:bg-amber-100/40 active:bg-amber-100/60"
         >
           {/* Left — customer identity */}
           <div className="flex items-center gap-4">
@@ -36,11 +36,21 @@ export default function CustomerSelector() {
             </div>
             <div className="text-left leading-tight">
               <p className="text-[10px] font-semibold uppercase tracking-[0.25em] text-amber-500 mb-0.5">
-                {selectedCustomer ? 'Sesión activa' : 'Sin cliente'}
+                {selectedCustomer ? 'Cliente Actual' : 'Sin cliente'}
               </p>
-              <h3 className={`font-serif text-xl tracking-tight ${selectedCustomer ? 'text-slate-900' : 'text-slate-300'}`}>
-                {selectedCustomer ? selectedCustomer.name : 'Seleccionar cliente'}
-              </h3>
+              <div className="flex items-baseline gap-2">
+                <h3 className={`font-serif text-xl tracking-tight shrink-0 ${selectedCustomer ? 'text-slate-900' : 'text-slate-300'}`}>
+                  {selectedCustomer ? selectedCustomer.name : 'Seleccionar cliente'}
+                </h3>
+                {selectedCustomer && (
+                  <button 
+                    onClick={(e) => { e.stopPropagation(); setIsOpen(true); }}
+                    className="text-[9px] font-bold text-amber-500/60 hover:text-amber-600 transition-colors uppercase tracking-wider"
+                  >
+                    (Cambiar)
+                  </button>
+                )}
+              </div>
             </div>
           </div>
 
@@ -63,17 +73,17 @@ export default function CustomerSelector() {
                   id="btn-quick-whatsapp"
                   onClick={(e) => {
                     e.stopPropagation();
-                    const link = `https://wa.me/${selectedCustomer.whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent(`Hola ${selectedCustomer.name}! 👋\n\nTu saldo actual en ChanchiMercado es de *${formatBalance(selectedCustomer.balance)}*.\n\nGracias! 🐷`)}`;
+                     const link = `https://wa.me/${selectedCustomer.whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent(`Hola ${selectedCustomer.name}! te envío el detalle de tus consumos en ChanchiMercado 👋\n\nTu saldo pendiente actual es de *${formatBalance(selectedCustomer.balance)}*.\n\nGracias! 🐷`)}`;
                     window.open(link, '_blank');
                   }}
                   className="flex items-center gap-2 rounded-xl bg-emerald-500 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-white hover:bg-emerald-600 transition-colors shadow-sm"
                 >
                   <Smartphone size={14} strokeWidth={2} />
-                  Enviar Saldo
+                  Enviar Detalle
                 </button>
               </div>
               <div className="text-right leading-tight">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.25em] text-amber-500 mb-0.5">Saldo fiado</p>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.25em] text-amber-500 mb-0.5">Total Fiado</p>
                 <span className={`font-mono text-xl font-semibold tabular-nums ${selectedCustomer.balance < 0 ? 'text-rose-500' : 'text-emerald-600'}`}>
                   {formatBalance(selectedCustomer.balance)}
                 </span>

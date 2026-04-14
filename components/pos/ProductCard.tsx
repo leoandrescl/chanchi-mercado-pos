@@ -32,10 +32,10 @@ const ProductCard = memo(({ id, name, price, image, isFavorite }: ProductCardPro
       className="group flex flex-col w-full bg-white border border-slate-100 rounded-3xl overflow-hidden shadow-sm transition-all duration-300 hover:shadow-lg hover:border-amber-200"
     >
       {/* Product Image / Fallback */}
-      <div className="aspect-square relative w-full bg-slate-50 flex items-center justify-center overflow-hidden border-b border-slate-50">
+      <div className="aspect-[4/3] relative w-full bg-slate-50 flex items-center justify-center overflow-hidden border-b border-slate-50">
         {isFavorite && (
-          <div className="absolute top-2 right-2 z-10 h-7 w-7 bg-amber-400 text-white rounded-full flex items-center justify-center shadow-lg shadow-amber-200">
-            <Star size={14} fill="currentColor" />
+          <div className="absolute top-2 right-2 z-10 h-6 w-6 bg-amber-400 text-white rounded-full flex items-center justify-center shadow-lg shadow-amber-200">
+            <Star size={12} fill="currentColor" />
           </div>
         )}
         {image ? (
@@ -45,11 +45,11 @@ const ProductCard = memo(({ id, name, price, image, isFavorite }: ProductCardPro
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" 
           />
         ) : (
-          <div className="flex flex-col items-center justify-center p-4 text-center">
-            <span className="font-serif text-3xl font-bold text-amber-100 uppercase tracking-tighter leading-none group-hover:text-amber-200 transition-colors">
+          <div className="flex flex-col items-center justify-center p-2 text-center">
+            <span className="font-serif text-2xl font-bold text-amber-100 uppercase tracking-tighter leading-none group-hover:text-amber-200 transition-colors">
               {name.charAt(0)}
             </span>
-            <span className="text-[7px] font-bold uppercase tracking-[0.2em] text-slate-200 mt-2">
+            <span className="text-[6px] font-bold uppercase tracking-[0.2em] text-slate-200 mt-1">
               Chanchi
             </span>
           </div>
@@ -57,16 +57,16 @@ const ProductCard = memo(({ id, name, price, image, isFavorite }: ProductCardPro
       </div>
 
       {/* Info Overlay / Footer */}
-      <div className="p-3 bg-white text-left space-y-1">
-        <h3 className="font-sans text-xs font-bold text-slate-800 truncate leading-tight group-hover:text-amber-600 transition-colors">
+      <div className="p-2 bg-white text-left space-y-0.5">
+        <h3 className="font-sans text-[10px] font-bold text-slate-800 truncate leading-tight group-hover:text-amber-600 transition-colors">
           {name}
         </h3>
         <div className="flex items-center justify-between">
-          <span className="font-serif text-sm font-bold text-slate-900 italic tracking-tight">
+          <span className="font-serif text-xs font-bold text-slate-900 italic tracking-tight">
             {formatPrice(price)}
           </span>
-          <div className="h-4 w-4 rounded-full bg-amber-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-            <ShoppingBag size={8} className="text-amber-400" />
+          <div className="h-3.5 w-3.5 rounded-full bg-amber-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+            <ShoppingBag size={7} className="text-amber-400" />
           </div>
         </div>
       </div>
