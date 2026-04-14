@@ -125,7 +125,7 @@ export default function FloatingCart() {
             
             <div className="flex items-center gap-4">
               {!isExpanded && (
-                <div className="hidden sm:flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-slate-300">
+                <div className="flex items-center gap-2 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-slate-300">
                   Ver Detalle
                   <ChevronUp size={14} />
                 </div>
