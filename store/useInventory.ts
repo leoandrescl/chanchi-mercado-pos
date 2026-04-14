@@ -15,8 +15,8 @@ interface InventoryStore {
   products: Product[];
   isFetching: boolean;
   fetchProducts: () => Promise<void>;
-  addProduct: (product: Omit<Product, 'id' | 'created_at'>) => Promise<void>;
   updateProduct: (id: string, product: Partial<Product>) => Promise<void>;
+  addProduct: (product: Omit<Product, 'id' | 'created_at'>) => Promise<void>;
   removeProduct: (id: string) => Promise<void>;
 }
 
@@ -28,15 +28,48 @@ export const useInventory = create<InventoryStore>()(
       
       fetchProducts: async () => {
         set({ isFetching: true });
-        const { data, error } = await supabase
-          .from('products')
-          .select('*')
-          .order('name', { ascending: true });
         
-        if (!error && data) {
-          set({ products: data });
+        // 1. Fetch Products
+        const { data: productsData, error: prodError } = await supabase
+          .from('products')
+          .select('*');
+
+        if (prodError) {
+          console.error("Error fetching products:", prodError);
+          set({ isFetching: false });
+          return;
         }
-        set({ isFetching: false });
+
+        // 2. Fetch Popularity data (Debts)
+        const { data: debtsData, error: debtError } = await supabase
+          .from('debts')
+          .select('description')
+          .filter('description', 'ilike', 'Compra:%');
+
+        const popularityMap: Record<string, number> = {};
+
+        if (!debtError && debtsData) {
+          debtsData.forEach(debt => {
+            productsData.forEach(product => {
+              if (debt.description.includes(product.name)) {
+                popularityMap[product.id] = (popularityMap[product.id] || 0) + 1;
+              }
+            });
+          });
+        }
+
+        // 3. Sort: Popularity DESC, then Name ASC
+        const sortedProducts = [...productsData].sort((a, b) => {
+          const popularityA = popularityMap[a.id] || 0;
+          const popularityB = popularityMap[b.id] || 0;
+          
+          if (popularityB !== popularityA) {
+            return popularityB - popularityA;
+          }
+          return a.name.localeCompare(b.name);
+        });
+        
+        set({ products: sortedProducts, isFetching: false });
       },
 
       addProduct: async (data) => {
