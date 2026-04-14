@@ -88,25 +88,32 @@ export default function FloatingCart() {
         )}
       </AnimatePresence>
 
-      <div className={`fixed bottom-0 left-1/2 z-[70] w-full max-w-3xl -translate-x-1/2 transition-all duration-500`}>
+      <div className="fixed bottom-0 left-1/2 z-[70] w-full max-w-3xl -translate-x-1/2">
         <motion.div
           layout
           initial={false}
           className="bg-white rounded-t-[2.5rem] shadow-[0_-20px_60px_-15px_rgba(0,0,0,0.15)] overflow-hidden border-x border-t border-slate-100"
         >
-          {/* ─── SUMMARY BAR (Always visible or Header of Drawer) ─── */}
+          {/* ─── SUMMARY BAR ─── */}
           <div 
             onClick={() => setIsExpanded(!isExpanded)}
-            className="flex items-center justify-between px-8 py-6 cursor-pointer hover:bg-slate-50 transition-colors"
+            className="flex items-center justify-between px-8 py-6 cursor-pointer hover:bg-slate-50 transition-colors relative z-10"
           >
             <div className="flex items-center gap-5">
               <div className="relative">
                 <div className="h-14 w-14 rounded-2xl bg-slate-900 flex items-center justify-center text-white shadow-lg">
                   <ShoppingCart size={22} strokeWidth={1.5} />
                 </div>
-                <div className="absolute -right-1.5 -top-1.5 h-6 w-6 rounded-full bg-amber-400 border-2 border-white flex items-center justify-center pointer-events-none">
-                  <span className="text-[11px] font-bold text-slate-900 leading-none">{itemCount}</span>
-                </div>
+                <AnimatePresence mode="popLayout">
+                  <motion.div 
+                    key={itemCount}
+                    initial={{ scale: 0.5, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    className="absolute -right-1.5 -top-1.5 h-6 w-6 rounded-full bg-amber-400 border-2 border-white flex items-center justify-center pointer-events-none"
+                  >
+                    <span className="text-[11px] font-bold text-slate-900 leading-none">{itemCount}</span>
+                  </motion.div>
+                </AnimatePresence>
               </div>
               <div className="leading-tight">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.25em] text-slate-400 mb-1">Total Pedido</p>
@@ -135,7 +142,7 @@ export default function FloatingCart() {
             </div>
           </div>
 
-          {/* ─── DRAWER CONTENT (Expanded only) ─── */}
+          {/* ─── DRAWER CONTENT ─── */}
           <AnimatePresence>
             {isExpanded && (
               <motion.div
@@ -144,7 +151,7 @@ export default function FloatingCart() {
                 exit={{ height: 0, opacity: 0 }}
                 className="overflow-hidden bg-slate-50/50"
               >
-                <div className="px-8 pb-32 pt-2 space-y-4 max-h-[60vh] overflow-y-auto">
+                <div className="px-8 pb-32 pt-2 space-y-4 max-h-[50vh] overflow-y-auto">
                   <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-slate-400 mb-4 px-1">Artículos en el carrito</p>
                   
                   {items.map((item) => (
@@ -160,14 +167,14 @@ export default function FloatingCart() {
                       <div className="flex items-center gap-6">
                         <div className="flex items-center gap-3 bg-slate-100 rounded-xl p-1">
                           <button
-                            onClick={() => removeItem(item.id)}
+                            onClick={(e) => { e.stopPropagation(); removeItem(item.id); }}
                             className="h-8 w-8 flex items-center justify-center rounded-lg bg-white text-slate-600 hover:text-slate-900 shadow-sm active:scale-90 transition-all"
                           >
                             <Minus size={14} />
                           </button>
                           <span className="w-6 text-center text-sm font-bold text-slate-900 tabular-nums">{item.quantity}</span>
                           <button
-                            onClick={() => addItem(item)}
+                            onClick={(e) => { e.stopPropagation(); addItem(item); }}
                             className="h-8 w-8 flex items-center justify-center rounded-lg bg-white text-slate-600 hover:text-slate-900 shadow-sm active:scale-90 transition-all"
                           >
                             <Plus size={14} />
@@ -177,7 +184,7 @@ export default function FloatingCart() {
                         <div className="w-20 text-right leading-tight">
                           <p className="text-xs font-bold text-slate-900">{formatPrice(item.price * item.quantity)}</p>
                           <button 
-                            onClick={() => deleteItem(item.id)}
+                            onClick={(e) => { e.stopPropagation(); deleteItem(item.id); }}
                             className="text-[9px] font-bold text-rose-400 uppercase tracking-tighter hover:text-rose-600 transition-colors"
                           >
                             Eliminar
@@ -187,46 +194,46 @@ export default function FloatingCart() {
                     </div>
                   ))}
                 </div>
+
+                {/* ─── STICKY FOOTER ─── */}
+                <div className="p-6 bg-white border-t border-slate-100">
+                  <div className="flex gap-3 max-w-3xl mx-auto">
+                    <button
+                      onClick={() => handleCheckout(false)}
+                      disabled={isProcessing}
+                      className="flex-1 h-16 rounded-2xl bg-white text-slate-900 border border-slate-200 flex items-center justify-center gap-2 transition-all duration-300 hover:bg-slate-50 active:scale-[0.98] disabled:opacity-50"
+                    >
+                      {isProcessing ? (
+                        <div className="h-4 w-4 border-2 border-slate-200 border-t-slate-400 rounded-full animate-spin" />
+                      ) : (
+                        <>
+                          <Wallet size={18} strokeWidth={1.5} className="text-slate-400" />
+                          <span className="font-serif text-lg italic tracking-tight">Fiar</span>
+                        </>
+                      )}
+                    </button>
+
+                    <button
+                      onClick={() => handleCheckout(true)}
+                      disabled={isProcessing}
+                      className="flex-[2] h-16 rounded-2xl bg-slate-900 text-white flex items-center justify-center gap-3 transition-all duration-300 hover:shadow-lg active:scale-[0.98] disabled:opacity-50 overflow-hidden relative group"
+                      style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)' }}
+                    >
+                      {isProcessing ? (
+                        <div className="h-5 w-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                      ) : (
+                        <>
+                          <Send size={18} strokeWidth={1.5} className="text-emerald-400" />
+                          <span className="font-serif text-lg italic tracking-tight">Fiar y Enviar</span>
+                          <ArrowRight size={16} className="text-emerald-400/50 group-hover:translate-x-1 transition-transform" />
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
               </motion.div>
             )}
           </AnimatePresence>
-
-          {/* ─── STICKY FOOTER (Inside motion.div to stay with the drawer) ─── */}
-          <div className="absolute bottom-0 left-0 right-0 p-6 bg-white border-t border-slate-100">
-            <div className="flex gap-3 max-w-3xl mx-auto">
-              <button
-                onClick={() => handleCheckout(false)}
-                disabled={isProcessing}
-                className="flex-1 h-16 rounded-2xl bg-white text-slate-900 border border-slate-200 flex items-center justify-center gap-2 transition-all duration-300 hover:bg-slate-50 active:scale-[0.98] disabled:opacity-50"
-              >
-                {isProcessing ? (
-                  <div className="h-4 w-4 border-2 border-slate-200 border-t-slate-400 rounded-full animate-spin" />
-                ) : (
-                  <>
-                    <Wallet size={18} strokeWidth={1.5} className="text-slate-400" />
-                    <span className="font-serif text-lg italic tracking-tight">Fiar</span>
-                  </>
-                )}
-              </button>
-
-              <button
-                onClick={() => handleCheckout(true)}
-                disabled={isProcessing}
-                className="flex-[2] h-16 rounded-2xl bg-slate-900 text-white flex items-center justify-center gap-3 transition-all duration-300 hover:shadow-lg active:scale-[0.98] disabled:opacity-50 overflow-hidden relative group"
-                style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)' }}
-              >
-                {isProcessing ? (
-                  <div className="h-5 w-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-                ) : (
-                  <>
-                    <Send size={18} strokeWidth={1.5} className="text-emerald-400" />
-                    <span className="font-serif text-lg italic tracking-tight">Fiar y Enviar</span>
-                    <ArrowRight size={16} className="text-emerald-400/50 group-hover:translate-x-1 transition-transform" />
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
         </motion.div>
       </div>
     </>
