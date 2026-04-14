@@ -46,18 +46,32 @@ export default function CustomerSelector() {
 
           {/* Right — balance + History Action */}
           {selectedCustomer ? (
-            <div className="flex items-center gap-6">
-              <button
-                id="btn-view-history"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsHistoryOpen(true);
-                }}
-                className="flex items-center gap-2 rounded-xl border border-amber-200 px-3 py-2 text-xs font-bold uppercase tracking-widest text-amber-500 hover:bg-amber-100 transition-colors"
-              >
-                <History size={16} strokeWidth={2} />
-                Historial
-              </button>
+            <div className="flex items-center gap-4">
+              <div className="flex flex-col gap-2">
+                <button
+                  id="btn-view-history"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsHistoryOpen(true);
+                  }}
+                  className="flex items-center gap-2 rounded-xl border border-amber-200 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-amber-500 hover:bg-amber-100 transition-colors"
+                >
+                  <History size={14} strokeWidth={2} />
+                  Historial
+                </button>
+                <button
+                  id="btn-quick-whatsapp"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const link = `https://wa.me/${selectedCustomer.whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent(`Hola ${selectedCustomer.name}! 👋\n\nTu saldo actual en ChanchiMercado es de *${formatBalance(selectedCustomer.balance)}*.\n\nGracias! 🐷`)}`;
+                    window.open(link, '_blank');
+                  }}
+                  className="flex items-center gap-2 rounded-xl bg-emerald-500 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-white hover:bg-emerald-600 transition-colors shadow-sm"
+                >
+                  <Smartphone size={14} strokeWidth={2} />
+                  Enviar Saldo
+                </button>
+              </div>
               <div className="text-right leading-tight">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.25em] text-amber-500 mb-0.5">Saldo fiado</p>
                 <span className={`font-mono text-xl font-semibold tabular-nums ${selectedCustomer.balance < 0 ? 'text-rose-500' : 'text-emerald-600'}`}>

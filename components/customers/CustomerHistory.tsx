@@ -148,6 +148,31 @@ export default function CustomerHistory({ debtorId }: CustomerHistoryProps) {
               Ver Todo
             </button>
           </div>
+
+          {/* Global Report Button */}
+          {customer && (
+            <button
+              onClick={() => {
+                const reportLink = generateMonthlyReport({
+                  customerName: customer.name,
+                  phone: customer.whatsapp,
+                  monthName: "Todo el historial",
+                  monthlyTotal: customer.balance,
+                  historicalBalance: customer.balance,
+                  items: debts.slice(0, 15).map(i => ({ // Limit to last 15 items for WhatsApp length limits
+                    date: i.date,
+                    description: i.description,
+                    amount: i.amount
+                  }))
+                });
+                window.open(reportLink, '_blank');
+              }}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900 text-white hover:bg-slate-800 transition-colors text-xs font-bold uppercase tracking-widest shadow-md ml-4"
+            >
+              <Send size={14} />
+              Enviar Todo
+            </button>
+          )}
         </div>
       </div>
 
