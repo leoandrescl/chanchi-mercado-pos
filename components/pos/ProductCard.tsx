@@ -33,11 +33,13 @@ export default function ProductCard({ id, name, price, image }: ProductCardProps
       className="group w-full flex items-center gap-5 bg-white border border-gray-100 rounded-xl shadow-sm p-4 transition-all duration-300 ease-in-out hover:shadow-md hover:border-amber-200"
     >
       {/* Product image / icon */}
-      <div className="shrink-0 h-14 w-14 rounded-lg overflow-hidden bg-amber-50 flex items-center justify-center transition-colors group-hover:bg-amber-100">
+      <div className="shrink-0 h-14 w-14 rounded-lg overflow-hidden bg-amber-50 flex items-center justify-center transition-colors group-hover:bg-amber-100 border border-slate-50">
         {image ? (
           <img src={image} alt={name} className="h-full w-full object-cover" />
         ) : (
-          <ShoppingBag size={20} strokeWidth={1.5} className="text-amber-300 group-hover:text-amber-400 transition-colors" />
+          <div className="flex flex-col items-center justify-center text-center p-1">
+            <span className="font-serif text-lg font-bold text-amber-200 uppercase leading-none">{name.charAt(0)}</span>
+          </div>
         )}
       </div>
 

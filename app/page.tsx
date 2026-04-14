@@ -67,6 +67,15 @@ export default function Home() {
               <History size={22} strokeWidth={1.5} />
               <span className="text-[9px] font-semibold uppercase tracking-widest">Historial</span>
             </Link>
+
+            <Link
+              href="/inventario"
+              id="nav-inventario"
+              className="flex flex-col items-center justify-center gap-1 px-4 py-2 rounded-xl text-slate-500 hover:bg-amber-50 hover:text-amber-600 transition-all duration-200"
+            >
+              <LayoutDashboard size={22} strokeWidth={1.5} />
+              <span className="text-[9px] font-semibold uppercase tracking-widest">Gestión</span>
+            </Link>
           </nav>
         </div>
       </header>
