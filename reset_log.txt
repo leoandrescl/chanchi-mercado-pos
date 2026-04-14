@@ -1,0 +1,171 @@
+🚀 [GRAND RESET] Iniciando reinicio maestro...
+🔥 Vaciando deudas...
+🔥 Vaciando deudores...
+📦 Iniciando sincronización limpia desde libreta.db...
+⏳ Deudor: Clara
+⏳ Deudor: Beto
+⏳ Deudor: Katty
+⏳ Deudor: Cristofer terminacion
+⏳ Deudor: Jorge Morales 
+⏳ Deudor: Hugo Gómez 
+⏳ Deudor: Carlos Hernández 
+⏳ Deudor: Rosa  Gutierrez
+⏳ Deudor: nicolas amestica
+⏳ Deudor: samuel terminación
+⏳ Deudor: Javi Navarro 
+⏳ Deudor: Jaqueline Astudillo
+⏳ Deudor: Myrian Barolo
+⏳ Deudor: Jina Vargas
+⏳ Deudor: Rene
+⏳ Deudor: Claudia Hernandez
+⏳ Deudor: Macarena
+⏳ Deudor: Taba
+⏳ Deudor: Carlos Burgos
+⏳ Deudor: Aldo 
+⏳ Deudor: Gabriel 
+⏳ Deudor: Ulises
+⏳ Deudor: Jairo 
+⏳ Deudor: Tamara Ramirez 
+⏳ Deudor: Renato Martinez 
+⏳ Deudor: Luis cary 
+⏳ Deudor: Marcelo
+⏳ Deudor: Claudia Norambuena 
+⏳ Deudor: Ester Muñoz 
+⏳ Deudor: Viviana Mena
+⏳ Deudor: Vivíana Piña
+⏳ Deudor: Fransua
+⏳ Deudor: Jaqueline Paredes
+⏳ Deudor: Arturo 
+⏳ Deudor: Marisol Lorca
+⏳ Deudor: Hector informatica
+⏳ Deudor: Claudia Duarte 
+⏳ Deudor: Antonio mantencion
+⏳ Deudor: Carolina Ñ
+⏳ Deudor: Monica Torrealba 
+⏳ Deudor: Felipe Mellado
+⏳ Deudor: Lorena urra veston
+⏳ Deudor: Janira Urra
+⏳ Deudor: Francisca control
+⏳ Deudor: Dalba
+⏳ Deudor: Maria Montoya 
+⏳ Deudor: Luis salas 
+⏳ Deudor: Jaqueline Cisternas 
+⏳ Deudor: Jessica silva 
+⏳ Deudor: Alejandra Abu
+⏳ Deudor: Gina Lagos 
+⏳ Deudor: Elisabeth Ahumada
+⏳ Deudor: Roberto 
+⏳ Deudor: Paula Godoy 
+⏳ Deudor: Yuri
+⏳ Deudor: Rosa corte
+⏳ Deudor: Diana 
+⏳ Deudor: Carlos Gavilan
+⏳ Deudor: Cony planificación 
+⏳ Deudor: Andrea Gutiérrez 
+⏳ Deudor: Lidise
+⏳ Deudor: Jaque Vargas 
+⏳ Deudor: Frida Acuña
+⏳ Deudor: Jessica Moreno
+⏳ Deudor: Valesca
+⏳ Deudor: Ana Andrade 
+⏳ Deudor: Carolina Perez
+⏳ Deudor: Ana Leiva 
+⏳ Deudor: Susana Segovia 
+⏳ Deudor: Mauricio 
+⏳ Deudor: Irma Diaz
+⏳ Deudor: Patika
+⏳ Deudor: Sandra calfin
+⏳ Deudor: Danitza
+⏳ Deudor: Macarena Ortiz
+⏳ Deudor: Claudia Lizana
+⏳ Deudor: Eduardo 
+⏳ Deudor: Zoila
+⏳ Deudor: Nancy Gallardo 
+⏳ Deudor: Paulina of
+⏳ Deudor: Ali
+⏳ Deudor: Claudia Inostroza 
+⏳ Deudor: Nelson Fuenzalida
+⏳ Deudor: Anita Osorio 
+⏳ Deudor: Marcela 
+⏳ Deudor: Carlos Diaz
+⏳ Deudor: Sra Eva 
+⏳ Deudor: Ivan
+⏳ Deudor: Mary charcape 
+⏳ Deudor: Manuel Segura 
+⏳ Deudor: Lucia 
+⏳ Deudor: Eduvine
+⏳ Deudor: Paulina Moya
+⏳ Deudor: Nelson Reyes
+⏳ Deudor: Albéniz punto m
+⏳ Deudor: Gilda veston
+⏳ Deudor: Claudia Chanqueo
+⏳ Deudor: Isabel 
+⏳ Deudor: Paula Ramirez consfetema
+⏳ Deudor: Claudia Pilgrin 
+⏳ Deudor: Gloria Ramirez 
+⏳ Deudor: Francisco Meneses 
+⏳ Deudor: Trini Montoya 
+⏳ Deudor: Marisol veston
+⏳ Deudor: Celso
+⏳ Deudor: Juana Raldes
+⏳ Deudor: Mirian Calfin
+⏳ Deudor: Janett rojas
+⏳ Deudor: Gabriela
+⏳ Deudor: Kary
+⏳ Deudor: Karen Opazo
+⏳ Deudor: Marisol H
+⏳ Deudor: Robin 
+⏳ Deudor: Angelina
+⏳ Deudor: Paola Pavez
+⏳ Deudor: Mireya Pausil
+⏳ Deudor: Alicia 
+⏳ Deudor: Patricia Jeréz 
+⏳ Deudor: Magaly
+⏳ Deudor: Lorena Marguirot
+⏳ Deudor: Janett  Marin
+⏳ Deudor: Paola Tapia
+⏳ Deudor: Luzmira 
+⏳ Deudor: Loreto mora 
+⏳ Deudor: Margarita Araya 
+⏳ Deudor: Javiera de la barra 
+⏳ Deudor: Lorena Duarte
+⏳ Deudor: Vicky
+⏳ Deudor: Mariela aseo 
+⏳ Deudor: Esperanza
+⏳ Deudor: Jaqueline Hernández 
+⏳ Deudor: Yvonne 
+⏳ Deudor: Anguie
+⏳ Deudor: Flor
+⏳ Deudor: Ely N
+⏳ Deudor: Verónica Cardenas 
+⏳ Deudor: Cecilia pantalón 
+⏳ Deudor: 01 leo prueba
+⏳ Deudor: Sujei
+⏳ Deudor: Emma
+⏳ Deudor: Catalina 
+⏳ Deudor: Virginia 
+⏳ Deudor: Leo pantalón 
+⏳ Deudor: Don Jaime Armijo 
+⏳ Deudor: Sara
+⏳ Deudor: Johana Aranguiz 
+⏳ Deudor: Juana Gutierrez terminacion
+⏳ Deudor: Sra lisset 
+⏳ Deudor: Betty
+⏳ Deudor: Marianela chaleco 
+⏳ Deudor: Katiusca
+⏳ Deudor: Carla Contreras 
+⏳ Deudor: Maria T
+⏳ Deudor: Elias Vergara 
+⏳ Deudor: Valeria tj
+⏳ Deudor: Gina veston 
+⏳ Deudor: Raul
+⏳ Deudor: Cristian huerta 
+⏳ Deudor: Teresa camisa
+
+✨ RESET COMPLETADO ✨
+📊 Deudores: 159
+📊 Deudas: 4882
+
+💰 Verificando balance final...
+💎 TOTAL FIADO EN SUPABASE: $1225550
+✅ EL TOTAL COINCIDE PERFECTAMENTE ($1.225.550)
