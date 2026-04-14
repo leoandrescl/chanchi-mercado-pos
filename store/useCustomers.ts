@@ -22,6 +22,8 @@ interface CustomerStore {
   lastMovements: any[];
   isFetchingMetrics: boolean;
   fetchGlobalMetrics: () => Promise<void>;
+  showGlobalBalance: boolean;
+  toggleGlobalBalance: () => void;
 }
 
 export const useCustomers = create<CustomerStore>()(
@@ -32,6 +34,7 @@ export const useCustomers = create<CustomerStore>()(
       globalTotal: 0,
       lastMovements: [],
       isFetchingMetrics: false,
+      showGlobalBalance: true,
       addCustomer: (data) => {
         const newCustomer: Customer = {
           ...data,
@@ -122,6 +125,7 @@ export const useCustomers = create<CustomerStore>()(
         await get().fetchCustomers();
         return data;
       },
+      toggleGlobalBalance: () => set((state) => ({ showGlobalBalance: !state.showGlobalBalance })),
     }),
     {
       name: 'chanchi-customers',

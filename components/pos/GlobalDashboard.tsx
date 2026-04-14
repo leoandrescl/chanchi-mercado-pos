@@ -2,14 +2,14 @@
 
 import React from 'react';
 import { useCustomers } from '@/store/useCustomers';
-import { TrendingUp, Clock, ArrowUpRight, ArrowDownRight, Wallet, UserPlus } from 'lucide-react';
+import { TrendingUp, Clock, ArrowUpRight, ArrowDownRight, Wallet, UserPlus, Eye, EyeOff } from 'lucide-react';
 
 interface GlobalDashboardProps {
   onAddCustomer: () => void;
 }
 
 export default function GlobalDashboard({ onAddCustomer }: GlobalDashboardProps) {
-  const { globalTotal, lastMovements, isFetchingMetrics } = useCustomers();
+  const { globalTotal, lastMovements, isFetchingMetrics, showGlobalBalance, toggleGlobalBalance } = useCustomers();
 
   const formatPrice = (amount: number) =>
     new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(amount);
@@ -22,51 +22,51 @@ export default function GlobalDashboard({ onAddCustomer }: GlobalDashboardProps)
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-top-4 duration-700">
+    <div className="space-y-6 animate-in fade-in slide-in-from-top-4 duration-700">
       {/* ─── MASTER METRIC CARD ─── */}
-      <div className="relative overflow-hidden rounded-[2.5rem] bg-slate-900 px-8 py-10 text-white shadow-2xl">
+      <div className="relative overflow-hidden rounded-[2rem] bg-slate-900 px-8 py-8 text-white shadow-xl">
         {/* Decorative Background Elements */}
-        <div className="absolute -right-10 -top-10 h-64 w-64 rounded-full bg-emerald-500/10 blur-[80px]" />
-        <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-amber-500/5 blur-[80px]" />
+        <div className="absolute -right-10 -top-10 h-64 w-64 rounded-full bg-emerald-500/5 blur-[80px]" />
 
         <div className="relative flex flex-col items-center text-center">
-          <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 backdrop-blur-md">
-            <TrendingUp size={24} className="text-emerald-400" />
+          <div className="flex items-center gap-3 mb-2">
+            <h2 className="font-serif text-lg italic tracking-tight text-slate-400">
+              Resumen de Libretas
+            </h2>
+            <button 
+              onClick={toggleGlobalBalance}
+              className="p-1.5 rounded-full hover:bg-white/10 text-slate-500 transition-colors"
+              title={showGlobalBalance ? "Ocultar Saldo" : "Mostrar Saldo"}
+            >
+              {showGlobalBalance ? <Eye size={16} /> : <EyeOff size={16} />}
+            </button>
           </div>
-          
-          <h2 className="font-serif text-2xl italic tracking-tight text-slate-300">
-            Capital Total en Libretas
-          </h2>
 
-          <div className="mt-4 flex items-baseline gap-2">
+          <div className="flex items-baseline gap-2">
             {isFetchingMetrics ? (
-              <div className="h-16 w-48 rounded-2xl bg-white/5 animate-pulse" />
+              <div className="h-10 w-32 rounded-xl bg-white/5 animate-pulse" />
             ) : (
               <>
-                <span className="text-6xl font-medium tracking-tighter text-white tabular-nums">
-                  {formatPrice(globalTotal).replace('$', '').trim()}
+                <span className="text-4xl font-medium tracking-tighter text-white tabular-nums">
+                  {showGlobalBalance 
+                    ? formatPrice(globalTotal).replace('$', '').trim() 
+                    : '••••••'
+                  }
                 </span>
-                <span className="text-2xl font-light text-emerald-400 font-serif italic">$</span>
+                <span className="text-xl font-light text-slate-500 font-serif italic">$</span>
               </>
             )}
           </div>
 
-          <div className="mt-8 flex items-center gap-4">
-            <div className="flex items-center gap-2 rounded-full bg-emerald-500/10 px-4 py-1.5 border border-emerald-500/20">
-              <div className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-400">
-                Saldo Activo en la Nube
-              </span>
-            </div>
-            
+          <div className="mt-6">
             <button
               id="btn-add-customer-main"
               onClick={onAddCustomer}
-              className="flex items-center gap-2 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md px-4 py-1.5 border border-white/20 transition-all active:scale-[0.98]"
+              className="flex items-center gap-2 rounded-full bg-white/5 hover:bg-white/10 backdrop-blur-md px-4 py-1.5 border border-white/10 transition-all active:scale-[0.98]"
             >
               <UserPlus size={14} className="text-amber-400" />
-              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white">
-                Registrar Cliente
+              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/80">
+                Nuevo Cliente
               </span>
             </button>
           </div>
