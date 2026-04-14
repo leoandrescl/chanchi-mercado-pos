@@ -17,6 +17,7 @@ interface CustomerStore {
   updateBalance: (id: string, amount: number) => void;
   getSelectedCustomer: () => Customer | undefined;
   fetchCustomers: () => Promise<void>;
+  addCustomerSupabase: (name: string, phone: string) => Promise<any>;
   globalTotal: number;
   lastMovements: any[];
   isFetchingMetrics: boolean;
@@ -105,6 +106,21 @@ export const useCustomers = create<CustomerStore>()(
           set({ lastMovements: movements });
         }
         set({ isFetchingMetrics: false });
+      },
+      addCustomerSupabase: async (name: string, phone: string) => {
+        const cleanPhone = phone.replace(/\D/g, ''); // Clear formatting, only numbers
+        
+        const { data, error } = await supabase
+          .from('debtors')
+          .insert({ name, phone: cleanPhone })
+          .select()
+          .single();
+
+        if (error) throw error;
+
+        // Refresh customers to include the new one
+        await get().fetchCustomers();
+        return data;
       },
     }),
     {

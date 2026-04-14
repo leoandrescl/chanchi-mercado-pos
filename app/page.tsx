@@ -6,6 +6,7 @@ import FloatingCart from '@/components/pos/FloatingCart';
 import CustomerSelector from '@/components/pos/CustomerSelector';
 import AbonoModal from '@/components/pos/AbonoModal';
 import AddProductModal from '@/components/pos/AddProductModal';
+import AddCustomerModal from '@/components/customers/AddCustomerModal';
 import Link from 'next/link';
 import { useCustomers } from '@/store/useCustomers';
 import { useInventory } from '@/store/useInventory';
@@ -15,6 +16,7 @@ import { PlusCircle, History, ReceiptText, ShoppingBag, LayoutDashboard } from '
 export default function Home() {
   const [isAbonoOpen, setIsAbonoOpen] = useState(false);
   const [isAddProductOpen, setIsAddProductOpen] = useState(false);
+  const [isAddCustomerOpen, setIsAddCustomerOpen] = useState(false);
   const { selectedCustomerId, fetchCustomers, fetchGlobalMetrics } = useCustomers();
   const { products } = useInventory();
 
@@ -78,7 +80,7 @@ export default function Home() {
         <main className="mx-auto w-full max-w-3xl px-6 py-10 pb-56">
 
           {!selectedCustomerId ? (
-            <GlobalDashboard />
+            <GlobalDashboard onAddCustomer={() => setIsAddCustomerOpen(true)} />
           ) : (
             <>
               {/* Section Header */}
@@ -116,6 +118,7 @@ export default function Home() {
       <FloatingCart />
       {isAbonoOpen && <AbonoModal onClose={() => setIsAbonoOpen(false)} />}
       {isAddProductOpen && <AddProductModal onClose={() => setIsAddProductOpen(false)} />}
+      {isAddCustomerOpen && <AddCustomerModal onClose={() => setIsAddCustomerOpen(false)} />}
     </div>
   );
 }

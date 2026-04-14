@@ -2,9 +2,13 @@
 
 import React from 'react';
 import { useCustomers } from '@/store/useCustomers';
-import { TrendingUp, Clock, ArrowUpRight, ArrowDownRight, Wallet } from 'lucide-react';
+import { TrendingUp, Clock, ArrowUpRight, ArrowDownRight, Wallet, UserPlus } from 'lucide-react';
 
-export default function GlobalDashboard() {
+interface GlobalDashboardProps {
+  onAddCustomer: () => void;
+}
+
+export default function GlobalDashboard({ onAddCustomer }: GlobalDashboardProps) {
   const { globalTotal, lastMovements, isFetchingMetrics } = useCustomers();
 
   const formatPrice = (amount: number) =>
@@ -45,11 +49,24 @@ export default function GlobalDashboard() {
             )}
           </div>
 
-          <div className="mt-8 flex items-center gap-2 rounded-full bg-emerald-500/10 px-4 py-1.5 border border-emerald-500/20">
-            <div className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-400">
-              Saldo Activo en la Nube
-            </span>
+          <div className="mt-8 flex items-center gap-4">
+            <div className="flex items-center gap-2 rounded-full bg-emerald-500/10 px-4 py-1.5 border border-emerald-500/20">
+              <div className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-400">
+                Saldo Activo en la Nube
+              </span>
+            </div>
+            
+            <button
+              id="btn-add-customer-main"
+              onClick={onAddCustomer}
+              className="flex items-center gap-2 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md px-4 py-1.5 border border-white/20 transition-all active:scale-[0.98]"
+            >
+              <UserPlus size={14} className="text-amber-400" />
+              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white">
+                Registrar Cliente
+              </span>
+            </button>
           </div>
         </div>
       </div>
