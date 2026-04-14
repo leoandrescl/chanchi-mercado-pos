@@ -30,7 +30,7 @@ export default function GlobalDashboard({ onAddCustomer }: GlobalDashboardProps)
           ¡Hola! 👋
         </h1>
         <p className="text-slate-400 font-sans text-sm mt-3 leading-relaxed">
-          Para empezar a fiar, primero debes <strong className="text-amber-500 font-bold underline decoration-amber-200 underline-offset-4">seleccionar un cliente</strong> en la barra superior.
+          Para empezar a fiar, haz clic en el botón <strong className="text-amber-500 font-bold underline decoration-amber-200 underline-offset-4 uppercase">buscar</strong> que está arriba para seleccionar un cliente.
         </p>
       </div>
 
