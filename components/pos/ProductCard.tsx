@@ -11,9 +11,10 @@ interface ProductCardProps {
   price: number;
   image?: string;
   isFavorite?: boolean;
+  isBundle?: boolean;
 }
 
-const ProductCard = memo(({ id, name, price, image, isFavorite }: ProductCardProps) => {
+const ProductCard = memo(({ id, name, price, image, isFavorite, isBundle }: ProductCardProps) => {
   const addItem = useCart((state) => state.addItem);
   const toggleFavoriteStore = useInventory((state) => state.toggleFavorite);
 
@@ -54,6 +55,13 @@ const ProductCard = memo(({ id, name, price, image, isFavorite }: ProductCardPro
             className={isFavorite ? "text-amber-400 fill-amber-400" : "text-slate-300"} 
           />
         </button>
+
+        {/* Bundle / Promo Badge */}
+        {isBundle && (
+          <div className="absolute top-2 left-3 z-10 bg-emerald-500 text-white text-[9px] font-black uppercase tracking-[0.2em] px-3 py-1.5 rounded-full shadow-md animate-pulse">
+            Pack
+          </div>
+        )}
 
         {image ? (
           <img 

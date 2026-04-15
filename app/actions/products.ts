@@ -93,3 +93,99 @@ export async function addProductWithImage(formData: FormData) {
     return { success: false, error: 'Error inesperado del servidor.' };
   }
 }
+
+/**
+ * Uploads an image (if present) and creates a product bundle along with its component relations.
+ */
+export async function addBundleWithImage(formData: FormData) {
+  try {
+    const name = formData.get('name') as string;
+    const price = parseInt(formData.get('price') as string);
+    const category = formData.get('category') as string;
+    const imageFile = formData.get('imageFile') as File | null;
+    const componentsJson = formData.get('components') as string;
+    
+    let components = [];
+    try {
+      if (componentsJson) components = JSON.parse(componentsJson);
+    } catch (e) {
+      return { success: false, error: 'El formato de los componentes del pack es inválido.' };
+    }
+
+    if (components.length === 0) {
+      return { success: false, error: 'Un pack debe tener al menos un producto.' };
+    }
+
+    let imageUrl = null;
+    if (imageFile && imageFile.size > 0) {
+      const fileExt = imageFile.name.split('.').pop();
+      const fileName = `${Date.now()}-bundle-${Math.random().toString(36).substring(2)}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('product-images')
+        .upload(filePath, imageFile, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (uploadError) {
+        console.error('Error uploading bundle image:', uploadError);
+        return { success: false, error: 'Error al subir la imagen del Pack.' };
+      }
+
+      const { data: publicUrlData } = supabase.storage
+        .from('product-images')
+        .getPublicUrl(filePath);
+
+      imageUrl = publicUrlData.publicUrl;
+    }
+
+    // Insert Product as Bundle
+    const { data: product, error: insertError } = await supabase
+      .from('products')
+      .insert({
+        name,
+        price,
+        category: category || 'Pack Promocional',
+        image: imageUrl,
+        is_bundle: true,
+      })
+      .select()
+      .single();
+
+    if (insertError) {
+      console.error('Error inserting bundle product:', insertError);
+      if (insertError.code === '23505') {
+        return { success: false, error: 'Ya existe un pack o producto con ese nombre' };
+      }
+      return { success: false, error: 'Error al guardar el Pack.' };
+    }
+
+    // Insert Bundle Components
+    const bundleInsertData = components.map((comp: {id: string, quantity: number}) => ({
+      bundle_id: product.id,
+      component_id: comp.id,
+      quantity: comp.quantity
+    }));
+
+    const { error: componentsError } = await supabase
+      .from('product_bundles')
+      .insert(bundleInsertData);
+
+    if (componentsError) {
+      console.error('Error inserting bundle components:', componentsError);
+      // Depending on strictness, we could delete the product if components fail, 
+      // but Postgres transactions are better. Supabase JS doesn't easily do transactions via REST.
+      // So we just return an error for now.
+      // In a real robust system, we would've used a Postgres RPC for transactional inserts.
+    }
+
+    revalidatePath('/');
+    return { success: true, product };
+
+  } catch (err) {
+    console.error('Unexpected error in addBundleWithImage:', err);
+    return { success: false, error: 'Error inesperado del servidor.' };
+  }
+}

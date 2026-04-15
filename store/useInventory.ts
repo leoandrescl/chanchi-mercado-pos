@@ -9,6 +9,7 @@ export interface Product {
   image?: string;
   category?: string;
   is_favorite?: boolean;
+  is_bundle?: boolean;
   created_at?: string;
 }
 
