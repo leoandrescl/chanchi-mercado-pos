@@ -91,24 +91,27 @@ export default function CustomerSelector({ onOpenAbono }: CustomerSelectorProps)
                 exit={{ height: 0, opacity: 0 }}
                 className="overflow-hidden border-t border-slate-50 bg-slate-50/50"
               >
-                <div className="px-6 py-6 flex flex-wrap items-center justify-between gap-6">
-                  <div className="flex gap-4">
-                    <button
-                      onClick={() => setIsHistoryOpen(true)}
-                      className="flex items-center gap-2 rounded-xl bg-white border border-slate-200 px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-600 hover:border-slate-900 hover:text-slate-900 transition-all shadow-sm"
-                    >
-                      <History size={16} strokeWidth={2} />
-                      Historial
-                    </button>
+                <div className="px-6 py-8 flex flex-col gap-6">
+                  {/* Actions Grid */}
+                  <div className="grid grid-cols-2 gap-3">
                     {onOpenAbono && (
                       <button
                         onClick={onOpenAbono}
-                        className="flex items-center gap-2 rounded-xl bg-amber-400 px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-900 hover:bg-amber-500 transition-all shadow-md"
+                        className="col-span-2 flex items-center justify-center gap-3 rounded-2xl bg-amber-400 px-6 py-5 text-sm font-black uppercase tracking-widest text-slate-900 hover:bg-amber-500 transition-all shadow-md active:scale-[0.98]"
                       >
-                        <span className="text-sm">💰</span>
+                        <span className="text-xl">💰</span>
                         Registrar Abono
                       </button>
                     )}
+                    
+                    <button
+                      onClick={() => setIsHistoryOpen(true)}
+                      className="flex items-center justify-center gap-2 rounded-xl bg-white border border-slate-200 px-4 py-4 text-[11px] font-bold uppercase tracking-wider text-slate-600 hover:border-slate-900 hover:text-slate-900 transition-all shadow-[0_2px_8px_-2px_rgba(0,0,0,0.05)] active:scale-[0.98]"
+                    >
+                      <History size={20} strokeWidth={2} />
+                      Historial
+                    </button>
+
                     <button
                       onClick={async () => {
                         if (isGeneratingReport) return;
@@ -130,18 +133,24 @@ export default function CustomerSelector({ onOpenAbono }: CustomerSelectorProps)
                         }
                       }}
                       disabled={isGeneratingReport}
-                      className={`flex items-center gap-2 rounded-xl px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-white transition-all shadow-md ${isGeneratingReport ? 'bg-slate-400' : 'bg-emerald-500 hover:bg-emerald-600'}`}
+                      className={`flex items-center justify-center gap-2 rounded-xl px-4 py-4 text-[11px] font-bold uppercase tracking-wider text-white transition-all shadow-md active:scale-[0.98] ${isGeneratingReport ? 'bg-slate-400' : 'bg-green-500 hover:bg-green-600'}`}
                     >
-                      <Smartphone size={16} strokeWidth={2} className={isGeneratingReport ? 'animate-bounce' : ''} />
-                      {isGeneratingReport ? 'Generando...' : 'Enviar Detalle'}
+                      <Smartphone size={20} strokeWidth={2} className={isGeneratingReport ? 'animate-bounce' : ''} />
+                      {isGeneratingReport ? '...' : 'Enviar Detalle'}
                     </button>
                   </div>
 
-                  <div className="text-right">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-400 mb-1">Total Fiado</p>
-                    <span className={`font-mono text-3xl font-bold tabular-nums tracking-tighter ${selectedCustomer.balance < 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
-                      {formatBalance(selectedCustomer.balance)}
-                    </span>
+                  {/* Financial Summary */}
+                  <div className="flex items-center justify-between border-t border-slate-100 pt-6">
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-400 mb-1">Total Fiado</p>
+                      <span className={`font-mono text-3xl font-bold tabular-nums tracking-tighter ${selectedCustomer.balance < 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
+                        {formatBalance(selectedCustomer.balance)}
+                      </span>
+                    </div>
+                    
+                    {/* Visual Indicator */}
+                    <div className={`h-1.5 w-1.5 rounded-full ${selectedCustomer.balance < 0 ? 'bg-emerald-400' : 'bg-rose-400'} animate-pulse`} />
                   </div>
                 </div>
               </motion.div>
