@@ -43,7 +43,7 @@ export async function registerAbono(debtorId: string, amount: number) {
         description: 'Abono Registrado',
         amount: -amount,
         date: timestamp,
-        is_paid: true,
+        is_paid: false,
       });
 
     if (insertError) {

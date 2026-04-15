@@ -147,7 +147,7 @@ export default function GlobalDashboard({ onAddCustomer }: GlobalDashboardProps)
       <div className="flex flex-col items-center pt-8 opacity-20">
         <Wallet size={20} strokeWidth={1} className="text-slate-900 mb-2" />
         <p className="text-[9px] font-medium uppercase tracking-[0.3em] text-slate-900 italic font-serif">
-          ChanchiMercado | Hecho con mucho Amor por su hijo
+          ChanchiMercado | Hecho con infinito Amor por su hijo
         </p>
       </div>
     </div>

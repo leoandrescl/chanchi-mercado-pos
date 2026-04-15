@@ -52,6 +52,7 @@ export const useCustomers = create<CustomerStore>()(
           customers: state.customers.map((c: Customer) =>
             c.id === id ? { ...c, balance: c.balance + amount } : c
           ),
+          globalTotal: state.globalTotal + amount,
         }));
       },
       getSelectedCustomer: () => {

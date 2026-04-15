@@ -166,7 +166,7 @@ export default function Home() {
             {/* Boutique Footer */}
             <footer className="mt-20 flex flex-col items-center opacity-10">
               <div className="h-px w-8 bg-slate-900 mb-5" />
-              <span className="font-serif italic text-xs text-slate-900">Hecho con mucho Amor por su hijo</span>
+              <span className="font-serif italic text-xs text-slate-900">Hecho con infinito Amor por su hijo</span>
             </footer>
           </>
         )}
