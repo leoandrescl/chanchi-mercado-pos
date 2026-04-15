@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useCustomers } from '@/store/useCustomers';
-import { Users, Search, X, UserCheck, Smartphone, History } from 'lucide-react';
+import { Users, Search, X, UserCheck, Smartphone, History, Wallet } from 'lucide-react';
 import CustomerHistory from '@/components/customers/CustomerHistory';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getDebtorFullAudit } from '@/lib/actions/reporting';
@@ -97,9 +97,9 @@ export default function CustomerSelector({ onOpenAbono }: CustomerSelectorProps)
                     {onOpenAbono && (
                       <button
                         onClick={onOpenAbono}
-                        className="col-span-2 flex items-center justify-center gap-3 rounded-2xl bg-amber-400 px-6 py-5 text-sm font-black uppercase tracking-widest text-slate-900 hover:bg-amber-500 transition-all shadow-md active:scale-[0.98]"
+                        className="col-span-2 flex items-center justify-center gap-3 rounded-2xl bg-slate-900 px-6 py-4 text-xs font-bold uppercase tracking-widest text-white hover:bg-slate-800 transition-all shadow-lg shadow-slate-200 active:scale-[0.98]"
                       >
-                        <span className="text-xl">💰</span>
+                        <Wallet size={18} className="text-amber-400" />
                         Registrar Abono
                       </button>
                     )}
