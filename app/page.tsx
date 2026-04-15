@@ -46,7 +46,7 @@ export default function Home() {
           {/* Brand */}
           <Link href="/" className="flex flex-col leading-none group">
             <span className="font-serif text-2xl text-slate-900 tracking-tight">ChanchiMercado</span>
-            <span className="text-[9px] font-bold uppercase tracking-[0.35em] text-amber-400 mt-1">Mercado & POS</span>
+            <span className="text-[9px] font-bold uppercase tracking-[0.35em] text-amber-400 mt-1">Mercado & Punto de Venta</span>
           </Link>
 
           {/* Nav Actions */}
@@ -124,7 +124,7 @@ export default function Home() {
                   <Star size={18} className="text-amber-400 fill-amber-400" />
                 </div>
                 <p className="font-sans font-bold text-sm tracking-tight text-amber-900/70">
-                  ✨ Marca tus <span className="text-amber-600 underline decoration-amber-200 underline-offset-4">favoritos</span> con la estrella para verlos primero.
+                  ✨ Marque sus <span className="text-amber-600 underline decoration-amber-200 underline-offset-4">favoritos</span> con la estrella para verlos primero.
                 </p>
               </motion.div>
             )}
@@ -166,7 +166,7 @@ export default function Home() {
             {/* Boutique Footer */}
             <footer className="mt-20 flex flex-col items-center opacity-10">
               <div className="h-px w-8 bg-slate-900 mb-5" />
-              <span className="font-serif italic text-xs text-slate-900">Sabores de autor</span>
+              <span className="font-serif italic text-xs text-slate-900">Hecho con mucho Amor por su hijo</span>
             </footer>
           </>
         )}

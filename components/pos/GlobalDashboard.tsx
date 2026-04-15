@@ -16,9 +16,9 @@ export default function GlobalDashboard({ onAddCustomer }: GlobalDashboardProps)
     new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(amount);
 
   const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleTimeString('es-CL', { 
-      hour: '2-digit', 
-      minute: '2-digit' 
+    return new Date(dateStr).toLocaleTimeString('es-CL', {
+      hour: '2-digit',
+      minute: '2-digit'
     });
   };
 
@@ -27,10 +27,10 @@ export default function GlobalDashboard({ onAddCustomer }: GlobalDashboardProps)
       {/* Onboarding Greeting */}
       <div className="px-2 pt-4">
         <h1 className="font-serif text-3xl text-slate-900 italic leading-tight">
-          ¡Hola! 👋
+          ¡Hola Viejita! 👋
         </h1>
         <p className="text-slate-400 font-sans text-sm mt-3 leading-relaxed">
-          Para empezar a fiar, haz clic en el botón <strong className="text-amber-500 font-bold underline decoration-amber-200 underline-offset-4 uppercase">buscar</strong> que está arriba para seleccionar un cliente.
+          Para empezar a fiar, haga clic en el botón <strong className="text-amber-500 font-bold underline decoration-amber-200 underline-offset-4 uppercase">buscar</strong> que está arriba para seleccionar un cliente.
         </p>
       </div>
 
@@ -45,7 +45,7 @@ export default function GlobalDashboard({ onAddCustomer }: GlobalDashboardProps)
             <h2 className="font-serif text-xl italic tracking-tight text-slate-500">
               Estado Global
             </h2>
-            <button 
+            <button
               onClick={toggleGlobalBalance}
               className={`p-2 rounded-full transition-all duration-300 ${showGlobalBalance ? 'bg-amber-400 text-slate-900' : 'bg-white/5 text-slate-500 hover:bg-white/10'}`}
               title={showGlobalBalance ? "Ocultar Total Fiado" : "Mostrar Total Fiado"}
@@ -61,8 +61,8 @@ export default function GlobalDashboard({ onAddCustomer }: GlobalDashboardProps)
               <div className="flex flex-col items-center">
                 <div className="flex items-baseline gap-2">
                   <span className={`text-5xl font-medium tracking-tighter tabular-nums transition-all duration-500 ${showGlobalBalance ? 'text-white' : 'text-slate-800'}`}>
-                    {showGlobalBalance 
-                      ? formatPrice(globalTotal).replace('$', '').trim() 
+                    {showGlobalBalance
+                      ? formatPrice(globalTotal).replace('$', '').trim()
                       : '••••••'
                     }
                   </span>
@@ -119,9 +119,8 @@ export default function GlobalDashboard({ onAddCustomer }: GlobalDashboardProps)
             lastMovements.map((item: any) => (
               <div key={item.id} className="flex items-center justify-between p-5 hover:bg-white/80 transition-colors">
                 <div className="flex items-center gap-4">
-                  <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${
-                    item.amount < 0 ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'
-                  }`}>
+                  <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${item.amount < 0 ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'
+                    }`}>
                     {item.amount < 0 ? <ArrowDownRight size={18} /> : <ArrowUpRight size={18} />}
                   </div>
                   <div className="leading-tight">
@@ -146,10 +145,10 @@ export default function GlobalDashboard({ onAddCustomer }: GlobalDashboardProps)
 
       {/* ─── DASHBOARD FOOTER ─── */}
       <div className="flex flex-col items-center pt-8 opacity-20">
-         <Wallet size={20} strokeWidth={1} className="text-slate-900 mb-2" />
-         <p className="text-[9px] font-medium uppercase tracking-[0.3em] text-slate-900 italic font-serif">
-           ChanchiMercado Intelligence
-         </p>
+        <Wallet size={20} strokeWidth={1} className="text-slate-900 mb-2" />
+        <p className="text-[9px] font-medium uppercase tracking-[0.3em] text-slate-900 italic font-serif">
+          ChanchiMercado | Hecho con mucho Amor por su hijo
+        </p>
       </div>
     </div>
   );

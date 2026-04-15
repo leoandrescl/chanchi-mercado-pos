@@ -157,7 +157,7 @@ export default function CustomerAdminModal({ isOpen, onClose, customer, mode }: 
                       type="text"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      placeholder="Ej: Leo Andrade"
+                      placeholder="Ej: Nombre Apellido"
                       className="w-full h-14 pl-14 pr-6 rounded-2xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-slate-900 focus:ring-0 transition-all font-sans font-medium text-slate-900"
                     />
                   </div>

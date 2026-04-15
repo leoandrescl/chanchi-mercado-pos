@@ -57,7 +57,7 @@ export default function CustomersPage() {
           </div>
         </div>
 
-        <button 
+        <button
           onClick={handleCreate}
           className="h-14 px-6 rounded-2xl bg-slate-900 text-white flex items-center gap-3 shadow-xl shadow-slate-200 hover:bg-slate-800 transition-all active:scale-[0.98]"
         >
@@ -74,7 +74,7 @@ export default function CustomersPage() {
           </div>
           <input
             type="text"
-            placeholder="¿A quién buscas?"
+            placeholder="¿A quién busca?"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full h-16 pl-16 pr-6 rounded-[2rem] bg-white border border-slate-100 shadow-sm focus:border-slate-300 focus:shadow-md transition-all font-sans text-lg text-slate-900 placeholder:text-slate-300"
@@ -126,14 +126,14 @@ export default function CustomersPage() {
                     </div>
 
                     <div className="flex items-center gap-2 h-14 bg-slate-50 rounded-2xl px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <button 
+                      <button
                         onClick={() => handleEdit(customer)}
                         className="h-10 w-10 rounded-xl bg-white text-slate-400 hover:text-slate-900 hover:shadow-sm flex items-center justify-center transition-all active:scale-90"
                       >
                         <Edit2 size={16} />
                       </button>
                       <div className="w-[1px] h-4 bg-slate-200" />
-                      <button 
+                      <button
                         onClick={() => handleDelete(customer)}
                         className="h-10 w-10 rounded-xl bg-white text-rose-300 hover:text-rose-600 hover:shadow-sm flex items-center justify-center transition-all active:scale-90"
                       >
@@ -145,7 +145,7 @@ export default function CustomersPage() {
               </motion.div>
             ))}
           </AnimatePresence>
-          
+
           {filteredCustomers.length === 0 && (
             <div className="py-20 text-center">
               <div className="h-20 w-20 rounded-full bg-slate-50 flex items-center justify-center text-slate-200 mx-auto mb-6">
@@ -157,7 +157,7 @@ export default function CustomersPage() {
         </div>
       </div>
 
-      <CustomerAdminModal 
+      <CustomerAdminModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         customer={selectedCustomer}
