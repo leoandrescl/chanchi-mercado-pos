@@ -36,7 +36,7 @@ export function generateMonthlyReport({
   };
 
   const cleanPhone = phone.replace(/\D/g, '');
-  
+
   const itemsList = items
     .map((item) => `• ${formatDate(item.date)}: ${item.description} (${formatPrice(item.amount)})`)
     .join('\n');
@@ -53,7 +53,7 @@ ${itemsList}
 💰 *TOTAL FIADO AL DÍA:* ${formatPrice(historicalBalance)}
 --------------------------
 
-Registrado con éxito en ChanchiMercado. ¡Que tengas un excelente día de ventas, mamá! 🐷✨`;
+¡Muchas gracias por su preferencia! 🐷`;
 
   const encodedMessage = encodeURIComponent(message);
   return `https://wa.me/${cleanPhone}?text=${encodedMessage}`;
@@ -75,15 +75,15 @@ export function generateWhatsAppLink({
   };
 
   const cleanPhone = phone.replace(/\D/g, '');
-  
+
   const itemsList = items
     .map((item) => `• ${item.name} (x${item.quantity})`)
     .join('\n');
 
-  const today = new Intl.DateTimeFormat('es-CL', { 
-    day: '2-digit', 
-    month: 'long', 
-    year: 'numeric' 
+  const today = new Intl.DateTimeFormat('es-CL', {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric'
   }).format(new Date());
 
   const message = `Hola ${customerName}! Te escribo de ChanchiMercado para enviarte el detalle de tu compra de hoy, ${today}. 👋
@@ -97,7 +97,7 @@ ${itemsList}
 💰 *TOTAL FIADO ACTUAL:* ${formatPrice(newBalance)}
 --------------------------
 
-Registrado con éxito en ChanchiMercado. ¡Que tengas un excelente día de ventas, mamá! 🐷✨`;
+¡Muchas gracias por su preferencia! 🐷`;
 
   const encodedMessage = encodeURIComponent(message);
   return `https://wa.me/${cleanPhone}?text=${encodedMessage}`;

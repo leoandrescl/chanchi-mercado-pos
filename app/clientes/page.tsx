@@ -55,7 +55,7 @@ export default function CustomersPage() {
   const handleWhatsApp = (customer: Customer) => {
     if (!customer.whatsapp) return;
     const phone = customer.whatsapp.replace(/\D/g, '');
-    const message = `¡Hola ${customer.name}! te escribo desde ChanchiMercado 🐷\nTu total fiado al día de hoy es de *${formatPrice(customer.balance)}*.\n\n--------------------------\n\nRegistrado con éxito en ChanchiMercado. ¡Que tengas un excelente día de ventas, mamá! 🐷✨`;
+    const message = `¡Hola ${customer.name}! te escribo desde ChanchiMercado 🐷\nTu total fiado al día de hoy es de *${formatPrice(customer.balance)}*.\n\n¡Muchas gracias por su preferencia! 🐷`;
     const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
     window.open(url, '_blank');
   };
