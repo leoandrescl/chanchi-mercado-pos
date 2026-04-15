@@ -129,27 +129,27 @@ export default function CustomerHistory({ debtorId }: CustomerHistoryProps) {
               <History size={20} strokeWidth={1.5} />
             </div>
             <div>
-              <h3 className="font-serif text-xl italic text-slate-900">Estado de Cuenta</h3>
-              <p className="text-xs text-slate-400 font-semibold uppercase tracking-widest">Resumen mensual y cierres</p>
+              <h3 className="font-sans text-xl font-bold text-slate-900">Estado de Cuenta</h3>
+              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.1em]">Detalle de movimientos</p>
             </div>
           </div>
 
-          <div className="flex bg-slate-100 p-1 rounded-xl">
+          <div className="flex bg-slate-100 p-1.5 rounded-full">
             <button
               onClick={() => setViewMode('currentMonth')}
-              className={`px-4 py-1.5 text-xs font-bold rounded-lg transition-all ${viewMode === 'currentMonth' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-400'}`}
+              className={`px-5 py-2 text-[10px] font-bold uppercase tracking-widest rounded-full transition-all duration-300 ${viewMode === 'currentMonth' ? 'bg-slate-900 text-white shadow-md' : 'text-slate-400 hover:text-slate-600'}`}
             >
               Mes Actual
             </button>
             <button
               onClick={() => setViewMode('all')}
-              className={`px-4 py-1.5 text-xs font-bold rounded-lg transition-all ${viewMode === 'all' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-400'}`}
+              className={`px-5 py-2 text-[10px] font-bold uppercase tracking-widest rounded-full transition-all duration-300 ${viewMode === 'all' ? 'bg-slate-900 text-white shadow-md' : 'text-slate-400 hover:text-slate-600'}`}
             >
               Ver Todo
             </button>
           </div>
 
-          {/* Global Report Button */}
+          {/* Global Enviar Todo - Discreto */}
           {customer && (
             <button
               onClick={() => {
@@ -159,7 +159,7 @@ export default function CustomerHistory({ debtorId }: CustomerHistoryProps) {
                   monthName: "Todo el historial",
                   monthlyTotal: customer.balance,
                   historicalBalance: customer.balance,
-                  items: debts.slice(0, 15).map(i => ({ // Limit to last 15 items for WhatsApp length limits
+                  items: debts.slice(0, 15).map(i => ({
                     date: i.date,
                     description: i.description,
                     amount: i.amount
@@ -167,10 +167,10 @@ export default function CustomerHistory({ debtorId }: CustomerHistoryProps) {
                 });
                 window.open(reportLink, '_blank');
               }}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900 text-white hover:bg-slate-800 transition-colors text-xs font-bold uppercase tracking-widest shadow-md ml-4"
+              className="flex items-center gap-2 p-2.5 rounded-xl bg-slate-50 text-slate-400 hover:bg-slate-900 hover:text-white transition-all border border-slate-100"
+              title="Enviar historial completo"
             >
-              <Send size={14} />
-              Enviar Todo
+              <Send size={16} />
             </button>
           )}
         </div>
@@ -195,13 +195,13 @@ export default function CustomerHistory({ debtorId }: CustomerHistoryProps) {
 
             return (
               <div key={key} className="space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                {/* Month Header */}
-                <div className="flex items-end justify-between border-b border-slate-100 pb-3 px-1">
+                {/* Month Header - Compact & Clean */}
+                <div className="flex items-center justify-between border-b border-slate-100 pb-4 px-1">
                   <div>
-                    <h4 className="font-serif text-2xl capitalize text-slate-800 italic">{group.label}</h4>
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Balance Mensual:</span>
-                      <span className={`text-sm font-bold tabular-nums ${group.subtotal > 0 ? 'text-slate-600' : 'text-emerald-600'}`}>
+                    <h4 className="font-sans text-lg font-black capitalize text-slate-900">{group.label}</h4>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400">Balance:</span>
+                      <span className={`text-sm font-bold tabular-nums ${group.subtotal > 0 ? 'text-slate-950' : 'text-emerald-600'}`}>
                         {formatPrice(group.subtotal)}
                       </span>
                     </div>
@@ -209,38 +209,45 @@ export default function CustomerHistory({ debtorId }: CustomerHistoryProps) {
                   
                   <button
                     onClick={() => handleSendReport(group.label, group.items, group.subtotal)}
-                    className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors text-xs font-bold uppercase tracking-widest border border-emerald-100"
+                    className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all text-[10px] font-bold uppercase tracking-widest border border-emerald-100 shadow-sm shadow-emerald-100/50"
                   >
                     <Send size={14} />
-                    Reporte WhatsApp
+                    Reporte
                   </button>
                 </div>
 
-                {/* Items */}
-                <div className="grid gap-3">
+                {/* Items - Spaced Grid */}
+                <div className="grid gap-4">
                   {filteredItems.map((debt) => (
                     <div
                       key={debt.id}
-                      className={`group relative overflow-hidden bg-white border rounded-2xl p-4 transition-all duration-300 hover:shadow-md ${
-                        debt.is_paid ? 'border-slate-100 opacity-60' : 'border-slate-200'
+                      className={`group overflow-hidden bg-white border rounded-[1.25rem] p-5 transition-all duration-300 hover:shadow-lg hover:border-slate-300 ${
+                        debt.is_paid ? 'border-slate-50 opacity-40' : 'border-slate-200'
                       }`}
                     >
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1">
-                          <p className="text-slate-900 font-medium text-sm leading-tight mb-1">{debt.description}</p>
-                          <div className="flex items-center gap-3 text-slate-400">
-                            <span className="text-[10px] font-bold uppercase tracking-widest">{formatDate(debt.date).split(',')[0]}</span>
-                            <span className="h-1 w-1 rounded-full bg-slate-200" />
-                            <span className="text-[10px] font-medium opacity-70 tracking-tight">{formatDate(debt.date).split(',')[1]}</span>
-                          </div>
-                        </div>
-
-                        <div className="text-right">
-                          <p className={`text-lg font-bold font-sans tracking-tight ${debt.amount < 0 ? 'text-emerald-600' : 'text-slate-900'}`}>
-                            {debt.amount < 0 ? '+' : '-'}{formatPrice(Math.abs(debt.amount)).replace('$', '').trim()}
-                            <span className="text-[10px] ml-0.5">$</span>
+                      {/* Top Row: Desc & Amount */}
+                      <div className="flex items-start justify-between gap-4">
+                        <p className="flex-1 text-slate-900 font-bold text-sm leading-snug">
+                          {debt.description}
+                        </p>
+                        <div className="text-right shrink-0">
+                          <p className={`text-lg font-black tabular-nums tracking-tighter ${debt.amount < 0 ? 'text-emerald-600' : 'text-slate-950'}`}>
+                            {debt.amount < 0 ? '+' : ''}{formatPrice(Math.abs(debt.amount)).replace('$', '').trim()}
+                            <span className="text-xs ml-0.5 opacity-50">$</span>
                           </p>
                         </div>
+                      </div>
+
+                      {/* Bottom Row: Metadata */}
+                      <div className="flex items-center gap-2 mt-4 pt-4 border-t border-slate-50">
+                        <Calendar size={12} className="text-slate-300" />
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                          {formatDate(debt.date).split(',')[0]}
+                        </span>
+                        <span className="h-1 w-1 rounded-full bg-slate-200 mx-1" />
+                        <span className="text-[10px] font-medium text-slate-400">
+                          {formatDate(debt.date).split(',')[1]}
+                        </span>
                       </div>
                     </div>
                   ))}

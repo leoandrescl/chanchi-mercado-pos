@@ -238,10 +238,10 @@ export default function CustomerSelector({ onOpenAbono }: CustomerSelectorProps)
       {isHistoryOpen && selectedCustomer && (
         <div className="fixed inset-0 z-[10000] bg-white flex flex-col animate-in fade-in duration-200">
           {/* Modal Header */}
-          <div className="flex items-center justify-between px-6 py-6 border-b border-slate-100">
+          <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
             <div>
-              <h2 className="font-serif text-2xl text-slate-900">{selectedCustomer.name}</h2>
-              <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest mt-0.5">Ficha de Cliente</p>
+              <h2 className="font-serif text-xl text-slate-900">{selectedCustomer.name}</h2>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Ficha de Cliente</p>
             </div>
             <button
               id="btn-close-history-modal"
@@ -252,7 +252,7 @@ export default function CustomerSelector({ onOpenAbono }: CustomerSelectorProps)
             </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto px-6 py-8 max-w-3xl mx-auto w-full">
+          <div className="flex-1 overflow-y-auto px-6 py-6 max-w-3xl mx-auto w-full">
             <CustomerHistory debtorId={selectedCustomer.id} />
           </div>
         </div>
