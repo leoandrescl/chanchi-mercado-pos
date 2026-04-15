@@ -1,5 +1,6 @@
 import React, { memo } from 'react';
 import { useCart } from '@/store/useCart';
+import { useInventory } from '@/store/useInventory';
 import { ShoppingBag, Star } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { playPop } from '@/lib/audio';
@@ -14,12 +15,22 @@ interface ProductCardProps {
 
 const ProductCard = memo(({ id, name, price, image, isFavorite }: ProductCardProps) => {
   const addItem = useCart((state) => state.addItem);
+  const toggleFavoriteStore = useInventory((state) => state.toggleFavorite);
 
   const formatPrice = (amount: number) =>
     new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(amount);
 
-  const handleClick = () => {
+  const handleClick = (e: React.MouseEvent) => {
+    // If we click the star, don't trigger add item
+    if ((e.target as HTMLElement).closest('.favorite-toggle')) return;
+    
     addItem({ id, name, price });
+    playPop();
+  };
+
+  const handleToggleFavorite = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    await toggleFavoriteStore(id);
     playPop();
   };
 
@@ -33,11 +44,17 @@ const ProductCard = memo(({ id, name, price, image, isFavorite }: ProductCardPro
     >
       {/* Product Image / Fallback */}
       <div className="aspect-[4/3] relative w-full bg-slate-50 flex items-center justify-center overflow-hidden border-b border-slate-50">
-        {isFavorite && (
-          <div className="absolute top-2 right-2 z-10 h-6 w-6 bg-amber-400 text-white rounded-full flex items-center justify-center shadow-lg shadow-amber-200">
-            <Star size={12} fill="currentColor" />
-          </div>
-        )}
+        {/* Toggleable Star Icon */}
+        <button
+          onClick={handleToggleFavorite}
+          className="favorite-toggle absolute top-2 right-2 z-10 h-8 w-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center shadow-sm hover:scale-110 active:scale-90 transition-all border border-slate-100 group-hover:bg-white"
+        >
+          <Star 
+            size={14} 
+            className={isFavorite ? "text-amber-400 fill-amber-400" : "text-slate-300"} 
+          />
+        </button>
+
         {image ? (
           <img 
             src={image} 

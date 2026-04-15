@@ -41,23 +41,23 @@ export default function CustomerSelector() {
                   <h3 className={`font-serif text-4xl tracking-tight transition-all duration-300 ${selectedCustomer ? 'text-slate-900 italic' : 'text-slate-200'}`}>
                     {selectedCustomer ? selectedCustomer.name : 'Nadie seleccionado'}
                   </h3>
-                  
+
                   {selectedCustomer && (
-                    <div className="flex items-center gap-4 mt-5">
-                      <button 
+                    <div className="flex items-center gap-3 mt-5">
+                      <button
                         onClick={() => setIsOpen(true)}
-                        className="px-8 py-5 rounded-2xl bg-amber-400 text-slate-900 text-xs font-black uppercase tracking-widest hover:bg-amber-500 transition-all shadow-[0_8px_25px_-5px_rgba(251,191,36,0.5)] active:scale-95 flex items-center gap-2"
+                        className="px-6 py-4 rounded-2xl bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all shadow-md active:scale-95 flex items-center gap-2"
                       >
-                        <Users size={16} />
-                        Cambiar Cliente
+                        <Users size={14} />
+                        (Cambiar Cliente)
                       </button>
-                      
-                      <button 
+
+                      <button
                         onClick={() => setIsInfoExpanded(!isInfoExpanded)}
-                        className={`flex items-center gap-2 px-6 py-5 rounded-2xl text-xs font-bold uppercase tracking-widest transition-all ${isInfoExpanded ? 'bg-slate-900 text-white shadow-lg' : 'bg-slate-100 text-slate-500 hover:bg-slate-200 shadow-sm'}`}
+                        className={`flex items-center gap-2 px-6 py-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest transition-all ${isInfoExpanded ? 'bg-amber-400 text-slate-900 shadow-lg' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}
                       >
-                        {isInfoExpanded ? <X size={16} /> : <Search size={16} />}
-                        {isInfoExpanded ? 'Cerrar' : 'Ver Cuenta'}
+                        {isInfoExpanded ? <X size={14} /> : <Search size={14} />}
+                        {isInfoExpanded ? 'Cerrar' : 'Ver Detalle'}
                       </button>
                     </div>
                   )}
@@ -67,7 +67,7 @@ export default function CustomerSelector() {
 
             {/* Right — Big Search Trigger when no customer */}
             {!selectedCustomer && (
-              <button 
+              <button
                 onClick={() => setIsOpen(true)}
                 className="h-14 px-6 rounded-2xl bg-amber-400 text-white font-bold flex items-center gap-3 shadow-lg shadow-amber-200 hover:bg-amber-500 transition-all active:scale-95 animate-pulse"
               >
@@ -97,18 +97,18 @@ export default function CustomerSelector() {
                     </button>
                     <button
                       onClick={() => {
-                         const link = `https://wa.me/${selectedCustomer.whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent(`Hola ${selectedCustomer.name}! te envío el detalle de tus consumos en ChanchiMercado 👋\n\nTu saldo pendiente actual es de *${formatBalance(selectedCustomer.balance)}*.\n\nGracias! 🐷`)}`;
+                        const link = `https://wa.me/${selectedCustomer.whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent(`Hola ${selectedCustomer.name}! te envío el detalle de tus consumos en ChanchiMercado 👋\n\nTu Total Fiado actual es de *${formatBalance(selectedCustomer.balance)}*.\n\nGracias! 🐷`)}`;
                         window.open(link, '_blank');
                       }}
                       className="flex items-center gap-2 rounded-xl bg-emerald-500 px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-white hover:bg-emerald-600 transition-all shadow-md"
                     >
                       <Smartphone size={16} strokeWidth={2} />
-                      WhatsApp
+                      Enviar Detalle
                     </button>
                   </div>
-                  
+
                   <div className="text-right">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-400 mb-1">Total acumulado en libreta</p>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-400 mb-1">Total Fiado</p>
                     <span className={`font-mono text-3xl font-bold tabular-nums tracking-tighter ${selectedCustomer.balance < 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
                       {formatBalance(selectedCustomer.balance)}
                     </span>
@@ -123,7 +123,7 @@ export default function CustomerSelector() {
       {/* ─── FULL-SCREEN SEARCH MODAL ─── */}
       {isOpen && (
         <div className="fixed inset-0 z-[9999] bg-white flex flex-col animate-in fade-in duration-200">
-          
+
           {/* Modal Header */}
           <div className="flex items-center justify-between px-6 py-6 border-b border-slate-100">
             <h2 className="font-serif text-2xl text-slate-900">Directorio</h2>
@@ -161,7 +161,7 @@ export default function CustomerSelector() {
               className="w-full flex items-center justify-center gap-4 px-6 py-6 rounded-2xl border border-dashed border-slate-200 text-slate-400 hover:border-rose-200 hover:text-rose-400 hover:bg-rose-50 transition-all duration-200 shadow-sm"
             >
               <X size={20} strokeWidth={1.5} />
-              <span className="font-sans text-base font-bold uppercase tracking-widest">Limpiar selección actual</span>
+              <span className="font-sans text-base font-bold uppercase tracking-widest">Limpiar selección / Volver al Inicio</span>
             </button>
 
             {filteredCustomers.map((c) => (
@@ -169,11 +169,10 @@ export default function CustomerSelector() {
                 key={c.id}
                 id={`btn-customer-${c.id}`}
                 onClick={() => { selectCustomer(c.id); setIsOpen(false); setSearch(''); }}
-                className={`w-full flex items-center justify-between px-6 py-8 rounded-3xl border transition-all duration-200 ${
-                  selectedCustomerId === c.id
-                    ? 'border-amber-300 bg-amber-50 shadow-lg scale-[1.02]'
-                    : 'border-slate-100 bg-white hover:border-amber-200 hover:bg-amber-50/50 hover:shadow-md'
-                }`}
+                className={`w-full flex items-center justify-between px-6 py-8 rounded-3xl border transition-all duration-200 ${selectedCustomerId === c.id
+                  ? 'border-amber-300 bg-amber-50 shadow-lg scale-[1.02]'
+                  : 'border-slate-100 bg-white hover:border-amber-200 hover:bg-amber-50/50 hover:shadow-md'
+                  }`}
               >
                 <div className="flex items-center gap-6 text-left">
                   <div className={`flex h-16 w-16 items-center justify-center rounded-2xl ${selectedCustomerId === c.id ? 'bg-amber-400 text-white' : 'bg-slate-100 text-slate-400'}`}>
@@ -188,7 +187,7 @@ export default function CustomerSelector() {
                   </div>
                 </div>
                 <div className="text-right leading-tight">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">Saldo Total</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">Total Fiado</p>
                   <span className={`font-mono text-xl font-bold tabular-nums ${c.balance < 0 ? 'text-rose-500' : 'text-emerald-600'}`}>
                     {formatBalance(c.balance)}
                   </span>

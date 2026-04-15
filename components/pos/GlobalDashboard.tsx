@@ -34,60 +34,67 @@ export default function GlobalDashboard({ onAddCustomer }: GlobalDashboardProps)
         </p>
       </div>
 
-      {/* ─── MASTER METRIC CARD ─── */}
-      <div className="relative overflow-hidden rounded-[2rem] bg-slate-900 px-8 py-8 text-white shadow-xl">
+      {/* ─── MASTER METRIC CARD (Collapsible) ─── */}
+      <div className="relative overflow-hidden rounded-[2.5rem] bg-slate-950 px-8 py-10 text-white shadow-2xl border border-white/5 group">
         {/* Decorative Background Elements */}
-        <div className="absolute -right-10 -top-10 h-64 w-64 rounded-full bg-emerald-500/5 blur-[80px]" />
+        <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-amber-500/10 blur-[100px] group-hover:bg-amber-500/20 transition-all duration-700" />
+        <div className="absolute -left-20 -bottom-20 h-64 w-64 rounded-full bg-emerald-500/5 blur-[100px]" />
 
         <div className="relative flex flex-col items-center text-center">
-          <div className="flex items-center gap-3 mb-2">
-            <h2 className="font-serif text-lg italic tracking-tight text-slate-400">
-              Resumen de Libretas
+          <div className="flex items-center gap-3 mb-4">
+            <h2 className="font-serif text-xl italic tracking-tight text-slate-500">
+              Estado Global
             </h2>
             <button 
               onClick={toggleGlobalBalance}
-              className="p-1.5 rounded-full hover:bg-white/10 text-slate-500 transition-colors"
-              title={showGlobalBalance ? "Ocultar Saldo" : "Mostrar Saldo"}
+              className={`p-2 rounded-full transition-all duration-300 ${showGlobalBalance ? 'bg-amber-400 text-slate-900' : 'bg-white/5 text-slate-500 hover:bg-white/10'}`}
+              title={showGlobalBalance ? "Ocultar Total Fiado" : "Mostrar Total Fiado"}
             >
-              {showGlobalBalance ? <Eye size={16} /> : <EyeOff size={16} />}
+              {showGlobalBalance ? <Eye size={18} /> : <EyeOff size={18} />}
             </button>
           </div>
 
-          <div className="flex items-baseline gap-2">
+          <div className="flex flex-col items-center">
             {isFetchingMetrics ? (
-              <div className="h-10 w-32 rounded-xl bg-white/5 animate-pulse" />
+              <div className="h-12 w-48 rounded-2xl bg-white/5 animate-pulse" />
             ) : (
-              <>
-                <span className="text-4xl font-medium tracking-tighter text-white tabular-nums">
-                  {showGlobalBalance 
-                    ? formatPrice(globalTotal).replace('$', '').trim() 
-                    : '••••••'
-                  }
-                </span>
-                <span className="text-xl font-light text-slate-500 font-serif italic">$</span>
-              </>
+              <div className="flex flex-col items-center">
+                <div className="flex items-baseline gap-2">
+                  <span className={`text-5xl font-medium tracking-tighter tabular-nums transition-all duration-500 ${showGlobalBalance ? 'text-white' : 'text-slate-800'}`}>
+                    {showGlobalBalance 
+                      ? formatPrice(globalTotal).replace('$', '').trim() 
+                      : '••••••'
+                    }
+                  </span>
+                  <span className="text-2xl font-light text-slate-600 font-serif italic">$</span>
+                </div>
+                <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-slate-500 mt-4">
+                  {showGlobalBalance ? 'Total Fiado Acumulado' : 'Total Oculto'}
+                </p>
+              </div>
             )}
           </div>
 
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+          {/* Quick Actions - Only visible if expanded or hover? Let's keep them clean */}
+          <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
             <button
               id="btn-add-customer-main"
               onClick={onAddCustomer}
-              className="flex items-center gap-2 rounded-full bg-white/5 hover:bg-white/10 backdrop-blur-md px-4 py-1.5 border border-white/10 transition-all active:scale-[0.98]"
+              className="flex items-center gap-3 rounded-2xl bg-white text-slate-900 px-6 py-3 shadow-lg hover:bg-slate-50 transition-all active:scale-95"
             >
-              <UserPlus size={14} className="text-amber-400" />
-              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/80">
+              <UserPlus size={16} className="text-amber-500" />
+              <span className="text-[10px] font-black uppercase tracking-widest leading-none">
                 Nuevo Cliente
               </span>
             </button>
 
             <Link
-              href="/inventario"
-              className="flex items-center gap-2 rounded-full bg-white/5 hover:bg-white/10 backdrop-blur-md px-4 py-1.5 border border-white/10 transition-all active:scale-[0.98]"
+              href="/historial"
+              className="flex items-center gap-3 rounded-2xl bg-white/5 hover:bg-white/10 backdrop-blur-md px-6 py-3 border border-white/10 transition-all active:scale-95"
             >
-              <Package size={14} className="text-emerald-400" />
-              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/80">
-                Inventario
+              <Clock size={16} className="text-slate-400" />
+              <span className="text-[10px] font-bold uppercase tracking-widest text-white/80 leading-none">
+                Libreta Global
               </span>
             </Link>
           </div>

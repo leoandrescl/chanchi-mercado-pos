@@ -103,7 +103,7 @@ export async function processPayment(debtorId: string, amountPaid: number, dateS
       .from('debts')
       .insert({
         debtor_id: debtorId,
-        description: 'Saldo a Favor',
+        description: 'Total Fiado a Favor',
         amount: -remaining,
         date: timestamp,
         is_paid: false,
@@ -111,9 +111,9 @@ export async function processPayment(debtorId: string, amountPaid: number, dateS
     if (surplusError) throw surplusError;
 
     if (used === 0) {
-      logs.push('Saldo a Favor');
+      logs.push('Total Fiado a Favor');
     } else {
-      logs.push(`Saldo a Favor ($${remaining})`);
+      logs.push(`Total Fiado a Favor ($${remaining})`);
     }
   }
 

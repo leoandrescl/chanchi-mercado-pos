@@ -119,7 +119,7 @@ export default function CustomersPage() {
 
                   <div className="flex items-center gap-6">
                     <div className="text-right mr-4">
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-slate-300 mb-1">Saldo Pendiente</p>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-slate-300 mb-1">Total Fiado</p>
                       <span className={`font-sans text-xl font-medium tabular-nums ${customer.balance > 0 ? 'text-rose-600' : 'text-emerald-600'}`}>
                         {formatPrice(customer.balance)}
                       </span>

@@ -12,7 +12,7 @@ import { useCustomers } from '@/store/useCustomers';
 import { useInventory } from '@/store/useInventory';
 import { useCart } from '@/store/useCart';
 import GlobalDashboard from '@/components/pos/GlobalDashboard';
-import { PlusCircle, ShoppingBag, LayoutDashboard, MousePointer2 } from 'lucide-react';
+import { PlusCircle, ShoppingBag, LayoutDashboard, Star } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Home() {
@@ -121,16 +121,16 @@ export default function Home() {
                 className="mb-8 p-6 rounded-3xl bg-amber-50 border border-amber-100 flex items-center gap-4 text-amber-700 shadow-inner group"
               >
                 <div className="h-10 w-10 rounded-full bg-white flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
-                  <MousePointer2 size={18} />
+                  <Star size={18} className="text-amber-400 fill-amber-400" />
                 </div>
                 <p className="font-sans font-bold text-sm tracking-tight text-amber-900/70">
-                  🛒 Toca los productos para agregarlos al pedido
+                  ✨ Marca tus <span className="text-amber-600 underline decoration-amber-200 underline-offset-4">favoritos</span> con la estrella para verlos primero.
                 </p>
               </motion.div>
             )}
 
             {/* High-Density Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
               <AnimatePresence mode="popLayout">
                 {filteredProducts.map((product) => (
                   <motion.div
