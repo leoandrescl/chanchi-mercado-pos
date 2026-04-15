@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase';
+import { logAuditAction } from '@/app/actions/audit';
 
 export interface Debt {
   id: string;
@@ -95,6 +96,14 @@ export async function processPayment(debtorId: string, amountPaid: number, dateS
         is_paid: true,
       });
     if (usedError) throw usedError;
+    
+    // AUDIT LOG
+    await logAuditAction({
+      actionType: 'ABONO',
+      entityType: 'debtors',
+      entityId: debtorId,
+      details: { amount: used, timestamp }
+    });
   }
 
   // 2. Record the "Surplus" portion as an UNPAID credit (Saldo a Favor)
@@ -115,6 +124,14 @@ export async function processPayment(debtorId: string, amountPaid: number, dateS
     } else {
       logs.push(`Total Fiado a Favor ($${remaining})`);
     }
+
+    // AUDIT LOG for the surplus part (treated as a type of credit/abono)
+    await logAuditAction({
+      actionType: 'ABONO',
+      entityType: 'debtors',
+      entityId: debtorId,
+      details: { amount: remaining, type: 'Surplus/Credit', timestamp }
+    });
   }
 
   return { success: true, logs };
@@ -127,16 +144,26 @@ export async function addConsolidatedDebt(debtorId: string, items: { name: strin
   const itemDescription = items.map(i => `${i.name} x${i.quantity}`).join(', ');
   const description = `Compra: ${itemDescription.length > 50 ? itemDescription.substring(0, 47) + '...' : itemDescription}`;
 
+  const timestamp = new Date().toISOString();
   const { error } = await supabase
     .from('debts')
     .insert({
       debtor_id: debtorId,
       description,
       amount: total,
-      date: new Date().toISOString(), // Explicitly set current date
+      date: timestamp, // Explicitly set current date
       is_paid: false,
     });
 
   if (error) throw error;
+
+  // AUDIT LOG
+  await logAuditAction({
+    actionType: 'FIADO',
+    entityType: 'debtors',
+    entityId: debtorId,
+    details: { amount: total, description, items, timestamp }
+  });
+
   return { success: true };
 }

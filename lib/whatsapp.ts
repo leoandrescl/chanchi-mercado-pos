@@ -50,7 +50,7 @@ ${itemsList}
 
 --------------------------
 📅 *Total del Mes:* ${formatPrice(monthlyTotal)}
-💰 *TOTAL PENDIENTE:* ${formatPrice(historicalBalance)}
+💰 *TOTAL FIADO AL DÍA:* ${formatPrice(historicalBalance)}
 --------------------------
 
 Quedo atenta a cualquier duda. ¡Gracias! 🐷`;
@@ -77,23 +77,27 @@ export function generateWhatsAppLink({
   const cleanPhone = phone.replace(/\D/g, '');
   
   const itemsList = items
-    .map((item) => `- ${item.name} (x${item.quantity})`)
+    .map((item) => `• ${item.name} (x${item.quantity})`)
     .join('\n');
 
-  const message = `Hola ${customerName}! te envío el detalle de tus consumos en ChanchiMercado 👋
+  const today = new Intl.DateTimeFormat('es-CL', { 
+    day: '2-digit', 
+    month: 'long', 
+    year: 'numeric' 
+  }).format(new Date());
 
-He registrado tu compra por *${formatPrice(total)}*.
+  const message = `Hola ${customerName}! Te escribo de ChanchiMercado para enviarte el detalle de tu compra de hoy, ${today}. 👋
 
-*Detalle:*
+*Detalle de la Compra:*
 ${itemsList}
 
 --------------------------
-📉 *Acumulado Previo:* ${formatPrice(previousBalance)}
+📈 *Total Fiado Previo:* ${formatPrice(previousBalance)}
 ➕ *Esta Compra:* ${formatPrice(total)}
-💰 *TOTAL AL DÍA:* ${formatPrice(newBalance)}
+💰 *TOTAL FIADO ACTUAL:* ${formatPrice(newBalance)}
 --------------------------
 
-Gracias por tu preferencia! 🐷`;
+¡Muchas gracias por tu preferencia! 🐷`;
 
   const encodedMessage = encodeURIComponent(message);
   return `https://wa.me/${cleanPhone}?text=${encodedMessage}`;

@@ -61,7 +61,7 @@ export const useCustomers = create<CustomerStore>()(
       fetchCustomers: async () => {
         const { data: debtors, error: debtorsError } = await supabase
           .from('debtors')
-          .select('*, debts(amount, is_paid)');
+          .select('*');
 
         if (debtorsError) {
           console.error('Error fetching debtors:', debtorsError);
@@ -69,15 +69,11 @@ export const useCustomers = create<CustomerStore>()(
         }
 
         const formattedCustomers: Customer[] = (debtors || []).map((d: any) => {
-          const balance = d.debts?.reduce((acc: number, debt: any) => {
-            return acc + (debt.is_paid ? 0 : debt.amount);
-          }, 0) || 0;
-
           return {
             id: d.id,
             name: d.name,
             whatsapp: d.phone || '',
-            balance,
+            balance: d.balance || 0,
             legacy_id: d.legacy_id,
           };
         });
@@ -91,14 +87,13 @@ export const useCustomers = create<CustomerStore>()(
       },
       fetchGlobalMetrics: async () => {
         set({ isFetchingMetrics: true });
-        // 1. Fetch total unpaid debt
+        // 1. Fetch total unpaid debt directly from debtors table
         const { data: totalData, error: totalError } = await supabase
-          .from('debts')
-          .select('amount')
-          .eq('is_paid', false);
+          .from('debtors')
+          .select('balance');
 
         if (!totalError && totalData) {
-          const total = totalData.reduce((acc, d) => acc + d.amount, 0);
+          const total = totalData.reduce((acc, d) => acc + (d.balance || 0), 0);
           set({ globalTotal: total });
         }
 
