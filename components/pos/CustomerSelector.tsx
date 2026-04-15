@@ -141,8 +141,8 @@ export default function CustomerSelector({ onOpenAbono }: CustomerSelectorProps)
                   </div>
 
                   {/* Financial Summary */}
-                  <div className="flex flex-col border-t border-slate-100 pt-3">
-                    <div className="flex items-center gap-2 mb-1">
+                  <div className="flex flex-col border-t border-slate-100 pt-3 items-center text-center">
+                    <div className="flex items-center gap-2 mb-1 justify-center">
                       <div className={`h-1.5 w-1.5 rounded-full ${selectedCustomer.balance < 0 ? 'bg-emerald-400' : 'bg-rose-400'} animate-pulse`} />
                       <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-400">Total Fiado</p>
                     </div>
