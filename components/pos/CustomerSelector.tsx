@@ -141,16 +141,14 @@ export default function CustomerSelector({ onOpenAbono }: CustomerSelectorProps)
                   </div>
 
                   {/* Financial Summary */}
-                  <div className="flex items-center justify-between border-t border-slate-100 pt-3">
-                    <div>
-                      <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-400 mb-1">Total Fiado</p>
-                      <span className={`font-mono text-3xl font-bold tabular-nums tracking-tighter ${selectedCustomer.balance < 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
-                        {formatBalance(selectedCustomer.balance)}
-                      </span>
+                  <div className="flex flex-col border-t border-slate-100 pt-3">
+                    <div className="flex items-center gap-2 mb-1">
+                      <div className={`h-1.5 w-1.5 rounded-full ${selectedCustomer.balance < 0 ? 'bg-emerald-400' : 'bg-rose-400'} animate-pulse`} />
+                      <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-400">Total Fiado</p>
                     </div>
-                    
-                    {/* Visual Indicator */}
-                    <div className={`h-1.5 w-1.5 rounded-full ${selectedCustomer.balance < 0 ? 'bg-emerald-400' : 'bg-rose-400'} animate-pulse`} />
+                    <span className={`font-mono text-3xl font-bold tabular-nums tracking-tighter ${selectedCustomer.balance < 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
+                      {formatBalance(selectedCustomer.balance)}
+                    </span>
                   </div>
                 </div>
               </motion.div>
