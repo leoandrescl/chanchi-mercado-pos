@@ -23,19 +23,19 @@ export default function GlobalDashboard({ onAddCustomer }: GlobalDashboardProps)
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in slide-in-from-top-4 duration-700">
+    <div className="space-y-4 animate-in fade-in slide-in-from-top-4 duration-700">
       {/* Onboarding Greeting */}
-      <div className="px-2 pt-4">
-        <h1 className="font-serif text-3xl text-slate-900 italic leading-tight">
+      <div className="px-2 pt-1">
+        <h1 className="font-serif text-2xl text-slate-900 italic leading-tight">
           ¡Hola Viejita! 👋
         </h1>
-        <p className="text-slate-400 font-sans text-sm mt-3 leading-relaxed">
+        <p className="text-slate-400 font-sans text-xs mt-2 leading-relaxed">
           Para empezar a fiar, haga clic en el botón <strong className="text-amber-500 font-bold underline decoration-amber-200 underline-offset-4 uppercase">buscar</strong> que está arriba para seleccionar un cliente.
         </p>
       </div>
 
       {/* ─── MASTER METRIC CARD (Collapsible) ─── */}
-      <div className="relative overflow-hidden rounded-[2.5rem] bg-slate-950 px-8 py-10 text-white shadow-2xl border border-white/5 group">
+      <div className="relative overflow-hidden rounded-[2.5rem] bg-slate-950 px-8 py-6 text-white shadow-2xl border border-white/5 group">
         {/* Decorative Background Elements */}
         <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-amber-500/10 blur-[100px] group-hover:bg-amber-500/20 transition-all duration-700" />
         <div className="absolute -left-20 -bottom-20 h-64 w-64 rounded-full bg-emerald-500/5 blur-[100px]" />

@@ -30,30 +30,29 @@ export default function CustomerSelector({ onOpenAbono }: CustomerSelectorProps)
     <>
       {/* ─── CUSTOMER STATUS RIBBON ─── */}
       <div className="sticky top-20 z-40 w-full bg-white border-b border-slate-100 shadow-[0_4px_20px_-5px_rgba(0,0,0,0.05)]">
-        <div className="mx-auto w-full max-w-3xl">
-          <div className="flex items-center justify-between px-6 py-8 transition-colors">
-            {/* Left — Huge Name & Identity */}
-            <div className="flex items-center gap-6">
-              <div className={`flex h-16 w-16 items-center justify-center rounded-[1.5rem] transition-all duration-500 shadow-inner ${selectedCustomer ? 'bg-amber-400 text-white rotate-3' : 'bg-slate-100 text-slate-300'}`}>
-                {selectedCustomer ? <UserCheck size={28} strokeWidth={2.5} /> : <Users size={28} strokeWidth={1.5} />}
-              </div>
-              <div className="text-left leading-none">
-                <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-amber-500/60 mb-3">
-                  {selectedCustomer ? 'Cliente Actual' : 'Esperando Cliente'}
-                </p>
-                <div className="flex flex-col">
-                  <h3 className={`font-serif text-4xl tracking-tight transition-all duration-300 ${selectedCustomer ? 'text-slate-900 italic' : 'text-slate-200'}`}>
+          <div className="mx-auto w-full max-w-3xl">
+            <div className="flex flex-col md:flex-row items-center justify-center md:justify-between px-6 py-8 md:py-8 gap-6 md:gap-0 transition-colors">
+              {/* Left — Huge Name & Identity */}
+              <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6 text-center md:text-left">
+                <div className={`flex h-12 w-12 md:h-16 md:w-16 items-center justify-center rounded-2xl md:rounded-[1.5rem] transition-all duration-500 shadow-inner shrink-0 ${selectedCustomer ? 'bg-amber-400 text-white rotate-3' : 'bg-slate-100 text-slate-300'}`}>
+                  {selectedCustomer ? <UserCheck size={selectedCustomer ? 24 : 20} strokeWidth={2.5} /> : <Users size={24} strokeWidth={1.5} />}
+                </div>
+                <div className="flex flex-col leading-none">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-amber-500/60 mb-2 md:mb-3">
+                    {selectedCustomer ? 'Cliente Actual' : 'Esperando Cliente'}
+                  </p>
+                  <h3 className={`font-serif text-2xl md:text-4xl tracking-tight transition-all duration-300 ${selectedCustomer ? 'text-slate-900 italic' : 'text-slate-400/50'}`}>
                     {selectedCustomer ? selectedCustomer.name : 'Nadie seleccionado'}
                   </h3>
 
                   {selectedCustomer && (
-                    <div className="flex items-center gap-3 mt-5">
+                    <div className="flex items-center justify-center md:justify-start gap-3 mt-5">
                       <button
                         onClick={() => setIsOpen(true)}
                         className="px-6 py-4 rounded-2xl bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all shadow-md active:scale-95 flex items-center gap-2"
                       >
                         <Users size={14} />
-                        Cambiar Cliente
+                        Cambiar
                       </button>
 
                       <button
@@ -61,25 +60,24 @@ export default function CustomerSelector({ onOpenAbono }: CustomerSelectorProps)
                         className={`flex items-center gap-2 px-6 py-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest transition-all ${isInfoExpanded ? 'bg-amber-400 text-slate-900 shadow-lg' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}
                       >
                         {isInfoExpanded ? <X size={14} /> : <Search size={14} />}
-                        {isInfoExpanded ? 'Cerrar' : 'Opciones'}
+                        {isInfoExpanded ? 'Cerrar' : 'Info'}
                       </button>
                     </div>
                   )}
                 </div>
               </div>
-            </div>
 
-            {/* Right — Big Search Trigger when no customer */}
-            {!selectedCustomer && (
-              <button
-                onClick={() => setIsOpen(true)}
-                className="h-14 px-6 rounded-2xl bg-amber-400 text-white font-bold flex items-center gap-3 shadow-lg shadow-amber-200 hover:bg-amber-500 transition-all active:scale-95 animate-pulse"
-              >
-                <Search size={20} />
-                <span className="text-sm uppercase tracking-widest">Buscar</span>
-              </button>
-            )}
-          </div>
+              {/* Right — Big Search Trigger when no customer */}
+              {!selectedCustomer && (
+                <button
+                  onClick={() => setIsOpen(true)}
+                  className="w-full md:w-auto h-14 px-8 rounded-2xl bg-amber-400 text-white font-bold flex items-center justify-center gap-3 shadow-lg shadow-amber-200 hover:bg-amber-500 transition-all active:scale-95 group"
+                >
+                  <Search size={20} className="group-hover:scale-110 transition-transform" />
+                  <span className="text-sm uppercase tracking-widest">Buscar</span>
+                </button>
+              )}
+            </div>
 
           {/* Collapsible Info Panel */}
           <AnimatePresence>
