@@ -15,6 +15,22 @@ const playfair = Playfair_Display({
 
 import { Toaster } from 'sonner';
 
+export const metadata: Metadata = {
+  title: "ChanchiMercado - Mercado & Punto de Venta",
+  description: "Gestión de deudores, inventario y ventas fiadas. ¡Hecho con amor para la mejor mamá!",
+  openGraph: {
+    title: "ChanchiMercado POS",
+    description: "Tu punto de venta inteligente y control de deudores.",
+    type: "website",
+    images: [{ url: "/icon.png", width: 512, height: 512, alt: "ChanchiMercado Pos Logo" }], // Fallback to icon.png
+  },
+  manifest: "/manifest.json",
+  icons: {
+    icon: "/icon.png",
+    apple: "/apple-icon.png",
+  },
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{

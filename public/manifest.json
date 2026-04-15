@@ -1,0 +1,21 @@
+{
+  "name": "ChanchiMercado POS",
+  "short_name": "ChanchiPOS",
+  "description": "Punto de Venta e Inventario Inteligente",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FDFCF9",
+  "theme_color": "#0ea5e9",
+  "icons": [
+    {
+      "src": "/icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

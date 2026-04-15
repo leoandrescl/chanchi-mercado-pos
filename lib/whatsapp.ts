@@ -53,7 +53,7 @@ ${itemsList}
 💰 *TOTAL FIADO AL DÍA:* ${formatPrice(historicalBalance)}
 --------------------------
 
-Quedo atenta a cualquier duda. ¡Gracias! 🐷`;
+Registrado con éxito en ChanchiMercado. ¡Que tengas un excelente día de ventas, mamá! 🐷✨`;
 
   const encodedMessage = encodeURIComponent(message);
   return `https://wa.me/${cleanPhone}?text=${encodedMessage}`;
@@ -97,7 +97,7 @@ ${itemsList}
 💰 *TOTAL FIADO ACTUAL:* ${formatPrice(newBalance)}
 --------------------------
 
-¡Muchas gracias por tu preferencia! 🐷`;
+Registrado con éxito en ChanchiMercado. ¡Que tengas un excelente día de ventas, mamá! 🐷✨`;
 
   const encodedMessage = encodeURIComponent(message);
   return `https://wa.me/${cleanPhone}?text=${encodedMessage}`;

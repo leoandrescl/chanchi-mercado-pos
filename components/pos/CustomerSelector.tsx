@@ -110,7 +110,7 @@ export default function CustomerSelector({ onOpenAbono }: CustomerSelectorProps)
                     )}
                     <button
                       onClick={() => {
-                        const link = `https://wa.me/${selectedCustomer.whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent(`Hola ${selectedCustomer.name}! te envío el detalle de tus consumos en ChanchiMercado 👋\n\nTu Total Fiado actual es de *${formatBalance(selectedCustomer.balance)}*.\n\nGracias! 🐷`)}`;
+                        const link = `https://wa.me/${selectedCustomer.whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent(`Hola ${selectedCustomer.name}! te envío el detalle de tus consumos en ChanchiMercado 👋\n\nTu Total Fiado actual es de *${formatBalance(selectedCustomer.balance)}*.\n\n--------------------------\n\nRegistrado con éxito en ChanchiMercado. ¡Que tengas un excelente día de ventas, mamá! 🐷✨`)}`;
                         window.open(link, '_blank');
                       }}
                       className="flex items-center gap-2 rounded-xl bg-emerald-500 px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-white hover:bg-emerald-600 transition-all shadow-md"

@@ -1,0 +1,4 @@
+◇ injected env (3) from .env.local // tip: ◈ encrypted .env [www.dotenvx.com]
+Fetching from REST...
+REST Response Status: 200
+REST Data: [ { name: 'Lidise' } ]
