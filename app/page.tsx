@@ -107,7 +107,7 @@ export default function Home() {
       )}
 
       {/* ─── MAIN CONTENT ─── */}
-      <main className="mx-auto w-full max-w-3xl px-6 py-8 pb-72">
+      <main className="mx-auto w-full max-w-3xl px-4 py-4 md:px-6 md:py-8 pb-72">
 
         {!selectedCustomerId ? (
           <GlobalDashboard onAddCustomer={() => setIsAddCustomerOpen(true)} />

@@ -5,6 +5,8 @@ import { useCustomers } from '@/store/useCustomers';
 import { Users, Search, X, UserCheck, Smartphone, History } from 'lucide-react';
 import CustomerHistory from '@/components/customers/CustomerHistory';
 import { motion, AnimatePresence } from 'framer-motion';
+import { getDebtorFullAudit } from '@/lib/actions/reporting';
+import { generateFullAuditMessage } from '@/lib/whatsapp';
 
 interface CustomerSelectorProps {
   onOpenAbono?: () => void;
@@ -15,6 +17,7 @@ export default function CustomerSelector({ onOpenAbono }: CustomerSelectorProps)
   const [isOpen, setIsOpen] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [isInfoExpanded, setIsInfoExpanded] = useState(false);
+  const [isGeneratingReport, setIsGeneratingReport] = useState(false);
   const [search, setSearch] = useState('');
 
   const selectedCustomer = customers.find((c) => c.id === selectedCustomerId);
@@ -107,14 +110,30 @@ export default function CustomerSelector({ onOpenAbono }: CustomerSelectorProps)
                       </button>
                     )}
                     <button
-                      onClick={() => {
-                        const link = `https://wa.me/${selectedCustomer.whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent(`Hola ${selectedCustomer.name}! te envío el detalle de tus consumos en ChanchiMercado 👋\n\nTu Total Fiado actual es de *${formatBalance(selectedCustomer.balance)}*.\n\n¡Muchas gracias por su preferencia! 🐷`)}`;
-                        window.open(link, '_blank');
+                      onClick={async () => {
+                        if (isGeneratingReport) return;
+                        setIsGeneratingReport(true);
+                        try {
+                          const result = await getDebtorFullAudit(selectedCustomer.id);
+                          if (result.success && result.data) {
+                            const link = generateFullAuditMessage({
+                              customerName: selectedCustomer.name,
+                              phone: selectedCustomer.whatsapp,
+                              ...result.data
+                            });
+                            window.open(link, '_blank');
+                          }
+                        } catch (error) {
+                          console.error('Error generating report:', error);
+                        } finally {
+                          setIsGeneratingReport(false);
+                        }
                       }}
-                      className="flex items-center gap-2 rounded-xl bg-emerald-500 px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-white hover:bg-emerald-600 transition-all shadow-md"
+                      disabled={isGeneratingReport}
+                      className={`flex items-center gap-2 rounded-xl px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-white transition-all shadow-md ${isGeneratingReport ? 'bg-slate-400' : 'bg-emerald-500 hover:bg-emerald-600'}`}
                     >
-                      <Smartphone size={16} strokeWidth={2} />
-                      Enviar Detalle
+                      <Smartphone size={16} strokeWidth={2} className={isGeneratingReport ? 'animate-bounce' : ''} />
+                      {isGeneratingReport ? 'Generando...' : 'Enviar Detalle'}
                     </button>
                   </div>
 
