@@ -92,7 +92,7 @@ export default function Home() {
               <div className="h-8 w-8 flex items-center justify-center">
                 <LayoutDashboard size={24} strokeWidth={1.5} />
               </div>
-              <span className="text-[8px] font-black uppercase tracking-widest leading-none text-center">Inventario</span>
+              <span className="text-[8px] font-black uppercase tracking-widest leading-none text-center">Productos</span>
             </Link>
           </nav>
         </div>
