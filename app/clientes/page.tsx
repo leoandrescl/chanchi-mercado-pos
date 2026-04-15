@@ -2,8 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { useCustomers, Customer } from '@/store/useCustomers';
-import { Search, UserPlus, Edit2, Trash2, ArrowLeft, Phone, Wallet, ChevronRight } from 'lucide-react';
+import { Search, UserPlus, Edit2, Trash2, ArrowLeft, Phone, Wallet, ChevronRight, MessageCircle } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import CustomerAdminModal from '@/components/customers/CustomerAdminModal';
 
@@ -13,6 +14,9 @@ export default function CustomersPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [modalMode, setModalMode] = useState<'create' | 'edit' | 'delete'>('create');
+  
+  const router = useRouter();
+  const selectCustomerStore = useCustomers(state => state.selectCustomer);
 
   useEffect(() => {
     fetchCustomers();
@@ -42,6 +46,20 @@ export default function CustomersPage() {
     setModalMode('delete');
     setIsModalOpen(true);
   };
+
+  const handleEnterProfile = (customer: Customer) => {
+    selectCustomerStore(customer.id);
+    router.push('/');
+  };
+
+  const handleWhatsApp = (customer: Customer) => {
+    if (!customer.whatsapp) return;
+    const phone = customer.whatsapp.replace(/\D/g, '');
+    const message = `¡Hola ${customer.name}! te escribo desde ChanchiMercado 🐷\nTu total fiado al día de hoy es de *${formatPrice(customer.balance)}*.`;
+    const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+    window.open(url, '_blank');
+  };
+
 
   return (
     <main className="min-h-screen bg-[#FDFCF9] pb-24">
@@ -92,10 +110,10 @@ export default function CustomersPage() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.3, delay: index * 0.05 }}
-                className="group bg-white rounded-3xl p-6 border border-slate-100 shadow-sm hover:shadow-md hover:border-slate-200 transition-all"
+                className="group bg-white rounded-3xl p-6 border border-slate-100 shadow-sm hover:shadow-md hover:border-slate-200 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-5 sm:gap-0"
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-5">
+                {/* Lado Izquierdo: Avatar e Info */}
+                <div className="flex items-center gap-5">
                     <div className="h-14 w-14 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-slate-900 group-hover:text-white transition-all duration-300">
                       <span className="font-serif text-xl italic font-bold leading-none">
                         {customer.name.charAt(0)}
@@ -109,7 +127,7 @@ export default function CustomersPage() {
                           {customer.whatsapp || 'Sin teléfono'}
                         </div>
                         {customer.legacy_id && (
-                          <span className="text-[9px] font-bold bg-slate-100 px-2 py-0.5 rounded-full text-slate-500 uppercase tracking-tighter">
+                          <span className="hidden text-[9px] font-bold bg-slate-100 px-2 py-0.5 rounded-full text-slate-500 uppercase tracking-tighter">
                             Legacy #{customer.legacy_id}
                           </span>
                         )}
@@ -117,31 +135,40 @@ export default function CustomersPage() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-6">
-                    <div className="text-right mr-4">
+                  {/* Lado Derecho: Finanzas y Acciones */}
+                  <div className="flex items-center justify-between sm:justify-end gap-6 sm:gap-6 border-t border-slate-100 sm:border-0 pt-4 sm:pt-0">
+                    <div className="text-left sm:text-right">
                       <p className="text-[10px] font-bold uppercase tracking-widest text-slate-300 mb-1">Total Fiado</p>
                       <span className={`font-sans text-xl font-medium tabular-nums ${customer.balance > 0 ? 'text-rose-600' : 'text-emerald-600'}`}>
                         {formatPrice(customer.balance)}
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-2 h-14 bg-slate-50 rounded-2xl px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <div className="flex items-center gap-1.5 bg-slate-50 rounded-2xl px-1.5 py-1.5">
+                      <button
+                        onClick={() => handleEnterProfile(customer)}
+                        className="h-10 px-3 rounded-xl bg-white text-slate-600 hover:text-slate-900 hover:shadow-sm flex items-center justify-center transition-all active:scale-90 gap-1.5 border border-transparent hover:border-slate-200"
+                        title="Ir al POS con este cliente"
+                      >
+                        <UserPlus size={16} />
+                        <span className="text-[10px] font-bold uppercase tracking-widest hidden sm:inline">Perfil</span>
+                      </button>
+                      <button
+                        onClick={() => handleWhatsApp(customer)}
+                        className={`h-10 w-10 flex-shrink-0 rounded-xl bg-white hover:shadow-sm flex items-center justify-center transition-all active:scale-90 border border-transparent hover:border-slate-200 ${customer.whatsapp ? 'text-emerald-500 hover:text-emerald-600' : 'text-slate-300 pointer-events-none'}`}
+                        title="Enviar WhatsApp"
+                      >
+                        <MessageCircle size={16} />
+                      </button>
                       <button
                         onClick={() => handleEdit(customer)}
-                        className="h-10 w-10 rounded-xl bg-white text-slate-400 hover:text-slate-900 hover:shadow-sm flex items-center justify-center transition-all active:scale-90"
+                        className="h-10 w-10 flex-shrink-0 rounded-xl bg-white text-slate-400 hover:text-slate-900 hover:shadow-sm flex items-center justify-center transition-all active:scale-90 border border-transparent hover:border-slate-200"
+                        title="Editar"
                       >
                         <Edit2 size={16} />
                       </button>
-                      <div className="w-[1px] h-4 bg-slate-200" />
-                      <button
-                        onClick={() => handleDelete(customer)}
-                        className="h-10 w-10 rounded-xl bg-white text-rose-300 hover:text-rose-600 hover:shadow-sm flex items-center justify-center transition-all active:scale-90"
-                      >
-                        <Trash2 size={16} />
-                      </button>
                     </div>
                   </div>
-                </div>
               </motion.div>
             ))}
           </AnimatePresence>

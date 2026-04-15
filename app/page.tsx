@@ -61,7 +61,7 @@ export default function Home() {
               <div className="h-8 w-8 flex items-center justify-center">
                 <PlusCircle size={24} strokeWidth={1.5} />
               </div>
-              <span className="text-[8px] font-black uppercase tracking-widest leading-none text-center">Añadir</span>
+              <span className="text-[8px] font-black uppercase tracking-widest leading-none text-center">Añadir Item</span>
             </button>
 
             <button
@@ -82,7 +82,7 @@ export default function Home() {
               <div className="h-8 w-8 flex items-center justify-center">
                 <PlusCircle size={24} strokeWidth={1.5} className="rotate-45" />
               </div>
-              <span className="text-[8px] font-black uppercase tracking-widest leading-none text-center">Deudores</span>
+              <span className="text-[8px] font-black uppercase tracking-widest leading-none text-center">Clientes</span>
             </Link>
 
             <Link

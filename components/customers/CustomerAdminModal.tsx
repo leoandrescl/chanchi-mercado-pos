@@ -140,7 +140,7 @@ export default function CustomerAdminModal({ isOpen, onClose, customer, mode }: 
             ) : (
               <form onSubmit={handleSubmit} className="space-y-6">
                 {customer?.legacy_id && (
-                  <div className="p-4 bg-amber-50 rounded-2xl border border-amber-100 flex items-center justify-between">
+                  <div className="hidden p-4 bg-amber-50 rounded-2xl border border-amber-100 items-center justify-between">
                     <span className="text-[10px] font-bold uppercase tracking-widest text-amber-600">ID de Notebook (Legacy)</span>
                     <span className="font-mono text-sm font-bold text-amber-700">#{customer.legacy_id}</span>
                   </div>
