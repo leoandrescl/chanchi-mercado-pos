@@ -86,7 +86,7 @@ export default function Home() {
       </header>
 
       {/* ─── CUSTOMER SELECTOR RIBBON ─── */}
-      <CustomerSelector />
+      <CustomerSelector onOpenAbono={() => setIsAbonoOpen(true)} />
 
       {/* ─── STICKY SEARCH BAR ─── */}
       {selectedCustomerId && (

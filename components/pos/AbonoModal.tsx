@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useCustomers } from '@/store/useCustomers';
 import { useTransactions } from '@/store/useTransactions';
 import { X } from 'lucide-react';
-import { processPayment } from '@/lib/actions/paymentLogic';
+import { registerAbono } from '@/app/actions/payments';
 import { toast } from 'sonner';
 
 interface AbonoModalProps {
@@ -30,8 +30,14 @@ export default function AbonoModal({ onClose }: AbonoModalProps) {
 
     setIsSubmitting(true);
     try {
-      // Process payment in Supabase (FIFO)
-      await processPayment(customer.id, val);
+      const res = await registerAbono(customer.id, val);
+      
+      if (!res.success) {
+        toast.error(res.error || 'Error al procesar el abono. ❌');
+        setIsSubmitting(false);
+        return;
+      }
+
       await fetchGlobalMetrics();
 
       updateBalance(customer.id, -val);

@@ -6,7 +6,11 @@ import { Users, Search, X, UserCheck, Smartphone, History } from 'lucide-react';
 import CustomerHistory from '@/components/customers/CustomerHistory';
 import { motion, AnimatePresence } from 'framer-motion';
 
-export default function CustomerSelector() {
+interface CustomerSelectorProps {
+  onOpenAbono?: () => void;
+}
+
+export default function CustomerSelector({ onOpenAbono }: CustomerSelectorProps) {
   const { customers, selectedCustomerId, selectCustomer } = useCustomers();
   const [isOpen, setIsOpen] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
@@ -95,6 +99,15 @@ export default function CustomerSelector() {
                       <History size={16} strokeWidth={2} />
                       Historial
                     </button>
+                    {onOpenAbono && (
+                      <button
+                        onClick={onOpenAbono}
+                        className="flex items-center gap-2 rounded-xl bg-amber-400 px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-900 hover:bg-amber-500 transition-all shadow-md"
+                      >
+                        <span className="text-sm">💰</span>
+                        Registrar Abono
+                      </button>
+                    )}
                     <button
                       onClick={() => {
                         const link = `https://wa.me/${selectedCustomer.whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent(`Hola ${selectedCustomer.name}! te envío el detalle de tus consumos en ChanchiMercado 👋\n\nTu Total Fiado actual es de *${formatBalance(selectedCustomer.balance)}*.\n\nGracias! 🐷`)}`;

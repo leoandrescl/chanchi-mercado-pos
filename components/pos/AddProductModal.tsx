@@ -1,21 +1,37 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useInventory } from '@/store/useInventory';
-import { X, Plus, Image as ImageIcon } from 'lucide-react';
+import { X, Plus, Image as ImageIcon, UploadCloud } from 'lucide-react';
 import { toast } from 'sonner';
+import { addProductWithImage } from '@/app/actions/products';
 
 interface AddProductModalProps {
   onClose: () => void;
 }
 
 export default function AddProductModal({ onClose }: AddProductModalProps) {
-  const addProduct = useInventory((state) => state.addProduct);
+  const fetchProducts = useInventory((state) => state.fetchProducts);
   const [name, setName] = useState('');
   const [price, setPrice] = useState('');
-  const [image, setImage] = useState('');
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        toast.error('La imagen es muy pesada. Máximo 5MB.');
+        return;
+      }
+      setImageFile(file);
+      const url = URL.createObjectURL(file);
+      setImagePreview(url);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,23 +39,28 @@ export default function AddProductModal({ onClose }: AddProductModalProps) {
     setIsSubmitting(true);
 
     try {
-      await addProduct({
-        name: name.trim(),
-        price: parseInt(price),
-        image: image || undefined,
-        category: 'Nuevo'
-      });
+      const formData = new FormData();
+      formData.append('name', name.trim());
+      formData.append('price', price);
+      formData.append('category', 'Nuevo');
+      if (imageFile) {
+        formData.append('imageFile', imageFile);
+      }
+
+      const res = await addProductWithImage(formData);
+
+      if (!res.success) {
+        setError(res.error || 'Error al guardar el producto.');
+        setIsSubmitting(false);
+        return;
+      }
       
+      await fetchProducts(); // Refresh local list
       toast.success("Producto añadido al menú 🍔");
       onClose();
     } catch (err: any) {
       console.error('Error adding product:', err);
-      // Supabase code for unique violation
-      if (err.code === '23505') {
-        setError('Este producto ya existe en tu lista');
-      } else {
-        setError('Error al guardar el producto. Inténtalo de nuevo.');
-      }
+      setError('Error inesperado. Verifica tu conexión.');
     } finally {
       setIsSubmitting(false);
     }
@@ -95,20 +116,43 @@ export default function AddProductModal({ onClose }: AddProductModalProps) {
               </div>
             </div>
 
-            {/* Image URL input (Simple) */}
+            {/* Native Image Upload */}
             <div>
-              <label className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400 block mb-3">URL de Imagen (Opcional)</label>
-              <div className="relative">
-                <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400">
-                  <ImageIcon size={20} />
-                </div>
-                <input
-                  type="text"
-                  placeholder="https://images.unsplash.com/..."
-                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-5 py-4 pl-12 font-sans text-sm text-slate-900 placeholder:text-slate-300 focus:border-amber-300 focus:bg-white focus:outline-none transition-all duration-300 shadow-sm"
-                  value={image}
-                  onChange={(e) => setImage(e.target.value)}
-                />
+              <label className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400 block mb-3">Foto del Producto (Opcional)</label>
+              
+              <input 
+                type="file" 
+                accept="image/*" 
+                className="hidden" 
+                ref={fileInputRef}
+                onChange={handleImageChange}
+              />
+
+              <div 
+                onClick={() => fileInputRef.current?.click()}
+                className={`w-full h-32 rounded-2xl border-2 border-dashed flex flex-col items-center justify-center cursor-pointer transition-all duration-300 overflow-hidden relative ${
+                  imagePreview 
+                    ? 'border-transparent bg-slate-900' 
+                    : 'border-slate-200 bg-slate-50 hover:bg-slate-100 hover:border-amber-300'
+                }`}
+              >
+                {imagePreview ? (
+                  <>
+                    <img src={imagePreview} alt="Preview" className="w-full h-full object-cover opacity-60" />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <p className="text-white font-bold uppercase tracking-widest text-xs bg-slate-900/50 px-4 py-2 rounded-full backdrop-blur-md flex items-center gap-2">
+                        <UploadCloud size={16} />
+                        Cambiar Foto
+                      </p>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <UploadCloud size={32} className="text-slate-300 mb-2" />
+                    <p className="text-sm font-semibold text-slate-500">Toca para seleccionar imagen</p>
+                    <p className="text-xs font-medium text-slate-400 mt-1">Máx 5MB</p>
+                  </>
+                )}
               </div>
             </div>
           </div>
