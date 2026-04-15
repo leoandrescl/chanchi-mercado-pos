@@ -53,7 +53,7 @@ export default function CustomerSelector({ onOpenAbono }: CustomerSelectorProps)
                         className="px-6 py-4 rounded-2xl bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all shadow-md active:scale-95 flex items-center gap-2"
                       >
                         <Users size={14} />
-                        (Cambiar Cliente)
+                        Cambiar Cliente
                       </button>
 
                       <button
@@ -61,7 +61,7 @@ export default function CustomerSelector({ onOpenAbono }: CustomerSelectorProps)
                         className={`flex items-center gap-2 px-6 py-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest transition-all ${isInfoExpanded ? 'bg-amber-400 text-slate-900 shadow-lg' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}
                       >
                         {isInfoExpanded ? <X size={14} /> : <Search size={14} />}
-                        {isInfoExpanded ? 'Cerrar' : 'Ver Detalle'}
+                        {isInfoExpanded ? 'Cerrar' : 'Opciones'}
                       </button>
                     </div>
                   )}

@@ -88,7 +88,7 @@ export default function FloatingCart() {
         )}
       </AnimatePresence>
 
-      <div className="fixed bottom-0 left-1/2 z-[70] w-full max-w-3xl -translate-x-1/2">
+      <div className="fixed bottom-0 left-1/2 z-[70] w-full max-w-3xl -translate-x-1/2 px-4 sm:px-0">
         <motion.div
           layout
           initial={false}
@@ -137,10 +137,10 @@ export default function FloatingCart() {
               {isExpanded && (
                 <button
                   onClick={(e) => { e.stopPropagation(); clearCart(); setIsExpanded(false); }}
-                  className="flex items-center justify-center h-14 w-14 rounded-2xl bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white transition-all shadow-sm active:scale-95 border border-rose-100"
+                  className="flex items-center justify-center h-12 w-12 rounded-2xl bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white transition-all shadow-sm active:scale-95 border border-rose-100"
                   title="Vaciar Carrito"
                 >
-                  <Trash2 size={24} />
+                  <Trash2 size={20} />
                 </button>
               )}
             </div>
@@ -155,45 +155,54 @@ export default function FloatingCart() {
                 exit={{ height: 0, opacity: 0 }}
                 className="overflow-hidden bg-slate-50/50"
               >
-                <div className="px-8 pb-32 pt-4 space-y-6 max-h-[50vh] overflow-y-auto">
-                  <p className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400 mb-6 px-1">Artículos en el pedido</p>
+                <div className="px-5 pb-32 pt-4 space-y-4 max-h-[55vh] overflow-y-auto">
+                  <p className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400 mb-4 px-1 text-center">Artículos en el pedido</p>
                   
                   {items.map((item) => (
                     <div 
                       key={item.id} 
-                      className="flex items-center justify-between p-6 bg-white rounded-[2rem] border border-slate-100 shadow-sm"
+                      className="flex items-center justify-between p-4 bg-white rounded-3xl border border-slate-100 shadow-sm gap-3"
                     >
-                      <div className="flex-1">
-                        <h4 className="font-serif text-lg font-bold text-slate-900 leading-tight italic">{item.name}</h4>
-                        <p className="text-xs text-slate-400 font-bold mt-1 uppercase tracking-widest">{formatPrice(item.price)} </p>
+                      {/* Zona 1: Izquierda - Info */}
+                      <div className="flex flex-col gap-0.5 flex-1 min-w-0">
+                        <h4 className="font-serif text-base font-bold text-slate-900 leading-tight italic truncate">
+                          {item.name}
+                        </h4>
+                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">
+                          {formatPrice(item.price)}
+                        </p>
                       </div>
 
-                      <div className="flex items-center gap-8">
-                        <div className="flex items-center gap-5 bg-slate-50 rounded-[1.5rem] p-2 border border-slate-100">
-                          <button
-                            onClick={(e) => { e.stopPropagation(); removeItem(item.id); }}
-                            className="h-14 w-14 flex items-center justify-center rounded-xl bg-white text-slate-600 hover:text-rose-500 shadow-md active:scale-90 transition-all border border-slate-100"
-                          >
-                            <Minus size={20} strokeWidth={2.5} />
-                          </button>
-                          <span className="w-8 text-center text-xl font-black text-slate-900 tabular-nums">{item.quantity}</span>
-                          <button
-                            onClick={(e) => { e.stopPropagation(); addItem(item); }}
-                            className="h-14 w-14 flex items-center justify-center rounded-xl bg-white text-slate-600 hover:text-emerald-500 shadow-md active:scale-90 transition-all border border-slate-100"
-                          >
-                            <Plus size={20} strokeWidth={2.5} />
-                          </button>
-                        </div>
+                      {/* Zona 2: Centro - Cantidad */}
+                      <div className="flex items-center gap-3 bg-slate-50 rounded-2xl p-1.5 border border-slate-100 shrink-0">
+                        <button
+                          onClick={(e) => { e.stopPropagation(); removeItem(item.id); }}
+                          className="h-10 w-10 flex items-center justify-center rounded-xl bg-white text-slate-600 hover:text-rose-500 shadow-sm active:scale-90 transition-all border border-slate-100"
+                        >
+                          <Minus size={18} strokeWidth={2.5} />
+                        </button>
+                        <span className="w-6 text-center text-lg font-black text-slate-900 tabular-nums">
+                          {item.quantity}
+                        </span>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); addItem(item); }}
+                          className="h-10 w-10 flex items-center justify-center rounded-xl bg-white text-slate-600 hover:text-emerald-500 shadow-sm active:scale-90 transition-all border border-slate-100"
+                        >
+                          <Plus size={18} strokeWidth={2.5} />
+                        </button>
+                      </div>
 
-                        <div className="w-24 text-right">
-                          <p className="text-lg font-black text-slate-900 tracking-tight">{formatPrice(item.price * item.quantity).replace('$', '').trim()}</p>
-                          <button 
-                            onClick={(e) => { e.stopPropagation(); deleteItem(item.id); }}
-                            className="text-[10px] font-black text-rose-400 uppercase tracking-widest hover:text-rose-600 transition-colors mt-1 underline underline-offset-4"
-                          >
-                            Quitar
-                          </button>
-                        </div>
+                      {/* Zona 3: Derecha - Subtotal/Acción */}
+                      <div className="flex flex-col items-end justify-center gap-1 shrink-0 min-w-[70px]">
+                        <p className="text-base font-black text-slate-900 tracking-tight leading-none">
+                          {formatPrice(item.price * item.quantity).replace('$', '').trim()}
+                        </p>
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); deleteItem(item.id); }}
+                          className="text-[9px] font-black text-rose-400 uppercase tracking-widest hover:text-rose-600 transition-colors underline underline-offset-4"
+                        >
+                          Quitar
+                        </button>
                       </div>
                     </div>
                   ))}
