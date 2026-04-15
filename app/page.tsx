@@ -43,56 +43,56 @@ export default function Home() {
     <div className="min-h-screen bg-white flex flex-col">
 
       {/* ─── FIXED GLASSMORPHISM HEADER ─── */}
-      <header className="sticky top-0 left-0 right-0 z-50 h-24 bg-white/95 backdrop-blur-md border-b border-amber-50 flex items-center">
-        <div className="mx-auto w-full max-w-3xl flex items-center justify-between px-6">
+      <header className="sticky top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-amber-50">
+        <div className="mx-auto w-full max-w-3xl flex flex-col gap-3 px-4 py-3">
           {/* Brand */}
-          <Link href="/" className="flex flex-col leading-none group">
+          <Link href="/" className="flex flex-col leading-none group self-start">
             <span className="font-serif text-2xl text-slate-900 tracking-tight">ChanchiMercado</span>
             <span className="text-[9px] font-bold uppercase tracking-[0.35em] text-amber-400 mt-1">Mercado & Punto de Venta</span>
           </Link>
 
           {/* Nav Actions */}
-          <nav className="flex items-center gap-2">
+          <nav className="flex items-center justify-between w-full">
             <button
               id="btn-add-product"
               onClick={() => setIsAddProductOpen(true)}
-              className="flex flex-col items-center justify-center gap-2 px-5 py-3 rounded-2xl text-slate-400 hover:bg-amber-50 hover:text-amber-600 transition-all duration-200"
+              className="flex flex-col items-center justify-center gap-1.5 px-2 py-2 rounded-2xl text-slate-400 hover:bg-amber-50 hover:text-amber-600 transition-all duration-200"
             >
-              <div className="h-10 w-10 flex items-center justify-center">
-                <PlusCircle size={28} strokeWidth={1.5} />
+              <div className="h-8 w-8 flex items-center justify-center">
+                <PlusCircle size={24} strokeWidth={1.5} />
               </div>
-              <span className="text-[9px] font-black uppercase tracking-widest leading-none">Añadir</span>
+              <span className="text-[8px] font-black uppercase tracking-widest leading-none text-center">Añadir</span>
             </button>
 
             <button
               id="btn-add-bundle"
               onClick={() => setIsAddBundleOpen(true)}
-              className="flex flex-col items-center justify-center gap-2 px-5 py-3 rounded-2xl text-slate-400 hover:bg-emerald-50 hover:text-emerald-600 transition-all duration-200"
+              className="flex flex-col items-center justify-center gap-1.5 px-2 py-2 rounded-2xl text-slate-400 hover:bg-emerald-50 hover:text-emerald-600 transition-all duration-200"
             >
-              <div className="h-10 w-10 flex items-center justify-center">
-                <Package size={28} strokeWidth={1.5} />
+              <div className="h-8 w-8 flex items-center justify-center">
+                <Package size={24} strokeWidth={1.5} />
               </div>
-              <span className="text-[9px] font-black uppercase tracking-widest leading-none">Pack/Promo</span>
+              <span className="text-[8px] font-black uppercase tracking-widest leading-none text-center">Pack/Promo</span>
             </button>
 
             <Link
               href="/clientes"
-              className="flex flex-col items-center justify-center gap-2 px-5 py-3 rounded-2xl text-slate-400 hover:bg-emerald-50 hover:text-emerald-600 transition-all duration-200"
+              className="flex flex-col items-center justify-center gap-1.5 px-2 py-2 rounded-2xl text-slate-400 hover:bg-emerald-50 hover:text-emerald-600 transition-all duration-200"
             >
-              <div className="h-10 w-10 flex items-center justify-center">
-                <PlusCircle size={28} strokeWidth={1.5} className="rotate-45" />
+              <div className="h-8 w-8 flex items-center justify-center">
+                <PlusCircle size={24} strokeWidth={1.5} className="rotate-45" />
               </div>
-              <span className="text-[9px] font-black uppercase tracking-widest leading-none">Deudores</span>
+              <span className="text-[8px] font-black uppercase tracking-widest leading-none text-center">Deudores</span>
             </Link>
 
             <Link
               href="/inventario"
-              className="flex flex-col items-center justify-center gap-2 px-5 py-3 rounded-2xl text-slate-400 hover:bg-amber-50 hover:text-amber-600 transition-all duration-200"
+              className="flex flex-col items-center justify-center gap-1.5 px-2 py-2 rounded-2xl text-slate-400 hover:bg-amber-50 hover:text-amber-600 transition-all duration-200"
             >
-              <div className="h-10 w-10 flex items-center justify-center">
-                <LayoutDashboard size={28} strokeWidth={1.5} />
+              <div className="h-8 w-8 flex items-center justify-center">
+                <LayoutDashboard size={24} strokeWidth={1.5} />
               </div>
-              <span className="text-[9px] font-black uppercase tracking-widest leading-none">Inventario</span>
+              <span className="text-[8px] font-black uppercase tracking-widest leading-none text-center">Inventario</span>
             </Link>
           </nav>
         </div>
