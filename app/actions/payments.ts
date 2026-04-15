@@ -53,7 +53,7 @@ export async function registerAbono(debtorId: string, amount: number) {
 
     // 4. Log Audit Action
     await logAuditAction({
-      actionType: 'PAYMENT_RECEIVED',
+      actionType: 'ABONO',
       entityType: 'debtors',
       entityId: debtorId,
       details: { 
