@@ -34,7 +34,7 @@ export default function CustomerSelector({ onOpenAbono }: CustomerSelectorProps)
       {/* ─── CUSTOMER STATUS RIBBON ─── */}
       <div className="sticky top-20 z-40 w-full bg-white border-b border-slate-100 shadow-[0_4px_20px_-5px_rgba(0,0,0,0.05)]">
           <div className="mx-auto w-full max-w-3xl">
-            <div className="flex flex-col md:flex-row items-center justify-center md:justify-between px-6 py-8 md:py-8 gap-6 md:gap-0 transition-colors">
+            <div className="flex flex-col md:flex-row items-center justify-center md:justify-between px-6 py-5 md:py-6 gap-4 md:gap-0 transition-colors">
               {/* Left — Huge Name & Identity */}
               <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6 text-center md:text-left">
                 <div className={`flex h-12 w-12 md:h-16 md:w-16 items-center justify-center rounded-2xl md:rounded-[1.5rem] transition-all duration-500 shadow-inner shrink-0 ${selectedCustomer ? 'bg-amber-400 text-white rotate-3' : 'bg-slate-100 text-slate-300'}`}>
@@ -49,7 +49,7 @@ export default function CustomerSelector({ onOpenAbono }: CustomerSelectorProps)
                   </h3>
 
                   {selectedCustomer && (
-                    <div className="flex items-center justify-center md:justify-start gap-3 mt-5">
+                    <div className="flex items-center justify-center md:justify-start gap-3 mt-3">
                       <button
                         onClick={() => setIsOpen(true)}
                         className="px-6 py-4 rounded-2xl bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all shadow-md active:scale-95 flex items-center gap-2"
@@ -91,7 +91,7 @@ export default function CustomerSelector({ onOpenAbono }: CustomerSelectorProps)
                 exit={{ height: 0, opacity: 0 }}
                 className="overflow-hidden border-t border-slate-50 bg-slate-50/50"
               >
-                <div className="px-6 py-8 flex flex-col gap-6">
+                <div className="px-6 py-6 flex flex-col gap-4">
                   {/* Actions Grid */}
                   <div className="grid grid-cols-2 gap-3">
                     {onOpenAbono && (
@@ -141,7 +141,7 @@ export default function CustomerSelector({ onOpenAbono }: CustomerSelectorProps)
                   </div>
 
                   {/* Financial Summary */}
-                  <div className="flex items-center justify-between border-t border-slate-100 pt-6">
+                  <div className="flex items-center justify-between border-t border-slate-100 pt-3">
                     <div>
                       <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-400 mb-1">Total Fiado</p>
                       <span className={`font-mono text-3xl font-bold tabular-nums tracking-tighter ${selectedCustomer.balance < 0 ? 'text-emerald-600' : 'text-rose-600'}`}>

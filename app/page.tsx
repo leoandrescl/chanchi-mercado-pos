@@ -42,7 +42,7 @@ export default function Home() {
 
       {/* ─── FIXED GLASSMORPHISM HEADER ─── */}
       <header className="sticky top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-amber-50">
-        <div className="mx-auto w-full max-w-3xl flex flex-col gap-3 px-4 py-3">
+        <div className="mx-auto w-full max-w-3xl flex flex-col gap-2 px-4 py-2">
           {/* Brand */}
           <Link href="/" className="flex flex-col leading-none group self-start">
             <span className="font-serif text-2xl text-slate-900 tracking-tight">ChanchiMercado</span>
@@ -107,7 +107,7 @@ export default function Home() {
       )}
 
       {/* ─── MAIN CONTENT ─── */}
-      <main className="mx-auto w-full max-w-3xl px-4 py-4 md:px-6 md:py-8 pb-72">
+      <main className="mx-auto w-full max-w-3xl px-4 py-2 md:px-6 md:py-8 pb-72">
 
         {!selectedCustomerId ? (
           <GlobalDashboard onAddCustomer={() => setIsAddCustomerOpen(true)} />
@@ -118,7 +118,7 @@ export default function Home() {
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mb-8 p-6 rounded-3xl bg-amber-50 border border-amber-100 flex items-center gap-4 text-amber-700 shadow-inner group"
+                className="mb-6 p-6 rounded-3xl bg-amber-50 border border-amber-100 flex items-center gap-4 text-amber-700 shadow-inner group"
               >
                 <div className="h-10 w-10 rounded-full bg-white flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
                   <Star size={18} className="text-amber-400 fill-amber-400" />
