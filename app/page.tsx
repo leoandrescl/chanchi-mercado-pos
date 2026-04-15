@@ -7,19 +7,17 @@ import CustomerSelector from '@/components/pos/CustomerSelector';
 import AbonoModal from '@/components/pos/AbonoModal';
 import AddProductModal from '@/components/pos/AddProductModal';
 import AddCustomerModal from '@/components/customers/AddCustomerModal';
-import AddBundleModal from '@/components/pos/AddBundleModal';
 import Link from 'next/link';
 import { useCustomers } from '@/store/useCustomers';
 import { useInventory } from '@/store/useInventory';
 import { useCart } from '@/store/useCart';
 import GlobalDashboard from '@/components/pos/GlobalDashboard';
-import { PlusCircle, ShoppingBag, LayoutDashboard, Star, Package } from 'lucide-react';
+import { PlusCircle, ShoppingBag, LayoutDashboard, Star } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Home() {
   const [isAbonoOpen, setIsAbonoOpen] = useState(false);
   const [isAddProductOpen, setIsAddProductOpen] = useState(false);
-  const [isAddBundleOpen, setIsAddBundleOpen] = useState(false);
   const [isAddCustomerOpen, setIsAddCustomerOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const { selectedCustomerId, fetchCustomers, fetchGlobalMetrics } = useCustomers();
@@ -62,17 +60,6 @@ export default function Home() {
                 <PlusCircle size={24} strokeWidth={1.5} />
               </div>
               <span className="text-[8px] font-black uppercase tracking-widest leading-none text-center">Añadir Item</span>
-            </button>
-
-            <button
-              id="btn-add-bundle"
-              onClick={() => setIsAddBundleOpen(true)}
-              className="flex flex-col items-center justify-center gap-1.5 px-2 py-2 rounded-2xl text-slate-400 hover:bg-emerald-50 hover:text-emerald-600 transition-all duration-200"
-            >
-              <div className="h-8 w-8 flex items-center justify-center">
-                <Package size={24} strokeWidth={1.5} />
-              </div>
-              <span className="text-[8px] font-black uppercase tracking-widest leading-none text-center">Pack/Promo</span>
             </button>
 
             <Link
@@ -164,7 +151,6 @@ export default function Home() {
                       price={product.price}
                       image={product.image}
                       isFavorite={product.is_favorite}
-                      isBundle={product.is_bundle}
                     />
                   </motion.div>
                 ))}
@@ -190,7 +176,6 @@ export default function Home() {
       <FloatingCart />
       {isAbonoOpen && <AbonoModal onClose={() => setIsAbonoOpen(false)} />}
       {isAddProductOpen && <AddProductModal onClose={() => setIsAddProductOpen(false)} />}
-      {isAddBundleOpen && <AddBundleModal onClose={() => setIsAddBundleOpen(false)} />}
       {isAddCustomerOpen && <AddCustomerModal onClose={() => setIsAddCustomerOpen(false)} />}
     </div>
   );
