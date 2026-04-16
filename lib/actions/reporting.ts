@@ -7,7 +7,10 @@ export interface AuditEntry {
   date: string;
   description: string;
   amount: number;
+  remaining_amount?: number;
+  is_paid?: boolean;
   items?: { name: string; quantity: number }[];
+  liquidationNote?: string;
 }
 
 export interface MonthlyAuditData {
@@ -17,12 +20,11 @@ export interface MonthlyAuditData {
 
 export async function getDebtorFullAudit(debtorId: string) {
   try {
-    // 1. Fetch unpaid debts
-    const { data: unpaidDebts, error: debtError } = await supabase
+    // 1. Fetch ALL debts (paid and unpaid)
+    const { data: allDebts, error: debtError } = await supabase
       .from('debts')
       .select('*')
       .eq('debtor_id', debtorId)
-      .eq('is_paid', false)
       .order('date', { ascending: true });
 
     if (debtError) throw debtError;
@@ -38,19 +40,16 @@ export async function getDebtorFullAudit(debtorId: string) {
     if (logError) throw logError;
 
     const entries: AuditEntry[] = [];
-    let totalDebts = 0;
+    let totalPurchases = 0;
     let totalAbonos = 0;
 
-    // 3. Process unpaid debts into entries
-    // We try to match each unpaid debt with its detailed audit log to get the items
-    for (const debt of (unpaidDebts || [])) {
-      totalDebts += debt.amount;
+    // 3. Process ALL debts into entries
+    for (const debt of (allDebts || [])) {
+      totalPurchases += debt.amount;
       
-      // Look for a matching FIADO log (approximate by timestamp or description prefix)
-      // Since debt.description is often "Compra: [Items...]" and logs have details.items
       const matchingLog = logs?.find(l => 
         l.action_type === 'FIADO' && 
-        (Math.abs(new Date(l.created_at).getTime() - new Date(debt.date).getTime()) < 5000) // 5s window
+        (Math.abs(new Date(l.created_at).getTime() - new Date(debt.date).getTime()) < 5000)
       );
 
       entries.push({
@@ -58,6 +57,8 @@ export async function getDebtorFullAudit(debtorId: string) {
         date: debt.date,
         description: debt.description,
         amount: debt.amount,
+        remaining_amount: debt.remaining_amount ?? (debt.is_paid ? 0 : debt.amount),
+        is_paid: debt.is_paid,
         items: matchingLog?.details?.items || []
       });
     }
@@ -71,7 +72,8 @@ export async function getDebtorFullAudit(debtorId: string) {
           type: 'PAYMENT',
           date: log.created_at,
           description: log.details?.type === 'Surplus/Credit' ? 'Saldo a Favor' : 'Abono Recibido',
-          amount: amount
+          amount: amount,
+          liquidationNote: log.details?.liquidationNote
         });
       }
     }
@@ -99,9 +101,9 @@ export async function getDebtorFullAudit(debtorId: string) {
       success: true,
       data: {
         monthsData: grouped,
-        totalDebts,
+        totalPurchases,
         totalAbonos,
-        finalBalance: totalDebts // Sum of unpaid is current balance
+        finalBalance: totalPurchases - totalAbonos
       }
     };
 

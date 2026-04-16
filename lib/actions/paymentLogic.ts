@@ -20,119 +20,81 @@ export async function processPayment(debtorId: string, amountPaid: number, dateS
 
   const timestamp = dateStr || new Date().toISOString();
 
-  // 1. Fetch all unpaid debts sorted by date ASC (Oldest first)
+  // 1. First, validate if amountPaid exceeds total balance
+  const { data: debtsRaw, error: balanceError } = await supabase
+    .from('debts')
+    .select('amount, remaining_amount, is_paid')
+    .eq('debtor_id', debtorId)
+    .eq('is_paid', false);
+
+  if (balanceError) throw balanceError;
+  const totalBalance = (debtsRaw || []).reduce((sum, d) => sum + (d.remaining_amount ?? d.amount), 0);
+
+  if (amountPaid > totalBalance) {
+    return { 
+      success: false, 
+      message: `El abono no puede superar la deuda total ($${totalBalance.toLocaleString('es-CL')}).` 
+    };
+  }
+
+  // 2. Fetch unpaid debts sorted by date (FIFO)
   const { data: debts, error: fetchError } = await supabase
     .from('debts')
     .select('*')
     .eq('debtor_id', debtorId)
     .eq('is_paid', false)
     .order('date', { ascending: true })
-    .order('created_at', { ascending: true }); // Tie-breaker for identical dates
+    .order('created_at', { ascending: true });
 
   if (fetchError) throw fetchError;
-  if (!debts) return { success: true, logs: [] };
+  if (!debts || debts.length === 0) return { success: true, logs: [] };
 
+  let remainingToApply = amountPaid;
+  const liquidatedItems: string[] = [];
   const logs: string[] = [];
-  let remaining = amountPaid;
 
   for (const debt of debts) {
-    if (remaining <= 0) break;
+    if (remainingToApply <= 0) break;
 
-    const debtId = debt.id;
-    const debtAmount = debt.amount;
+    const currentRemaining = debt.remaining_amount ?? debt.amount;
+    const amountToApply = Math.min(remainingToApply, currentRemaining);
+    const newRemainingAmount = currentRemaining - amountToApply;
+    const isNowPaid = newRemainingAmount === 0;
 
-    if (remaining >= debtAmount) {
-      // Fully pay this debt
-      const { error: updateError } = await supabase
-        .from('debts')
-        .update({ is_paid: true })
-        .eq('id', debtId);
-
-      if (updateError) throw updateError;
-
-      remaining -= debtAmount;
-      logs.push(`${debt.description} ($${debtAmount})`);
-    } else {
-      // Partially pay this debt
-      // 1. Reduce original debt to (Amount - Paid)
-      const newAmount = debtAmount - remaining;
-      const { error: updateError } = await supabase
-        .from('debts')
-        .update({ amount: newAmount })
-        .eq('id', debtId);
-
-      if (updateError) throw updateError;
-
-      // 2. Create a "Paid Slice" record for the amount paid
-      const { error: insertError } = await supabase
-        .from('debts')
-        .insert({
-          debtor_id: debtorId,
-          description: `${debt.description} (Pagado)`,
-          amount: remaining,
-          date: debt.date, // keep original date for history accuracy
-          is_paid: true,
-        });
-
-      if (insertError) throw insertError;
-
-      logs.push(`${debt.description} ($${remaining})`);
-      remaining = 0;
-    }
-  }
-
-  // Calculate used vs surplus
-  const used = amountPaid - remaining;
-
-  // 1. Record the "Used" portion as a PAID payment (negative amount to balance)
-  if (used !== 0) {
-    const { error: usedError } = await supabase
+    // Update the debt record
+    const { error: updateError } = await supabase
       .from('debts')
-      .insert({
-        debtor_id: debtorId,
-        description: 'Abono',
-        amount: -used,
-        date: timestamp,
-        is_paid: true,
-      });
-    if (usedError) throw usedError;
+      .update({ 
+        remaining_amount: newRemainingAmount,
+        is_paid: isNowPaid 
+      })
+      .eq('id', debt.id);
+
+    if (updateError) throw updateError;
+
+    remainingToApply -= amountToApply;
     
-    // AUDIT LOG
-    await logAuditAction({
-      actionType: 'ABONO',
-      entityType: 'debtors',
-      entityId: debtorId,
-      details: { amount: used, timestamp }
-    });
+    // For the note, we simplify the description (remove "Compra: ")
+    const shortDesc = debt.description.replace(/^Compra: /, '').substring(0, 20);
+    liquidatedItems.push(`${shortDesc} ($${amountToApply})`);
+    logs.push(`${debt.description} (-$${amountToApply}${isNowPaid ? ' ✅' : ''})`);
   }
 
-  // 2. Record the "Surplus" portion as an UNPAID credit (Saldo a Favor)
-  if (remaining > 0) {
-    const { error: surplusError } = await supabase
-      .from('debts')
-      .insert({
-        debtor_id: debtorId,
-        description: 'Total Fiado a Favor',
-        amount: -remaining,
-        date: timestamp,
-        is_paid: false,
-      });
-    if (surplusError) throw surplusError;
+  // 3. Record the ABONO in audit_logs with a liquidation note
+  const liquidationNote = liquidatedItems.length > 0 
+    ? `Liquidó: ${liquidatedItems.join(', ')}`
+    : '';
 
-    if (used === 0) {
-      logs.push('Total Fiado a Favor');
-    } else {
-      logs.push(`Total Fiado a Favor ($${remaining})`);
+  await logAuditAction({
+    actionType: 'ABONO',
+    entityType: 'debtors',
+    entityId: debtorId,
+    details: { 
+      amount: amountPaid, 
+      timestamp,
+      liquidationNote // This will be used in the WhatsApp report
     }
-
-    // AUDIT LOG for the surplus part (treated as a type of credit/abono)
-    await logAuditAction({
-      actionType: 'ABONO',
-      entityType: 'debtors',
-      entityId: debtorId,
-      details: { amount: remaining, type: 'Surplus/Credit', timestamp }
-    });
-  }
+  });
 
   return { success: true, logs };
 }
@@ -151,7 +113,8 @@ export async function addConsolidatedDebt(debtorId: string, items: { name: strin
       debtor_id: debtorId,
       description,
       amount: total,
-      date: timestamp, // Explicitly set current date
+      remaining_amount: total, // Initialize remaining amount
+      date: timestamp,
       is_paid: false,
     });
 

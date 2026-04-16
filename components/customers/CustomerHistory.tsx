@@ -218,39 +218,68 @@ export default function CustomerHistory({ debtorId }: CustomerHistoryProps) {
 
                 {/* Items - Spaced Grid */}
                 <div className="grid gap-4">
-                  {filteredItems.map((debt) => (
-                    <div
-                      key={debt.id}
-                      className={`group overflow-hidden bg-white border rounded-[1.25rem] p-5 transition-all duration-300 hover:shadow-lg hover:border-slate-300 ${
-                        debt.is_paid ? 'border-slate-50 opacity-40' : 'border-slate-200'
-                      }`}
-                    >
-                      {/* Top Row: Desc & Amount */}
-                      <div className="flex items-start justify-between gap-4">
-                        <p className="flex-1 text-slate-900 font-bold text-sm leading-snug">
-                          {debt.description}
-                        </p>
-                        <div className="text-right shrink-0">
-                          <p className={`text-lg font-black tabular-nums tracking-tighter ${debt.amount < 0 ? 'text-emerald-600' : 'text-slate-950'}`}>
-                            {debt.amount < 0 ? '+' : ''}{formatPrice(Math.abs(debt.amount)).replace('$', '').trim()}
-                            <span className="text-xs ml-0.5 opacity-50">$</span>
-                          </p>
+                  {filteredItems.map((debt: any) => {
+                    const isCharge = debt.amount > 0;
+                    const remainingAmount = debt.remaining_amount ?? (debt.is_paid ? 0 : debt.amount);
+                    const isPartial = isCharge && !debt.is_paid && remainingAmount < debt.amount;
+                    
+                    return (
+                      <div
+                        key={debt.id}
+                        className={`group overflow-hidden bg-white border rounded-[1.25rem] p-5 transition-all duration-300 hover:shadow-lg hover:border-slate-300 ${
+                          debt.is_paid ? 'border-slate-50 opacity-40' : 'border-slate-200'
+                        }`}
+                      >
+                        {/* Top Row: Desc & Amount */}
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex-1">
+                            <p className="text-slate-900 font-bold text-sm leading-snug">
+                              {debt.description}
+                            </p>
+                            {isCharge && (
+                              <div className="flex items-center gap-2 mt-1.5">
+                                {debt.is_paid ? (
+                                  <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600 text-[9px] font-black uppercase tracking-widest">
+                                    <CheckCircle2 size={10} />
+                                    Pagado
+                                  </div>
+                                ) : (
+                                  <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest ${isPartial ? 'bg-amber-50 text-amber-600' : 'bg-slate-100 text-slate-400'}`}>
+                                    <Clock size={10} />
+                                    {isPartial ? 'Pago Parcial' : 'Pendiente'}
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                          
+                          <div className="text-right shrink-0">
+                            <p className={`text-lg font-black tabular-nums tracking-tighter ${debt.amount < 0 ? 'text-emerald-600' : 'text-slate-950'}`}>
+                              {debt.amount < 0 ? '+' : ''}{formatPrice(Math.abs(debt.amount)).replace('$', '').trim()}
+                              <span className="text-xs ml-0.5 opacity-50">$</span>
+                            </p>
+                            {isCharge && !debt.is_paid && (
+                              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter mt-1">
+                                Restan: <span className="text-slate-900">{formatPrice(remainingAmount)}</span>
+                              </p>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Bottom Row: Metadata */}
+                        <div className="flex items-center gap-2 mt-4 pt-4 border-t border-slate-50">
+                          <Calendar size={12} className="text-slate-300" />
+                          <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                            {formatDate(debt.date).split(',')[0]}
+                          </span>
+                          <span className="h-1 w-1 rounded-full bg-slate-200 mx-1" />
+                          <span className="text-[10px] font-medium text-slate-400">
+                            {formatDate(debt.date).split(',')[1]}
+                          </span>
                         </div>
                       </div>
-
-                      {/* Bottom Row: Metadata */}
-                      <div className="flex items-center gap-2 mt-4 pt-4 border-t border-slate-50">
-                        <Calendar size={12} className="text-slate-300" />
-                        <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                          {formatDate(debt.date).split(',')[0]}
-                        </span>
-                        <span className="h-1 w-1 rounded-full bg-slate-200 mx-1" />
-                        <span className="text-[10px] font-medium text-slate-400">
-                          {formatDate(debt.date).split(',')[1]}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             );

@@ -1,0 +1,11 @@
+Migration failed: Error: connect ENETUNREACH 2600:1f1e:75b:4b04:71b7:fc4e:5ca3:4701:5432 - Local (:::0)
+    at internalConnect (node:net:1110:16)
+    at defaultTriggerAsyncIdScope (node:internal/async_hooks:472:18)
+    at GetAddrInfoReqWrap.emitLookup [as callback] (node:net:1523:9)
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:134:8) {
+  errno: -101,
+  code: 'ENETUNREACH',
+  syscall: 'connect',
+  address: '2600:1f1e:75b:4b04:71b7:fc4e:5ca3:4701',
+  port: 5432
+}

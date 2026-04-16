@@ -26,10 +26,13 @@ export interface FullAuditDetails {
       date: string;
       description: string;
       amount: number;
+      remaining_amount?: number;
+      is_paid?: boolean;
       items?: { name: string; quantity: number }[];
+      liquidationNote?: string;
     }[];
   }[];
-  totalDebts: number;
+  totalPurchases: number;
   totalAbonos: number;
   finalBalance: number;
 }
@@ -38,7 +41,7 @@ export function generateFullAuditMessage({
   customerName,
   phone,
   monthsData,
-  totalDebts,
+  totalPurchases,
   totalAbonos,
   finalBalance,
 }: FullAuditDetails): string {
@@ -62,30 +65,38 @@ export function generateFullAuditMessage({
   let reportContent = '';
 
   monthsData.forEach((month) => {
-    reportContent += `\n*${month.monthName.toUpperCase()}*\n`;
+    reportContent += `\n📅 *${month.monthName.toUpperCase()}*\n`;
     month.entries.forEach((entry) => {
       const dateLabel = formatDate(entry.date);
       if (entry.type === 'DEBT') {
         const itemsStr = entry.items && entry.items.length > 0
           ? entry.items.map(i => `${i.name} x${i.quantity}`).join(', ')
-          : entry.description;
-        reportContent += `• [${dateLabel}]: ${itemsStr} - *${formatPrice(entry.amount)}*\n`;
+          : entry.description.replace(/^Compra: /, '');
+        
+        const statusEmoji = entry.is_paid ? '✅' : '⏳';
+        const remainingLabel = entry.is_paid 
+          ? 'PAGADO' 
+          : `RESTAN: ${formatPrice(entry.remaining_amount || entry.amount)}`;
+
+        reportContent += `• (${dateLabel}) Compra: ${itemsStr} - ${formatPrice(entry.amount)} (${statusEmoji} ${remainingLabel})\n`;
       } else {
-        reportContent += `💰 [${dateLabel}]: ${entry.description} - *-${formatPrice(entry.amount)}*\n`;
+        const note = entry.liquidationNote ? ` (_${entry.liquidationNote}_)` : '';
+        reportContent += `• (${dateLabel}) 💰 *Abono Recibido:* -${formatPrice(entry.amount)}${note}\n`;
       }
     });
   });
 
-  const message = `Hola ${customerName}! Te envío el detalle de tus movimientos en ChanchiMercado a fecha ${today} 👋
+  const message = `Hola ${customerName}, aquí está el detalle completo de tu cuenta en ChanchiMercado a fecha ${today} 👋
 
 --------------------------
 *HISTORIAL DE TRANSACCIONES*
 ${reportContent}
 --------------------------
-📉 *Total Deuda Pendiente:* ${formatPrice(totalDebts)}
-➕ *Total Abonos:* ${formatPrice(totalAbonos)}
+📊 *RESUMEN:*
+(+) Total Compras: ${formatPrice(totalPurchases)}
+(-) Total Abonos: ${formatPrice(totalAbonos)}
 --------------------------
-🚀 *SALDO PENDIENTE FINAL:* ${formatPrice(finalBalance)}
+💰 *TOTAL A PAGAR: ${formatPrice(finalBalance)}*
 --------------------------
 
 ¡Muchas gracias por su preferencia! 🐷✨`;
