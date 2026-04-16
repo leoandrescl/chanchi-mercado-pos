@@ -53,16 +53,17 @@ export function generateFullAuditMessage({
   };
 
   const formatDate = (dateStr: string) => {
-    return new Intl.DateTimeFormat('es-CL', { day: '2-digit', month: '2-digit' }).format(new Date(dateStr));
+    const d = new Date(dateStr);
+    return `${d.getDate()}/${d.getMonth() + 1}`;
   };
 
   const cleanPhone = phone.replace(/\D/g, '');
 
   const now = new Date();
-  const thresholdDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-  let accumulatedBalance = 0;
+  const thresholdDate = new Date(now.getFullYear(), now.getMonth(), 1);
   let reportContent = '';
   let detailedSummaries = '';
+  let detailedSubtotalsSum = 0;
 
   monthsData.forEach((month) => {
     let monthPurchases = 0;
@@ -72,9 +73,7 @@ export function generateFullAuditMessage({
 
     month.entries.forEach((entry) => {
       const entryDate = new Date(entry.date);
-      if (entryDate < thresholdDate) {
-        accumulatedBalance += (entry.type === 'DEBT' ? entry.amount : -entry.amount);
-      } else {
+      if (entryDate >= thresholdDate) {
         hasDetailedEntries = true;
         const dateLabel = formatDate(entry.date);
         if (entry.type === 'DEBT') {
@@ -96,26 +95,29 @@ export function generateFullAuditMessage({
       reportContent += `[# ${month.monthName.toUpperCase()} #]\n\n`;
       reportContent += monthEntriesContent;
       const monthSubtotal = monthPurchases - monthAbonos;
+      detailedSubtotalsSum += monthSubtotal;
       const monthNameDisplay = month.monthName.charAt(0).toUpperCase() + month.monthName.slice(1).split(' ')[0];
       reportContent += `--------------------------\n`;
-      reportContent += `Subtotal ${monthNameDisplay}: ${formatPrice(monthSubtotal)}\n\n`;
+      reportContent += `\u{1F4C8} Subtotal ${monthNameDisplay}: ${formatPrice(monthSubtotal)}\n\n`;
       
       // Capturar para el resumen final
       detailedSummaries += `\u{1F4C8} Subtotal ${monthNameDisplay}: ${formatPrice(monthSubtotal)}\n`;
     }
   });
 
-  const finalLabel = finalBalance >= 0 ? 'TOTAL PENDIENTE' : 'SALDO A SU FAVOR';
-  const displayBalance = Math.abs(finalBalance);
+  // HARD-FIX DEFINITIVO: Cálculo inverso desde el Saldo Real de DB
+  const historicalBalance = finalBalance - detailedSubtotalsSum;
+  const historicalLine = historicalBalance > 0 
+    ? `\u{231B} Saldo Anterior: ${formatPrice(historicalBalance)}\n`
+    : '';
 
-  const message = `Hola ${customerName}, resumen de tu cuenta en ChanchiMercado:
+  const message = `\u{1F4E6} *Resumen de cuenta:*
 
 ${reportContent}==========================
    \u{1F4B0} RESUMEN DE CUENTA
 ==========================
-\u{231B} Saldo Meses Anteriores: ${formatPrice(accumulatedBalance)}
-${detailedSummaries}
-\u{1F4B0} ${finalLabel}: ${formatPrice(displayBalance)}
+${historicalLine}${detailedSummaries}
+\u{1F4B0} TOTAL PENDIENTE: ${formatPrice(finalBalance)}
 ==========================
 
 ¡Muchas gracias por su preferencia! \u{1F437}`;
@@ -123,6 +125,7 @@ ${detailedSummaries}
   const encodedMessage = encodeURIComponent(message);
   return `https://wa.me/${cleanPhone}?text=${encodedMessage}`;
 }
+
 
 
 export function generateMonthlyReport({
