@@ -62,6 +62,7 @@ export function generateFullAuditMessage({
   const thresholdDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
   let accumulatedBalance = 0;
   let reportContent = '';
+  let detailedSummaries = '';
 
   monthsData.forEach((month) => {
     let monthPurchases = 0;
@@ -98,20 +99,23 @@ export function generateFullAuditMessage({
       const monthNameDisplay = month.monthName.charAt(0).toUpperCase() + month.monthName.slice(1).split(' ')[0];
       reportContent += `--------------------------\n`;
       reportContent += `Subtotal ${monthNameDisplay}: ${formatPrice(monthSubtotal)}\n\n`;
+      
+      // Capturar para el resumen final
+      detailedSummaries += `\u{1F4C8} Subtotal ${monthNameDisplay}: ${formatPrice(monthSubtotal)}\n`;
     }
   });
 
-  const accumulatedLine = accumulatedBalance !== 0 
-    ? `\u{231B} Saldo Anterior Acumulado: ${formatPrice(accumulatedBalance)}\n\n`
-    : '';
+  const finalLabel = finalBalance >= 0 ? 'TOTAL PENDIENTE' : 'SALDO A SU FAVOR';
+  const displayBalance = Math.abs(finalBalance);
 
   const message = `Hola ${customerName}, resumen de tu cuenta en ChanchiMercado:
 
-${accumulatedLine}${reportContent}==========================
---- RESUMEN TOTAL ---
-\u{1F4C8} Total Compras: ${formatPrice(totalPurchases)}
-\u{2796} Total Abonos: ${formatPrice(totalAbonos)}
-\u{1F4B0} TOTAL A PAGAR: ${formatPrice(finalBalance)}
+${reportContent}==========================
+   \u{1F4B0} RESUMEN DE CUENTA
+==========================
+\u{231B} Saldo Meses Anteriores: ${formatPrice(accumulatedBalance)}
+${detailedSummaries}
+\u{1F4B0} ${finalLabel}: ${formatPrice(displayBalance)}
 ==========================
 
 ¡Muchas gracias por su preferencia! \u{1F437}`;
@@ -119,6 +123,7 @@ ${accumulatedLine}${reportContent}==========================
   const encodedMessage = encodeURIComponent(message);
   return `https://wa.me/${cleanPhone}?text=${encodedMessage}`;
 }
+
 
 export function generateMonthlyReport({
   customerName,
