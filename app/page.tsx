@@ -135,20 +135,20 @@ export default function Home() {
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mb-6 p-6 rounded-3xl bg-amber-50 border border-amber-100 flex items-center gap-4 text-amber-700 shadow-inner group"
+                className="mb-6 p-3 rounded-3xl bg-amber-50 border border-amber-100 flex items-center gap-4 text-amber-700 shadow-inner group"
               >
                 <div className="h-10 w-10 rounded-full bg-white flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
                   <Star size={18} className="text-amber-400 fill-amber-400" />
                 </div>
                 <p className="font-sans font-bold text-sm tracking-tight text-amber-900/70">
-                  ✨ Marque sus <span className="text-amber-600 underline decoration-amber-200 underline-offset-4">favoritos</span> con la estrella para verlos primero.
+                  Marque sus <span className="text-amber-600 underline decoration-amber-200 underline-offset-4">mas frecuentes</span> con la estrella para verlos primero.
                 </p>
               </motion.div>
             )}
 
             {/* High-Density Grid/List Container */}
-            <div className={viewMode === 'grid' 
-              ? "grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4" 
+            <div className={viewMode === 'grid'
+              ? "grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4"
               : "flex flex-col gap-2"
             }>
               <AnimatePresence mode="popLayout">
