@@ -189,3 +189,67 @@ export async function addBundleWithImage(formData: FormData) {
     return { success: false, error: 'Error inesperado del servidor.' };
   }
 }
+
+/**
+ * Updates an existist product, optionally uploading a new image.
+ */
+export async function updateProductWithImage(formData: FormData) {
+  try {
+    const id = formData.get('id') as string;
+    const name = formData.get('name') as string;
+    const price = parseInt(formData.get('price') as string);
+    const category = formData.get('category') as string;
+    const imagePreview = formData.get('imagePreview') as string | null;
+    const imageFile = formData.get('imageFile') as File | null;
+    
+    let imageUrl = imagePreview;
+
+    if (imageFile && imageFile.size > 0 && typeof imageFile !== 'string') {
+      const fileExt = imageFile.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('product-images')
+        .upload(filePath, imageFile, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (uploadError) {
+        console.error('Error uploading image:', uploadError);
+        return { success: false, error: 'Error al subir la nueva imagen.' };
+      }
+
+      const { data: publicUrlData } = supabase.storage
+        .from('product-images')
+        .getPublicUrl(filePath);
+
+      imageUrl = publicUrlData.publicUrl;
+    }
+
+    const { data: product, error: updateError } = await supabase
+      .from('products')
+      .update({
+        name,
+        price,
+        category: category || 'General',
+        image: imageUrl,
+      })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (updateError) {
+      console.error('Error updating product:', updateError);
+      return { success: false, error: 'Error al actualizar el producto.' };
+    }
+
+    revalidatePath('/');
+    return { success: true, product };
+
+  } catch (err) {
+    console.error('Unexpected error in updateProductWithImage:', err);
+    return { success: false, error: 'Error inesperado del servidor.' };
+  }
+}

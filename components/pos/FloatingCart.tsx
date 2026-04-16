@@ -88,59 +88,59 @@ export default function FloatingCart() {
         )}
       </AnimatePresence>
 
-      <div className="fixed bottom-0 left-1/2 z-[70] w-full max-w-3xl -translate-x-1/2 px-4 sm:px-0">
+      <div className="fixed bottom-0 left-1/2 z-[70] w-full max-w-3xl -translate-x-1/2 px-0">
         <motion.div
           layout
           initial={false}
-          className="bg-white rounded-t-[2.5rem] shadow-[0_-20px_60px_-15px_rgba(0,0,0,0.15)] overflow-hidden border-x border-t border-slate-100"
+          className="bg-white rounded-t-3xl shadow-[0_-20px_60px_-15px_rgba(0,0,0,0.15)] overflow-hidden border-x border-t border-slate-100"
         >
           {/* ─── SUMMARY BAR ─── */}
           <div 
             onClick={() => setIsExpanded(!isExpanded)}
-            className="flex items-center justify-between px-8 py-8 cursor-pointer hover:bg-slate-50 transition-colors relative z-10"
+            className="flex items-center justify-between px-6 py-5 cursor-pointer hover:bg-slate-50 transition-colors relative z-10"
           >
-            <div className="flex items-center gap-6">
+            <div className="flex items-center gap-4">
               <div className="relative">
-                <div className="h-16 w-16 rounded-[1.5rem] bg-slate-900 flex items-center justify-center text-white shadow-lg">
-                  <ShoppingCart size={28} strokeWidth={1.5} />
+                <div className="h-14 w-14 rounded-2xl bg-slate-900 flex items-center justify-center text-white shadow-lg">
+                  <ShoppingCart size={24} strokeWidth={1.5} />
                 </div>
                 <AnimatePresence mode="popLayout">
                   <motion.div 
                     key={itemCount}
                     initial={{ scale: 0.5, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
-                    className="absolute -right-2 -top-2 h-8 w-8 rounded-full bg-amber-400 border-[3px] border-white flex items-center justify-center pointer-events-none shadow-md"
+                    className="absolute -right-1.5 -top-1.5 h-6 w-6 rounded-full bg-amber-400 border-2 border-white flex items-center justify-center pointer-events-none shadow-md"
                   >
-                    <span className="text-xs font-black text-slate-900 leading-none">{itemCount}</span>
+                    <span className="text-[10px] font-black text-slate-900 leading-none">{itemCount}</span>
                   </motion.div>
                 </AnimatePresence>
               </div>
               <div className="leading-tight">
-                <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-slate-400 mb-1">Total Pedido</p>
+                <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-slate-400 mb-0.5">Total Pedido</p>
                 <div className="flex items-baseline gap-1">
-                  <span className="font-serif text-4xl font-black text-slate-900 tracking-tight tabular-nums">
+                  <span className="font-serif text-4xl font-black text-slate-900 tracking-tight tabular-nums transition-all">
                     {formatPrice(total)}
                   </span>
                 </div>
               </div>
             </div>
             
-            <div className="flex items-center gap-6">
+            <div className="flex items-center gap-4">
               {!isExpanded && (
-                <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.2em] text-slate-300">
+                <div className="flex items-center gap-2 text-[9px] font-black uppercase tracking-[0.15em] text-slate-300 whitespace-nowrap">
                   Ver Detalle
-                  <div className="h-10 w-10 rounded-full border border-slate-100 flex items-center justify-center bg-white shadow-sm">
-                    <ChevronUp size={20} className="text-slate-400" />
+                  <div className="h-9 w-9 rounded-full border border-slate-100 flex items-center justify-center bg-white shadow-sm">
+                    <ChevronUp size={18} className="text-slate-400" />
                   </div>
                 </div>
               )}
               {isExpanded && (
                 <button
                   onClick={(e) => { e.stopPropagation(); clearCart(); setIsExpanded(false); }}
-                  className="flex items-center justify-center h-12 w-12 rounded-2xl bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white transition-all shadow-sm active:scale-95 border border-rose-100"
+                  className="flex items-center justify-center h-11 w-11 rounded-2xl bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white transition-all shadow-sm active:scale-95 border border-rose-100"
                   title="Vaciar Carrito"
                 >
-                  <Trash2 size={20} />
+                  <Trash2 size={18} />
                 </button>
               )}
             </div>
@@ -165,10 +165,10 @@ export default function FloatingCart() {
                     >
                       {/* Zona 1: Izquierda - Info */}
                       <div className="flex flex-col gap-0.5 flex-1 min-w-0">
-                        <h4 className="font-serif text-base font-bold text-slate-900 leading-tight italic truncate">
+                        <h4 className="font-serif text-lg font-bold text-slate-900 leading-tight italic truncate">
                           {item.name}
                         </h4>
-                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">
+                        <p className="text-[11px] text-slate-400 font-bold uppercase tracking-widest">
                           {formatPrice(item.price)}
                         </p>
                       </div>
@@ -181,7 +181,7 @@ export default function FloatingCart() {
                         >
                           <Minus size={18} strokeWidth={2.5} />
                         </button>
-                        <span className="w-6 text-center text-lg font-black text-slate-900 tabular-nums">
+                        <span className="w-6 text-center text-xl font-black text-slate-900 tabular-nums">
                           {item.quantity}
                         </span>
                         <button
@@ -193,13 +193,13 @@ export default function FloatingCart() {
                       </div>
 
                       {/* Zona 3: Derecha - Subtotal/Acción */}
-                      <div className="flex flex-col items-end justify-center gap-1 shrink-0 min-w-[70px]">
-                        <p className="text-base font-black text-slate-900 tracking-tight leading-none">
+                      <div className="flex flex-col items-end justify-center gap-1 shrink-0 min-w-[80px]">
+                        <p className="text-lg font-black text-slate-900 tracking-tight leading-none">
                           {formatPrice(item.price * item.quantity).replace('$', '').trim()}
                         </p>
                         <button 
                           onClick={(e) => { e.stopPropagation(); deleteItem(item.id); }}
-                          className="text-[9px] font-black text-rose-400 uppercase tracking-widest hover:text-rose-600 transition-colors underline underline-offset-4"
+                          className="text-[10px] font-black text-rose-400 uppercase tracking-widest hover:text-rose-600 transition-colors underline underline-offset-4"
                         >
                           Quitar
                         </button>

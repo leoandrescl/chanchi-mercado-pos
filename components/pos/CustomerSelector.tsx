@@ -1,12 +1,17 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useCustomers } from '@/store/useCustomers';
-import { Users, Search, X, UserCheck, Smartphone, History, Wallet } from 'lucide-react';
+import { useCustomers, Customer } from '@/store/useCustomers';
+import { Users, Search, X, UserCheck, Smartphone, History, Wallet, ArrowLeft } from 'lucide-react';
 import CustomerHistory from '@/components/customers/CustomerHistory';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getDebtorFullAudit } from '@/lib/actions/reporting';
 import { generateFullAuditMessage } from '@/lib/whatsapp';
+import CustomerCard from '@/components/customers/CustomerCard';
+import HeaderPage from '@/components/ui/HeaderPage';
+import InputSearch from '@/components/ui/InputSearch';
+import Button from '@/components/ui/Button';
+import CustomerAdminModal from '@/components/customers/CustomerAdminModal';
 
 interface CustomerSelectorProps {
   onOpenAbono?: () => void;
@@ -17,8 +22,13 @@ export default function CustomerSelector({ onOpenAbono }: CustomerSelectorProps)
   const [isOpen, setIsOpen] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [isInfoExpanded, setIsInfoExpanded] = useState(false);
-  const [isGeneratingReport, setIsGeneratingReport] = useState(false);
+  const [loadingWhatsAppId, setLoadingWhatsAppId] = useState<string | null>(null);
   const [search, setSearch] = useState('');
+
+  // Edit Modal State
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
+  const [modalMode, setModalMode] = useState<'create' | 'edit' | 'delete'>('edit');
 
   const selectedCustomer = customers.find((c) => c.id === selectedCustomerId);
 
@@ -29,58 +39,86 @@ export default function CustomerSelector({ onOpenAbono }: CustomerSelectorProps)
   const formatBalance = (amount: number) =>
     new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(amount);
 
+  const handleWhatsApp = async (customer: Customer) => {
+    if (!customer.whatsapp || loadingWhatsAppId) return;
+
+    setLoadingWhatsAppId(customer.id);
+    try {
+      const result = await getDebtorFullAudit(customer.id);
+      if (result.success && result.data) {
+        const link = generateFullAuditMessage({
+          customerName: customer.name,
+          phone: customer.whatsapp,
+          totalPurchases: result.data.totalPurchases,
+          totalAbonos: result.data.totalAbonos,
+          finalBalance: result.data.finalBalance,
+          monthsData: result.data.monthsData
+        });
+        window.open(link, '_blank');
+      }
+    } catch (error) {
+      console.error('Error WhatsApp Detail:', error);
+    } finally {
+      setLoadingWhatsAppId(null);
+    }
+  };
+
+  const handleEdit = (customer: Customer) => {
+    setEditingCustomer(customer);
+    setModalMode('edit');
+    setIsEditModalOpen(true);
+  };
+
   return (
     <>
       {/* ─── CUSTOMER STATUS RIBBON ─── */}
-      <div className="sticky top-20 z-40 w-full bg-white border-b border-slate-100 shadow-[0_4px_20px_-5px_rgba(0,0,0,0.05)]">
-          <div className="mx-auto w-full max-w-3xl">
-            <div className="flex flex-col md:flex-row items-center justify-center md:justify-between px-6 py-5 md:py-6 gap-4 md:gap-0 transition-colors">
-              {/* Left — Huge Name & Identity */}
-              <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6 text-center md:text-left">
-                <div className={`flex h-12 w-12 md:h-16 md:w-16 items-center justify-center rounded-2xl md:rounded-[1.5rem] transition-all duration-500 shadow-inner shrink-0 ${selectedCustomer ? 'bg-amber-400 text-white rotate-3' : 'bg-slate-100 text-slate-300'}`}>
-                  {selectedCustomer ? <UserCheck size={selectedCustomer ? 24 : 20} strokeWidth={2.5} /> : <Users size={24} strokeWidth={1.5} />}
-                </div>
-                <div className="flex flex-col leading-none">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-amber-500/60 mb-2 md:mb-3">
-                    {selectedCustomer ? 'Cliente Actual' : 'Esperando Cliente'}
-                  </p>
-                  <h3 className={`font-serif text-2xl md:text-4xl tracking-tight transition-all duration-300 ${selectedCustomer ? 'text-slate-900 italic' : 'text-slate-400/50'}`}>
-                    {selectedCustomer ? selectedCustomer.name : 'Nadie seleccionado'}
-                  </h3>
+      <div className="sticky top-[60px] z-40 w-full bg-white border-b border-slate-100 shadow-[0_4px_20px_-5px_rgba(0,0,0,0.05)]">
+        <div className="mx-auto w-full max-w-3xl">
+          <div className="flex flex-col md:flex-row items-center justify-center md:justify-between px-6 py-6 md:py-8 gap-4 md:gap-0 transition-colors">
+            {/* Left — Huge Name & Identity */}
+            <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6 text-center md:text-left">
 
-                  {selectedCustomer && (
-                    <div className="flex items-center justify-center md:justify-start gap-3 mt-3">
-                      <button
-                        onClick={() => setIsOpen(true)}
-                        className="px-6 py-4 rounded-2xl bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all shadow-md active:scale-95 flex items-center gap-2"
-                      >
-                        <Users size={14} />
-                        Cambiar
-                      </button>
+              <div className="flex flex-col leading-none">
+                <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-amber-500/60 mb-2 md:mb-3">
+                  {selectedCustomer ? 'Cliente Actual' : 'Esperando Cliente'}
+                </p>
+                <h3 className={`font-serif text-2xl md:text-4xl tracking-tight transition-all duration-300 ${selectedCustomer ? 'text-slate-900 italic' : 'text-slate-400/50'}`}>
+                  {selectedCustomer ? selectedCustomer.name : 'Nadie seleccionado'}
+                </h3>
 
-                      <button
-                        onClick={() => setIsInfoExpanded(!isInfoExpanded)}
-                        className={`flex items-center gap-2 px-6 py-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest transition-all ${isInfoExpanded ? 'bg-amber-400 text-slate-900 shadow-lg' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}
-                      >
-                        {isInfoExpanded ? <X size={14} /> : <Search size={14} />}
-                        {isInfoExpanded ? 'Cerrar' : 'Info'}
-                      </button>
-                    </div>
-                  )}
-                </div>
+                {selectedCustomer && (
+                  <div className="flex items-center justify-center md:justify-start gap-3 mt-3">
+                    <button
+                      onClick={() => setIsOpen(true)}
+                      className="px-6 py-4 rounded-2xl bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all shadow-md active:scale-95 flex items-center gap-2"
+                    >
+                      <Users size={14} />
+                      Cambiar cliente
+                    </button>
+
+                    <button
+                      onClick={() => setIsInfoExpanded(!isInfoExpanded)}
+                      className={`flex items-center gap-2 px-6 py-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest transition-all ${isInfoExpanded ? 'bg-amber-400 text-slate-900 shadow-lg' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}
+                    >
+                      {isInfoExpanded ? <X size={14} /> : <Search size={14} />}
+                      {isInfoExpanded ? 'Cerrar' : 'Acciones'}
+                    </button>
+                  </div>
+                )}
               </div>
-
-              {/* Right — Big Search Trigger when no customer */}
-              {!selectedCustomer && (
-                <button
-                  onClick={() => setIsOpen(true)}
-                  className="w-full md:w-auto h-14 px-8 rounded-2xl bg-amber-400 text-white font-bold flex items-center justify-center gap-3 shadow-lg shadow-amber-200 hover:bg-amber-500 transition-all active:scale-95 group"
-                >
-                  <Search size={20} className="group-hover:scale-110 transition-transform" />
-                  <span className="text-sm uppercase tracking-widest">Buscar</span>
-                </button>
-              )}
             </div>
+
+            {/* Right — Big Search Trigger when no customer */}
+            {!selectedCustomer && (
+              <button
+                onClick={() => setIsOpen(true)}
+                className="w-full md:w-auto h-14 px-8 rounded-2xl bg-amber-400 text-white font-bold flex items-center justify-center gap-3 shadow-lg shadow-amber-200 hover:bg-amber-500 transition-all active:scale-95 group"
+              >
+                <Search size={20} className="group-hover:scale-110 transition-transform" />
+                <span className="text-sm uppercase tracking-widest">Buscar</span>
+              </button>
+            )}
+          </div>
 
           {/* Collapsible Info Panel */}
           <AnimatePresence>
@@ -103,7 +141,7 @@ export default function CustomerSelector({ onOpenAbono }: CustomerSelectorProps)
                         Registrar Abono
                       </button>
                     )}
-                    
+
                     <button
                       onClick={() => setIsHistoryOpen(true)}
                       className="flex items-center justify-center gap-2 rounded-xl bg-white border border-slate-200 px-4 py-4 text-[11px] font-bold uppercase tracking-wider text-slate-600 hover:border-slate-900 hover:text-slate-900 transition-all shadow-[0_2px_8px_-2px_rgba(0,0,0,0.05)] active:scale-[0.98]"
@@ -113,33 +151,12 @@ export default function CustomerSelector({ onOpenAbono }: CustomerSelectorProps)
                     </button>
 
                     <button
-                      onClick={async () => {
-                        if (isGeneratingReport) return;
-                        setIsGeneratingReport(true);
-                        try {
-                          const result = await getDebtorFullAudit(selectedCustomer.id);
-                          if (result.success && result.data) {
-                            const link = generateFullAuditMessage({
-                              customerName: selectedCustomer.name,
-                              phone: selectedCustomer.whatsapp,
-                              totalPurchases: result.data.totalPurchases,
-                              totalAbonos: result.data.totalAbonos,
-                              finalBalance: result.data.finalBalance,
-                              monthsData: result.data.monthsData
-                            });
-                            window.open(link, '_blank');
-                          }
-                        } catch (error) {
-                          console.error('Error generating report:', error);
-                        } finally {
-                          setIsGeneratingReport(false);
-                        }
-                      }}
-                      disabled={isGeneratingReport}
-                      className={`flex items-center justify-center gap-2 rounded-xl px-4 py-4 text-[11px] font-bold uppercase tracking-wider text-white transition-all shadow-md active:scale-[0.98] ${isGeneratingReport ? 'bg-slate-400' : 'bg-green-500 hover:bg-green-600'}`}
+                      onClick={() => handleWhatsApp(selectedCustomer)}
+                      disabled={!!loadingWhatsAppId}
+                      className={`flex items-center justify-center gap-2 rounded-xl px-4 py-4 text-[11px] font-bold uppercase tracking-wider text-white transition-all shadow-md active:scale-[0.98] ${loadingWhatsAppId === selectedCustomer.id ? 'bg-slate-400' : 'bg-green-500 hover:bg-green-600'}`}
                     >
-                      <Smartphone size={20} strokeWidth={2} className={isGeneratingReport ? 'animate-bounce' : ''} />
-                      {isGeneratingReport ? '...' : 'Enviar Detalle'}
+                      <Smartphone size={20} strokeWidth={2} className={loadingWhatsAppId === selectedCustomer.id ? 'animate-bounce' : ''} />
+                      {loadingWhatsAppId === selectedCustomer.id ? '...' : 'Enviar Detalle'}
                     </button>
                   </div>
 
@@ -161,90 +178,71 @@ export default function CustomerSelector({ onOpenAbono }: CustomerSelectorProps)
       {isOpen && (
         <div className="fixed inset-0 z-[9999] bg-white flex flex-col animate-in fade-in duration-200">
 
-          {/* Modal Header */}
-          <div className="flex items-center justify-between px-6 py-6 border-b border-slate-100">
-            <h2 className="font-serif text-2xl text-slate-900">Directorio</h2>
-            <button
-              id="btn-close-customer-modal"
-              onClick={() => { setIsOpen(false); setSearch(''); }}
-              className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 transition-colors"
-            >
-              <X size={20} />
-            </button>
+          {/* Modal Header — Compact Standardized */}
+          <div className="px-6 py-2">
+            <HeaderPage 
+              title="Gestión de Deudores"
+              onBack={() => { setIsOpen(false); setSearch(''); }}
+              className="flex items-center gap-4 py-4"
+            />
           </div>
 
-          {/* Search Input */}
-          <div className="px-6 py-4 border-b border-slate-50">
-            <div className="flex items-center gap-3 bg-slate-50 rounded-xl px-4 py-3.5">
-              <Search size={18} strokeWidth={1.5} className="text-slate-400 shrink-0" />
-              <input
+          {/* Search Input & Persistent Actions */}
+          <div className="bg-white border-b border-slate-100 shadow-sm z-10">
+            <div className="px-6 pb-6">
+              <InputSearch
                 autoFocus
-                type="text"
-                placeholder="Buscar por nombre..."
-                className="flex-1 bg-transparent font-sans text-lg text-slate-800 placeholder:text-slate-300 focus:outline-none"
+                placeholder="¿A quién busca?"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
             </div>
+
+            {/* Clear selection (Persistent) */}
+            <div className="px-6 pb-6 mt-[-8px]">
+              <Button
+                variant="outline"
+                className="w-full h-14 rounded-2xl border-dashed border-slate-200 text-slate-400 hover:text-rose-500 hover:border-rose-200 hover:bg-rose-50"
+                onClick={() => { selectCustomer(null); setIsOpen(false); setSearch(''); }}
+                icon={<X size={18} />}
+              >
+                Limpiar selección / Ir a Inicio
+              </Button>
+            </div>
           </div>
 
-          {/* Results List */}
-          <div className="flex-1 overflow-y-auto px-6 py-6 space-y-4">
+          {/* Results List (Scrollable) */}
+          <div className="flex-1 overflow-y-auto px-6 py-4 space-y-3">
 
-            {/* Clear selection */}
-            <button
-              id="btn-clear-customer"
-              onClick={() => { selectCustomer(null); setIsOpen(false); setSearch(''); }}
-              className="w-full flex items-center justify-center gap-4 px-6 py-6 rounded-2xl border border-dashed border-slate-200 text-slate-400 hover:border-rose-200 hover:text-rose-400 hover:bg-rose-50 transition-all duration-200 shadow-sm"
-            >
-              <X size={20} strokeWidth={1.5} />
-              <span className="font-sans text-base font-bold uppercase tracking-widest">Limpiar selección / Volver al Inicio</span>
-            </button>
-
-            {filteredCustomers.map((c) => (
-              <button
+            {filteredCustomers.map((c, index) => (
+              <CustomerCard
                 key={c.id}
-                id={`btn-customer-${c.id}`}
-                onClick={() => { selectCustomer(c.id); setIsOpen(false); setSearch(''); }}
-                className={`w-full flex items-center justify-between px-6 py-8 rounded-3xl border transition-all duration-200 ${selectedCustomerId === c.id
-                  ? 'border-amber-300 bg-amber-50 shadow-lg scale-[1.02]'
-                  : 'border-slate-100 bg-white hover:border-amber-200 hover:bg-amber-50/50 hover:shadow-md'
-                  }`}
-              >
-                <div className="flex items-center gap-6 text-left">
-                  <div className={`flex h-16 w-16 items-center justify-center rounded-2xl ${selectedCustomerId === c.id ? 'bg-amber-400 text-white' : 'bg-slate-100 text-slate-400'}`}>
-                    <Users size={24} strokeWidth={1.5} />
-                  </div>
-                  <div className="leading-tight">
-                    <p className="font-serif text-2xl text-slate-900 font-bold">{c.name}</p>
-                    <p className="flex items-center gap-2 text-sm font-medium text-slate-400 mt-1">
-                      <Smartphone size={14} strokeWidth={1.5} />
-                      {c.whatsapp}
-                    </p>
-                  </div>
-                </div>
-                <div className="text-right leading-tight">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">Total Fiado</p>
-                  <span className={`font-mono text-xl font-bold tabular-nums ${c.balance < 0 ? 'text-rose-500' : 'text-emerald-600'}`}>
-                    {formatBalance(c.balance)}
-                  </span>
-                </div>
-              </button>
+                customer={c}
+                index={index}
+                isSelected={selectedCustomerId === c.id}
+                onCardClick={(cust) => {
+                  selectCustomer(cust.id);
+                  setIsOpen(false);
+                  setSearch('');
+                }}
+                onWhatsAppClick={handleWhatsApp}
+                onEditClick={handleEdit}
+                loadingWhatsApp={loadingWhatsAppId === c.id}
+              />
             ))}
           </div>
         </div>
       )}
+
       {/* ─── CUSTOMER HISTORY MODAL ─── */}
       {isHistoryOpen && selectedCustomer && (
         <div className="fixed inset-0 z-[10000] bg-white flex flex-col animate-in fade-in duration-200">
-          {/* Modal Header */}
           <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
             <div>
               <h2 className="font-serif text-xl text-slate-900">{selectedCustomer.name}</h2>
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Ficha de Cliente</p>
             </div>
             <button
-              id="btn-close-history-modal"
               onClick={() => setIsHistoryOpen(false)}
               className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 transition-colors"
             >
@@ -257,6 +255,14 @@ export default function CustomerSelector({ onOpenAbono }: CustomerSelectorProps)
           </div>
         </div>
       )}
+
+      {/* ─── CUSTOMER ADMIN MODAL (EDIT) ─── */}
+      <CustomerAdminModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        customer={editingCustomer}
+        mode={modalMode}
+      />
     </>
   );
 }

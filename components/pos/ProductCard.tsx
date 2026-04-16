@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import { useCart } from '@/store/useCart';
 import { useInventory } from '@/store/useInventory';
-import { ShoppingBag, Star } from 'lucide-react';
+import { ShoppingBag, Star, Edit3, Trash2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { playPop } from '@/lib/audio';
 
@@ -12,19 +12,26 @@ interface ProductCardProps {
   image?: string;
   isFavorite?: boolean;
   isBundle?: boolean;
+  viewMode?: 'grid' | 'list';
+  category?: string;
+  onEdit?: (id: string) => void;
+  onDelete?: (id: string) => void;
 }
 
-const ProductCard = memo(({ id, name, price, image, isFavorite, isBundle }: ProductCardProps) => {
+const ProductCard = memo(({ 
+  id, name, price, image, isFavorite, isBundle, viewMode = 'grid',
+  category, onEdit, onDelete 
+}: ProductCardProps) => {
   const addItem = useCart((state) => state.addItem);
   const toggleFavoriteStore = useInventory((state) => state.toggleFavorite);
+
+  const isAdmin = !!(onEdit || onDelete);
 
   const formatPrice = (amount: number) =>
     new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(amount);
 
   const handleClick = (e: React.MouseEvent) => {
-    // If we click the star, don't trigger add item
     if ((e.target as HTMLElement).closest('.favorite-toggle')) return;
-    
     addItem({ id, name, price });
     playPop();
   };
@@ -35,13 +42,77 @@ const ProductCard = memo(({ id, name, price, image, isFavorite, isBundle }: Prod
     playPop();
   };
 
+  if (viewMode === 'list') {
+    return (
+      <motion.div
+        id={`product-card-${id}`}
+        onClick={isAdmin ? undefined : handleClick}
+        whileTap={{ scale: 0.98 }}
+        whileHover={{ scale: 1.01 }}
+        className={`group flex items-center w-full bg-white border border-slate-100 rounded-2xl overflow-hidden shadow-sm hover:shadow-md hover:border-amber-200 h-[72px] ${!isAdmin ? 'cursor-pointer' : ''}`}
+      >
+        <div className="h-full w-24 bg-slate-50 relative shrink-0 overflow-hidden border-r border-slate-50">
+          {image ? (
+            <img src={image} alt={name} className="h-full w-full object-cover" />
+          ) : (
+            <div className="h-full w-full flex items-center justify-center font-serif text-amber-200 font-black italic">{name.charAt(0)}</div>
+          )}
+        </div>
+        
+        <div className="flex-1 px-4 py-2 flex items-center justify-between gap-4 min-w-0">
+          <div className="flex flex-col min-w-0">
+            <h3 className="text-sm font-bold text-slate-900 group-hover:text-amber-600 transition-colors truncate">
+              {name}
+            </h3>
+            <span className="text-base font-black text-slate-950 tabular-nums">
+              {formatPrice(price)}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={handleToggleFavorite}
+              className="favorite-toggle h-9 w-9 rounded-full bg-slate-50 flex items-center justify-center text-slate-300 hover:text-amber-400 hover:bg-amber-50 transition-all border border-transparent hover:border-amber-100"
+            >
+              <Star size={16} className={isFavorite ? "text-amber-400 fill-amber-400" : ""} />
+            </button>
+            
+            {isAdmin ? (
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => onEdit?.(id)}
+                  className="h-9 w-9 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center hover:bg-amber-100 hover:text-amber-600 transition-colors"
+                >
+                  <Edit3 size={16} />
+                </button>
+                <button
+                  onClick={() => onDelete?.(id)}
+                  className="h-9 w-9 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all shadow-sm"
+                >
+                  <Trash2 size={16} />
+                </button>
+              </div>
+            ) : (
+              <div className="h-9 w-9 rounded-xl bg-amber-500 text-white flex items-center justify-center shadow-sm">
+                <ShoppingBag size={18} />
+              </div>
+            )}
+          </div>
+        </div>
+      </motion.div>
+    );
+  }
+
+  // --- GRID VIEW (Default) ---
   return (
-    <motion.button
+    <motion.div
       id={`product-card-${id}`}
-      onClick={handleClick}
+      onClick={isAdmin ? undefined : handleClick}
       whileTap={{ scale: 0.95 }}
       whileHover={{ scale: 1.02 }}
-      className="group flex flex-col w-full bg-white border border-slate-100 rounded-3xl overflow-hidden shadow-sm transition-all duration-300 hover:shadow-lg hover:border-amber-200"
+      role={isAdmin ? "article" : "button"}
+      tabIndex={0}
+      className={`group flex flex-col w-full bg-white border border-slate-100 rounded-3xl overflow-hidden shadow-sm transition-all duration-300 hover:shadow-lg hover:border-amber-200 outline-none focus:ring-2 focus:ring-amber-200 ${!isAdmin ? 'cursor-pointer' : ''}`}
     >
       {/* Product Image / Fallback */}
       <div className="aspect-[4/3] relative w-full bg-slate-50 flex items-center justify-center overflow-hidden border-b border-slate-50">
@@ -79,23 +150,46 @@ const ProductCard = memo(({ id, name, price, image, isFavorite, isBundle }: Prod
             </span>
           </div>
         )}
+
+        {/* Action Overlay for Admin — Always visible for mobile usability */}
+        {isAdmin && (
+          <div className="absolute bottom-2 right-2 flex items-center gap-2 z-20">
+            <button
+              onClick={(e) => { e.stopPropagation(); onEdit?.(id); }}
+              className="h-9 w-9 rounded-xl bg-white text-slate-900 border border-slate-100 shadow-lg active:scale-90 transition-transform flex items-center justify-center"
+            >
+              <Edit3 size={16} />
+            </button>
+            <button
+              onClick={(e) => { e.stopPropagation(); onDelete?.(id); }}
+              className="h-9 w-9 rounded-xl bg-rose-500 text-white border border-rose-600 shadow-lg active:scale-90 transition-transform flex items-center justify-center"
+            >
+              <Trash2 size={16} />
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Info Overlay / Footer */}
-      <div className="p-2.5 bg-white text-left space-y-0.5">
-        <h3 className="font-sans text-[10px] font-black text-slate-800 truncate leading-tight group-hover:text-amber-600 transition-colors uppercase tracking-tighter">
+      <div className="p-3 bg-white text-left space-y-0.5">
+        <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400 leading-none">
+          {category || 'General'}
+        </span>
+        <h3 className="font-sans text-xs font-bold text-slate-800 truncate leading-tight group-hover:text-amber-600 transition-colors">
           {name}
         </h3>
-        <div className="flex items-center justify-between">
-          <span className="font-serif text-xs font-black text-slate-900 italic tracking-tight underline decoration-amber-200 underline-offset-2">
+        <div className="flex items-center justify-between pt-1">
+          <span className="text-base font-black text-slate-950 tabular-nums tracking-tight">
             {formatPrice(price)}
           </span>
-          <div className="h-4 w-4 rounded-full bg-amber-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-            <ShoppingBag size={8} className="text-amber-400" />
-          </div>
+          {!isAdmin && (
+            <div className="h-5 w-5 rounded-full bg-amber-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+              <ShoppingBag size={10} className="text-amber-400" />
+            </div>
+          )}
         </div>
       </div>
-    </motion.button>
+    </motion.div>
   );
 });
 
