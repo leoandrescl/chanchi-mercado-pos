@@ -4,7 +4,7 @@ export interface SaleDetails {
   total: number;
   previousBalance: number;
   newBalance: number;
-  items: { name: string; quantity: number }[];
+  items: { name: string; quantity: number; price: number }[];
 }
 
 export interface MonthlyReportDetails {
@@ -114,10 +114,10 @@ ${reportContent}==========================
 ==========================
 ${historicalLine}📈 Subtotal ${currentMonthName}: ${formatPrice(subtotalMesActual)}
 
-💰 *TOTAL PENDIENTE: ${formatPrice(finalBalance)}*
+*TOTAL PENDIENTE: ${formatPrice(finalBalance)}*
 ==========================
 
-¡Muchas gracias por su preferencia! 🐷`;
+¡Muchas gracias por su preferencia!`;
 
   return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
 }
@@ -135,20 +135,20 @@ export function generateWhatsAppLink({
   const dateStr = getFormattedDate(); // Fecha de hoy
 
   const itemsList = items
-    .map((item) => `- ${item.name} (x${item.quantity})`)
+    .map((item) => `* ${item.name} (x${item.quantity}) - ${formatPrice(item.price || 0)}`)
     .join('\n');
 
-  const message = `📦 *Detalle de compra (${dateStr}):*
+  const message = `*Detalle de compra (${dateStr}):*
 
 ${itemsList}
 
 --------------------------
 📈 *Total Previo:* ${formatPrice(previousBalance)}
 ➕ *Esta Compra:* ${formatPrice(total)}
-💰 *TOTAL ACTUAL:* ${formatPrice(newBalance)}
+*TOTAL ACTUAL:* ${formatPrice(newBalance)}
 --------------------------
 
-¡Muchas gracias por su preferencia! 🐷`;
+¡Muchas gracias por su preferencia!`;
 
   return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
 }
@@ -190,26 +190,26 @@ export function generateCustomerOrderLink({
   items,
   total,
 }: {
-  items: { name: string; quantity: number }[];
+  items: { name: string; quantity: number; price: number }[];
   total: number;
 }): string {
-  const CHANCHI_PHONE = '56945541859';
+  const CHANCHI_PHONE = '56968067937';
   const dateStr = getFormattedDate();
 
   const itemsList = items
-    .map((item) => `- ${item.name} (x${item.quantity})`)
+    .map((item) => `* ${item.name} (x${item.quantity}) - ${formatPrice(item.price)}`)
     .join('\n');
 
-  const message = `👋 *¡Hola! Me gustaría hacer un pedido:*
+  const message = `*¡Hola! Me gustaría hacer un pedido:*
 
 ${itemsList}
 
 --------------------------
-💰 *TOTAL A PAGAR:* ${formatPrice(total)}
+*TOTAL A PAGAR:* ${formatPrice(total)}
 --------------------------
 Fecha: ${dateStr}
 
-Muchas gracias. 🐷`;
+Muchas gracias.`;
 
   return `https://wa.me/${CHANCHI_PHONE}?text=${encodeURIComponent(message)}`;
 }

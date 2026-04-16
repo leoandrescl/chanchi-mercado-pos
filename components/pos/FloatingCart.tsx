@@ -8,6 +8,7 @@ import { ShoppingCart, Send, Plus, Minus, Trash2, ChevronUp, MessageCircle } fro
 import { addConsolidatedDebt } from '@/lib/actions/paymentLogic';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
+import { generateWhatsAppLink, generateCustomerOrderLink } from '@/lib/whatsapp';
 
 interface FloatingCartProps {
   isPublic?: boolean;
@@ -56,14 +57,13 @@ export default function FloatingCart({ isPublic = false }: FloatingCartProps) {
       toast.success("✅ Venta registrada con éxito");
 
       if (sendWhatsApp) {
-        const { generateWhatsAppLink } = await import('@/lib/whatsapp');
         const link = generateWhatsAppLink({
           customerName: selectedCustomer.name,
           phone: selectedCustomer.whatsapp,
           total,
           previousBalance,
           newBalance: previousBalance + total,
-          items: items.map((i) => ({ name: i.name, quantity: i.quantity })),
+          items: items.map((i) => ({ name: i.name, quantity: i.quantity, price: i.price })),
         });
         window.open(link, '_blank');
       }
@@ -81,9 +81,8 @@ export default function FloatingCart({ isPublic = false }: FloatingCartProps) {
   const handlePublicOrder = async () => {
     setIsProcessing(true);
     try {
-      const { generateCustomerOrderLink } = await import('@/lib/whatsapp');
       const link = generateCustomerOrderLink({
-        items: items.map(i => ({ name: i.name, quantity: i.quantity })),
+        items: items.map(i => ({ name: i.name, quantity: i.quantity, price: i.price })),
         total
       });
       window.open(link, '_blank');

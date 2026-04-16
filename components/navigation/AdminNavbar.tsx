@@ -3,10 +3,10 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { 
-  PlusCircle, 
-  Users, 
-  LayoutDashboard, 
+import {
+  PlusCircle,
+  Users,
+  LayoutDashboard,
   ShoppingBag,
   History
 } from 'lucide-react';
@@ -26,34 +26,28 @@ export default function AdminNavbar({ onAddProduct }: AdminNavbarProps) {
       color: 'emerald'
     },
     {
-      label: 'Vista Catálogo',
-      href: '/acceso-total-chanchi/catalogo',
-      icon: ShoppingBag,
-      color: 'amber'
-    },
-    {
       label: 'Inventario',
       href: '/inventario',
       icon: LayoutDashboard,
       color: 'blue'
     },
     {
-      label: 'Historial',
-      href: '/historial',
-      icon: History,
-      color: 'purple'
+      label: 'Catálogo',
+      href: '/acceso-total-chanchi/catalogo',
+      icon: ShoppingBag,
+      color: 'amber'
     }
   ];
 
   return (
     <header className="sticky top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-amber-50 shadow-sm transition-all duration-300">
-      <div className="mx-auto w-full max-w-4xl px-4 py-3 flex flex-col gap-4">
+      <div className="mx-auto w-full max-w-xl px-2 py-3 flex flex-col gap-4">
         {/* Brand */}
         <Link href="/acceso-total-chanchi" className="flex flex-col items-center text-center leading-none group mx-auto">
           <span className="font-serif text-2xl text-slate-900 tracking-tight transition-all group-hover:text-amber-600">ChanchiMercado</span>
           <span className="text-[9px] font-bold uppercase tracking-[0.35em] text-amber-400 mt-1">Mercado & Punto de Venta</span>
         </Link>
-        
+
         {/* Actions & Navigation */}
         <div className="flex items-center justify-between gap-2 overflow-x-auto pb-1 no-scrollbar">
           {/* Main Action */}
@@ -67,15 +61,14 @@ export default function AdminNavbar({ onAddProduct }: AdminNavbarProps) {
             <span className="text-[8px] font-black uppercase tracking-widest leading-none text-center">Nuevo Item</span>
           </button>
 
-          {/* Divider */}
-          <div className="h-8 w-px bg-slate-100 shrink-0 mx-1" />
+
 
           {/* Nav Items */}
           <div className="flex items-center gap-1">
             {navItems.map((item) => {
               const isActive = pathname === item.href;
               const Icon = item.icon;
-              
+
               const colorClasses = {
                 emerald: 'hover:bg-emerald-50 hover:text-emerald-600',
                 amber: 'hover:bg-amber-50 hover:text-amber-600',
@@ -95,7 +88,7 @@ export default function AdminNavbar({ onAddProduct }: AdminNavbarProps) {
                   key={item.href}
                   href={item.href}
                   className={`
-                    flex flex-col items-center justify-center gap-1.5 px-4 py-2 rounded-2xl transition-all duration-200 shrink-0
+                    flex flex-col items-center justify-center gap-1.5 px-2 py-2 rounded-2xl transition-all duration-200 shrink-0
                     ${isActive ? activeClasses : `text-slate-400 ${colorClasses}`}
                   `}
                 >
