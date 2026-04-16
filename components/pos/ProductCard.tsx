@@ -139,11 +139,11 @@ const ProductCard = memo(({
       {/* ─── UNIFIED ACTIONS ZONE ─── */}
       <div className={`
         flex items-center justify-end
-        ${isList ? 'w-[140px] px-6 gap-2 shrink-0' : 'absolute top-2 right-2 z-20 gap-2'}
+        ${isList ? 'w-[140px] px-2 md:px-4 gap-2 shrink-0' : 'absolute top-2 right-2 z-20 gap-2'}
       `}>
         {/* PUBLIC: Shopping Cart Button */}
         {isPublic && !isAdmin && (
-          <div className={`rounded-full bg-amber-50 flex items-center justify-center transition-all ${isList ? 'h-9 w-9 border border-amber-100' : 'h-6 w-6 opacity-0 group-hover:opacity-100'}`}>
+          <div className={`rounded-xl bg-amber-50 flex items-center justify-center transition-all shrink-0 ${isList ? 'h-9 w-9 border border-amber-100' : 'h-6 w-6 opacity-0 group-hover:opacity-100'}`}>
             <ShoppingBag size={isList ? 16 : 12} className="text-amber-500" />
           </div>
         )}
@@ -153,7 +153,7 @@ const ProductCard = memo(({
           <button
             onClick={handleToggleFavorite}
             title="Marcar como frecuente"
-            className="action-button favorite-toggle h-8 w-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center shadow-sm hover:scale-110 active:scale-90 transition-all border border-slate-100 group-hover:bg-white"
+            className="action-button favorite-toggle h-8 w-8 bg-white/80 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-sm hover:scale-110 active:scale-90 transition-all border border-slate-100 group-hover:bg-white shrink-0"
           >
             <Star
               size={14}
@@ -163,17 +163,17 @@ const ProductCard = memo(({
         )}
 
         {isAdmin && (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             <button
               onClick={(e) => { e.stopPropagation(); onEdit?.(id); }}
-              className="action-button h-8 w-8 rounded-xl bg-white text-slate-900 border border-slate-100 shadow-sm active:scale-95 transition-transform flex items-center justify-center hover:bg-slate-50"
+              className="action-button h-8 w-8 rounded-xl bg-white text-slate-900 border border-slate-100 shadow-sm active:scale-95 transition-transform flex items-center justify-center hover:bg-slate-50 shrink-0"
               title="Editar"
             >
               <Edit3 size={14} />
             </button>
             <button
               onClick={(e) => { e.stopPropagation(); onDelete?.(id); }}
-              className="action-button h-8 w-8 rounded-xl bg-rose-500 text-white border border-rose-600 shadow-sm active:scale-95 transition-transform flex items-center justify-center"
+              className="action-button h-8 w-8 rounded-xl bg-rose-500 text-white border border-rose-600 shadow-sm active:scale-95 transition-transform flex items-center justify-center shrink-0"
               title="Eliminar"
             >
               <Trash2 size={14} />
