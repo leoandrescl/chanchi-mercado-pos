@@ -56,53 +56,65 @@ export function generateFullAuditMessage({
     return new Intl.DateTimeFormat('es-CL', { day: '2-digit', month: '2-digit' }).format(new Date(dateStr));
   };
 
-  const today = new Intl.DateTimeFormat('es-CL', { 
-    day: '2-digit', month: '2-digit', year: 'numeric' 
-  }).format(new Date());
-
   const cleanPhone = phone.replace(/\D/g, '');
 
+  const now = new Date();
+  const thresholdDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  let accumulatedBalance = 0;
   let reportContent = '';
 
   monthsData.forEach((month) => {
     let monthPurchases = 0;
     let monthAbonos = 0;
+    let monthEntriesContent = '';
+    let hasDetailedEntries = false;
 
-    reportContent += `[# ${month.monthName.toUpperCase()} #]\n\n`;
-    
     month.entries.forEach((entry) => {
-      const dateLabel = formatDate(entry.date);
-      if (entry.type === 'DEBT') {
-        monthPurchases += entry.amount;
-        const itemsStr = entry.items && entry.items.length > 0
-          ? entry.items.map(i => `${i.name} x${i.quantity}`).join(', ')
-          : entry.description.replace(/^Compra: /, '');
-        
-        const paidTag = entry.is_paid ? ' [PAGADO]' : '';
-        reportContent += `- [${dateLabel}] Compra: ${itemsStr}: ${formatPrice(entry.amount)}${paidTag}\n`;
+      const entryDate = new Date(entry.date);
+      if (entryDate < thresholdDate) {
+        accumulatedBalance += (entry.type === 'DEBT' ? entry.amount : -entry.amount);
       } else {
-        monthAbonos += entry.amount;
-        reportContent += `- [${dateLabel}] [PAGO]: -${formatPrice(entry.amount)}\n`;
+        hasDetailedEntries = true;
+        const dateLabel = formatDate(entry.date);
+        if (entry.type === 'DEBT') {
+          monthPurchases += entry.amount;
+          const itemsStr = entry.items && entry.items.length > 0
+            ? entry.items.map(i => `${i.name} x${i.quantity}`).join(', ')
+            : entry.description.replace(/^Compra: /, '');
+          
+          const paidTag = entry.is_paid ? ' [PAGADO]' : '';
+          monthEntriesContent += `- [${dateLabel}] Compra: ${itemsStr}: ${formatPrice(entry.amount)}${paidTag}\n`;
+        } else {
+          monthAbonos += entry.amount;
+          monthEntriesContent += `- [${dateLabel}] [PAGO]: -${formatPrice(entry.amount)}\n`;
+        }
       }
     });
 
-    const monthSubtotal = monthPurchases - monthAbonos;
-    const monthNameDisplay = month.monthName.charAt(0).toUpperCase() + month.monthName.slice(1).split(' ')[0];
-    reportContent += `--------------------------\n`;
-    reportContent += `Subtotal ${monthNameDisplay}: ${formatPrice(monthSubtotal)}\n\n`;
+    if (hasDetailedEntries) {
+      reportContent += `[# ${month.monthName.toUpperCase()} #]\n\n`;
+      reportContent += monthEntriesContent;
+      const monthSubtotal = monthPurchases - monthAbonos;
+      const monthNameDisplay = month.monthName.charAt(0).toUpperCase() + month.monthName.slice(1).split(' ')[0];
+      reportContent += `--------------------------\n`;
+      reportContent += `Subtotal ${monthNameDisplay}: ${formatPrice(monthSubtotal)}\n\n`;
+    }
   });
 
-  const message = `Hola ${customerName}, detalle de cuenta en ChanchiMercado:
+  const accumulatedLine = accumulatedBalance !== 0 
+    ? `\u{231B} Saldo Anterior Acumulado: ${formatPrice(accumulatedBalance)}\n\n`
+    : '';
 
-${reportContent}
-==========================
+  const message = `Hola ${customerName}, resumen de tu cuenta en ChanchiMercado:
+
+${accumulatedLine}${reportContent}==========================
 --- RESUMEN TOTAL ---
-(+) Total Compras: ${formatPrice(totalPurchases)}
-(-) Total Abonos: ${formatPrice(totalAbonos)}
-TOTAL A PAGAR: ${formatPrice(finalBalance)}
+\u{1F4C8} Total Compras: ${formatPrice(totalPurchases)}
+\u{2796} Total Abonos: ${formatPrice(totalAbonos)}
+\u{1F4B0} TOTAL A PAGAR: ${formatPrice(finalBalance)}
 ==========================
 
-*** Muchas gracias por su preferencia - ChanchiMercado ***`;
+¡Muchas gracias por su preferencia! \u{1F437}`;
 
   const encodedMessage = encodeURIComponent(message);
   return `https://wa.me/${cleanPhone}?text=${encodedMessage}`;
@@ -172,25 +184,20 @@ export function generateWhatsAppLink({
     .map((item) => `- ${item.name} (x${item.quantity})`)
     .join('\n');
 
-  const today = new Intl.DateTimeFormat('es-CL', {
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric'
-  }).format(new Date());
-
-  const message = `Hola ${customerName}, detalle de compra en ChanchiMercado (${today}):
+  const message = `Hola ${customerName}, detalle de compra en ChanchiMercado:
 
 DETALLE DE LA COMPRA:
 ${itemsList}
 
 --------------------------
-Total Fiado Previo: ${formatPrice(previousBalance)}
-(+) Esta Compra: ${formatPrice(total)}
-TOTAL FIADO ACTUAL: ${formatPrice(newBalance)}
+\u{1F4C8} Total Fiado Previo: ${formatPrice(previousBalance)}
+\u{2795} Esta Compra: ${formatPrice(total)}
+\u{1F4B0} TOTAL FIADO ACTUAL: ${formatPrice(newBalance)}
 --------------------------
 
-*** ChanchiMercado ***`;
+¡Muchas gracias por su preferencia! \u{1F437}`;
 
   const encodedMessage = encodeURIComponent(message);
   return `https://wa.me/${cleanPhone}?text=${encodedMessage}`;
 }
+

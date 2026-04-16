@@ -75,7 +75,15 @@ export default function CustomersPage() {
       console.error('Error WhatsApp Detail:', error);
       // Fallback to simple message if audit fails
       const phone = customer.whatsapp.replace(/\D/g, '');
-      const message = `¡Hola ${customer.name}! Tu total fiado es de *${formatPrice(customer.balance)}*.`;
+      const message = `Hola ${customer.name}, resumen de tu cuenta:
+
+--------------------------
+\u{1F4C8} Total Fiado Previo: ${formatPrice(customer.balance)}
+\u{2795} Esta Compra: ${formatPrice(0)}
+\u{1F4B0} TOTAL FIADO ACTUAL: ${formatPrice(customer.balance)}
+--------------------------
+
+¡Muchas gracias por su preferencia! \u{1F437}`;
       const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
       window.open(url, '_blank');
     } finally {
@@ -84,10 +92,11 @@ export default function CustomersPage() {
   };
 
   return (
-    <main className="min-h-screen bg-[#FDFCF9] px-4 sm:px-12 py-8 pb-32">
+    <main className="min-h-screen bg-[#FDFCF9] px-6 sm:px-12 py-8 pb-32">
       <div className="max-w-4xl mx-auto space-y-12">
         <HeaderPage 
           title="Gestión de Deudores"
+          className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pb-8 mb-8 border-b border-slate-100"
           primaryAction={{
             label: "Nuevo Deudor",
             onClick: handleCreate
