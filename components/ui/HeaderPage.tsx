@@ -19,7 +19,7 @@ interface HeaderPageProps {
 
 export default function HeaderPage({ 
   title, 
-  backHref = "/", 
+  backHref = "/acceso-total-chanchi", 
   onBack,
   className,
   primaryAction 

@@ -6,27 +6,22 @@ import FloatingCart from '@/components/pos/FloatingCart';
 import CustomerSelector from '@/components/pos/CustomerSelector';
 import AbonoModal from '@/components/pos/AbonoModal';
 import AddCustomerModal from '@/components/customers/AddCustomerModal';
-import Link from 'next/link';
 import { useCustomers } from '@/store/useCustomers';
 import { useInventory } from '@/store/useInventory';
 import { useCart } from '@/store/useCart';
 import GlobalDashboard from '@/components/pos/GlobalDashboard';
-import { PlusCircle, ShoppingBag, LayoutDashboard, Star, LayoutGrid, List as ListIcon } from 'lucide-react';
+import { LayoutGrid, List as ListIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import InputSearch from '@/components/ui/InputSearch';
-import ProductModal from '@/components/products/ProductModal';
 
-export default function Home() {
+export default function AdminPOSPage() {
   const [isAbonoOpen, setIsAbonoOpen] = useState(false);
-  const [isAddProductOpen, setIsAddProductOpen] = useState(false);
   const [isAddCustomerOpen, setIsAddCustomerOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const { selectedCustomerId, fetchCustomers, fetchGlobalMetrics } = useCustomers();
   const { products, fetchProducts } = useInventory();
   const { items } = useCart();
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
-
-  const isCartEmpty = items.length === 0;
 
   useEffect(() => {
     fetchCustomers();
@@ -40,59 +35,13 @@ export default function Home() {
   );
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
-
-      {/* ─── FIXED GLASSMORPHISM HEADER ─── */}
-      <header className="sticky top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-amber-50">
-        <div className="mx-auto w-full max-w-3xl flex flex-col gap-2 px-4 py-2">
-          {/* Brand */}
-          <Link href="/acceso-total-chanchi" className="flex flex-col items-center text-center leading-none group mx-auto">
-            <span className="font-serif text-2xl text-slate-900 tracking-tight transition-all group-hover:text-amber-600">ChanchiMercado</span>
-            <span className="text-[9px] font-bold uppercase tracking-[0.35em] text-amber-400 mt-1">Mercado & Punto de Venta</span>
-          </Link>
-
-          {/* Nav Actions */}
-          <nav className="flex items-center justify-between w-full">
-            <button
-              id="btn-add-product"
-              onClick={() => setIsAddProductOpen(true)}
-              className="flex flex-col items-center justify-center gap-1.5 px-2 py-2 rounded-2xl text-slate-400 hover:bg-amber-50 hover:text-amber-600 transition-all duration-200"
-            >
-              <div className="h-8 w-8 flex items-center justify-center">
-                <PlusCircle size={24} strokeWidth={1.5} />
-              </div>
-              <span className="text-[8px] font-black uppercase tracking-widest leading-none text-center">Añadir Item</span>
-            </button>
-
-            <Link
-              href="/clientes"
-              className="flex flex-col items-center justify-center gap-1.5 px-2 py-2 rounded-2xl text-slate-400 hover:bg-emerald-50 hover:text-emerald-600 transition-all duration-200"
-            >
-              <div className="h-8 w-8 flex items-center justify-center">
-                <PlusCircle size={24} strokeWidth={1.5} className="rotate-45" />
-              </div>
-              <span className="text-[8px] font-black uppercase tracking-widest leading-none text-center">Clientes</span>
-            </Link>
-
-            <Link
-              href="/inventario"
-              className="flex flex-col items-center justify-center gap-1.5 px-2 py-2 rounded-2xl text-slate-400 hover:bg-amber-50 hover:text-amber-600 transition-all duration-200"
-            >
-              <div className="h-8 w-8 flex items-center justify-center">
-                <LayoutDashboard size={24} strokeWidth={1.5} />
-              </div>
-              <span className="text-[8px] font-black uppercase tracking-widest leading-none text-center">Productos</span>
-            </Link>
-          </nav>
-        </div>
-      </header>
-
+    <div className="flex flex-col">
       {/* ─── CUSTOMER SELECTOR RIBBON ─── */}
       <CustomerSelector onOpenAbono={() => setIsAbonoOpen(true)} />
 
       {/* ─── STICKY SEARCH BAR ─── */}
       {selectedCustomerId && (
-        <div className="sticky top-[200px] z-30 bg-white/80 backdrop-blur-md border-b border-slate-50 px-6 py-4">
+        <div className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-slate-50 px-6 py-4">
           <div className="mx-auto w-full max-w-3xl">
             <div className="flex items-center gap-4">
               <div className="flex-1">
@@ -130,7 +79,6 @@ export default function Home() {
           <GlobalDashboard onAddCustomer={() => setIsAddCustomerOpen(true)} />
         ) : (
           <>
-            {/* High-Density Grid/List Container */}
             <motion.div 
               layout
               transition={{ type: 'spring', bounce: 0, duration: 0.3 }}
@@ -172,7 +120,6 @@ export default function Home() {
       {/* ─── OVERLAYS ─── */}
       <FloatingCart />
       {isAbonoOpen && <AbonoModal onClose={() => setIsAbonoOpen(false)} />}
-      {isAddProductOpen && <ProductModal onClose={() => setIsAddProductOpen(false)} onRefresh={fetchProducts} />}
       {isAddCustomerOpen && <AddCustomerModal onClose={() => setIsAddCustomerOpen(false)} />}
     </div>
   );

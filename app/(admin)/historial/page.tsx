@@ -29,7 +29,7 @@ export default function Historial() {
         <div className="mx-auto max-w-4xl flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link 
-              href="/"
+              href="/acceso-total-chanchi"
               className="group flex h-10 w-10 items-center justify-center rounded-full bg-slate-50 text-slate-400 hover:bg-slate-900 hover:text-white transition-all duration-300"
             >
               <ArrowLeft size={18} className="group-hover:-translate-x-0.5 transition-transform" />

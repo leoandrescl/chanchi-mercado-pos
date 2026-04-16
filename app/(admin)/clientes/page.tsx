@@ -49,7 +49,7 @@ export default function CustomersPage() {
 
   const handleEnterProfile = (customer: Customer) => {
     selectCustomerStore(customer.id);
-    router.push('/');
+    router.push('/acceso-total-chanchi');
   };
 
   const handleWhatsApp = async (customer: Customer) => {
