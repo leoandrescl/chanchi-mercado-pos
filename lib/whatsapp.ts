@@ -65,34 +65,42 @@ export function generateFullAuditMessage({
   let reportContent = '';
 
   monthsData.forEach((month) => {
-    reportContent += `\n📅 *${month.monthName.toUpperCase()}*\n`;
+    let monthPurchases = 0;
+    let monthAbonos = 0;
+
+    reportContent += `📅 *${month.monthName.toUpperCase()}*\n\n`;
+    
     month.entries.forEach((entry) => {
       const dateLabel = formatDate(entry.date);
       if (entry.type === 'DEBT') {
+        monthPurchases += entry.amount;
         const itemsStr = entry.items && entry.items.length > 0
           ? entry.items.map(i => `${i.name} x${i.quantity}`).join(', ')
           : entry.description.replace(/^Compra: /, '');
         
         const paidEmoji = entry.is_paid ? ' ✅' : '';
-        reportContent += `• [${dateLabel}] ${itemsStr}: ${formatPrice(entry.amount)}${paidEmoji}\n`;
+        reportContent += `[${dateLabel}] Compra: ${itemsStr}: ${formatPrice(entry.amount)}${paidEmoji}\n`;
       } else {
-        reportContent += `💰 [${dateLabel}] ABONO RECIBIDO: -${formatPrice(entry.amount)}\n`;
+        monthAbonos += entry.amount;
+        reportContent += `[${dateLabel}] 💰 ABONO RECIBIDO: -${formatPrice(entry.amount)}\n`;
       }
     });
+
+    const monthSubtotal = monthPurchases - monthAbonos;
+    const monthNameDisplay = month.monthName.charAt(0).toUpperCase() + month.monthName.slice(1).split(' ')[0];
+    reportContent += `--------------------------\n`;
+    reportContent += `Subtotal ${monthNameDisplay}: ${formatPrice(monthSubtotal)}\n\n`;
   });
 
-  const message = `Hola ${customerName}, aquí está el detalle completo de tu cuenta en ChanchiMercado a fecha ${today} 👋
+  const message = `Hola ${customerName}, aquí está el detalle completo de tu cuenta en ChanchiMercado 👋
 
---------------------------
-*HISTORIAL DE TRANSACCIONES*
 ${reportContent}
---------------------------
-📊 *RESUMEN:*
-Total Compras: ${formatPrice(totalPurchases)}
-Total Abonos: ${formatPrice(totalAbonos)}
---------------------------
+==========================
+📉 *RESUMEN TOTAL:*
+(+) Total Compras: ${formatPrice(totalPurchases)}
+(-) Total Abonos: ${formatPrice(totalAbonos)}
 *TOTAL A PAGAR: ${formatPrice(finalBalance)}*
---------------------------
+==========================
 
 ¡Muchas gracias por su preferencia! 🐷✨`;
 
