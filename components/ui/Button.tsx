@@ -3,7 +3,7 @@
 import React from 'react';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'ghost';
+  variant?: 'primary' | 'secondary' | 'ghost' | 'outline';
   size?: 'default' | 'large';
   fullWidth?: boolean;
   icon?: React.ReactNode;
@@ -24,7 +24,8 @@ export default function Button({
   const variants = {
     primary: "bg-slate-950 text-white font-bold tracking-tight hover:bg-slate-800 rounded-xl shadow-sm",
     secondary: "bg-white text-slate-900 border border-slate-200 font-semibold hover:bg-slate-50 rounded-xl shadow-sm",
-    ghost: "text-slate-500 font-medium hover:text-slate-900"
+    ghost: "text-slate-500 font-medium hover:text-slate-900",
+    outline: "border border-slate-200 bg-transparent"
   };
 
   const sizes = {
