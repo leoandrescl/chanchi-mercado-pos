@@ -62,13 +62,23 @@ export function generateFullAuditMessage({
 
   const cleanPhone = phone.replace(/\D/g, '');
 
+  // Unicode Emojis for better compatibility
+  const ICON_CALENDAR = '\uD83D\uDCC5';
+  const ICON_MONEY = '\uD83D\uDCB0';
+  const ICON_CHECK = '\u2705';
+  const ICON_CHART = '\uD83D\uDCCA';
+  const ICON_WAVE = '\uD83D\uDC4B';
+  const ICON_PIG = '\uD83D\uDC37';
+  const ICON_SPARKLES = '\u2728';
+  const ICON_CHART_DOWN = '\uD83D\uDCC9';
+
   let reportContent = '';
 
   monthsData.forEach((month) => {
     let monthPurchases = 0;
     let monthAbonos = 0;
 
-    reportContent += `📅 *${month.monthName.toUpperCase()}*\n\n`;
+    reportContent += `${ICON_CALENDAR} *${month.monthName.toUpperCase()}*\n\n`;
     
     month.entries.forEach((entry) => {
       const dateLabel = formatDate(entry.date);
@@ -78,11 +88,11 @@ export function generateFullAuditMessage({
           ? entry.items.map(i => `${i.name} x${i.quantity}`).join(', ')
           : entry.description.replace(/^Compra: /, '');
         
-        const paidEmoji = entry.is_paid ? ' ✅' : '';
+        const paidEmoji = entry.is_paid ? ` ${ICON_CHECK}` : '';
         reportContent += `[${dateLabel}] Compra: ${itemsStr}: ${formatPrice(entry.amount)}${paidEmoji}\n`;
       } else {
         monthAbonos += entry.amount;
-        reportContent += `[${dateLabel}] 💰 ABONO RECIBIDO: -${formatPrice(entry.amount)}\n`;
+        reportContent += `[${dateLabel}] ${ICON_MONEY} ABONO RECIBIDO: -${formatPrice(entry.amount)}\n`;
       }
     });
 
@@ -92,17 +102,17 @@ export function generateFullAuditMessage({
     reportContent += `Subtotal ${monthNameDisplay}: ${formatPrice(monthSubtotal)}\n\n`;
   });
 
-  const message = `Hola ${customerName}, aquí está el detalle completo de tu cuenta en ChanchiMercado 👋
+  const message = `Hola ${customerName}, aquí está el detalle completo de tu cuenta en ChanchiMercado ${ICON_WAVE}
 
 ${reportContent}
 ==========================
-📉 *RESUMEN TOTAL:*
+${ICON_CHART_DOWN} *RESUMEN TOTAL:*
 (+) Total Compras: ${formatPrice(totalPurchases)}
 (-) Total Abonos: ${formatPrice(totalAbonos)}
 *TOTAL A PAGAR: ${formatPrice(finalBalance)}*
 ==========================
 
-¡Muchas gracias por su preferencia! 🐷✨`;
+¡Muchas gracias por su preferencia! ${ICON_PIG} ${ICON_SPARKLES}`;
 
   const encodedMessage = encodeURIComponent(message);
   return `https://wa.me/${cleanPhone}?text=${encodedMessage}`;
@@ -129,11 +139,17 @@ export function generateMonthlyReport({
 
   const cleanPhone = phone.replace(/\D/g, '');
 
+  const ICON_BULLET = '\u2022';
+  const ICON_CALENDAR = '\uD83D\uDCC5';
+  const ICON_MONEY = '\uD83D\uDCB0';
+  const ICON_WAVE = '\uD83D\uDC4B';
+  const ICON_PIG = '\uD83D\uDC37';
+
   const itemsList = items
-    .map((item) => `• ${formatDate(item.date)}: ${item.description} (${formatPrice(item.amount)})`)
+    .map((item) => `${ICON_BULLET} ${formatDate(item.date)}: ${item.description} (${formatPrice(item.amount)})`)
     .join('\n');
 
-  const message = `Hola ${customerName}! te envío el detalle de tus consumos en ChanchiMercado 👋
+  const message = `Hola ${customerName}! te envío el detalle de tus consumos en ChanchiMercado ${ICON_WAVE}
 
 Aquí tienes el resumen de tu cuenta de *${monthName}*:
 
@@ -141,11 +157,11 @@ Aquí tienes el resumen de tu cuenta de *${monthName}*:
 ${itemsList}
 
 --------------------------
-📅 *Total del Mes:* ${formatPrice(monthlyTotal)}
-💰 *TOTAL FIADO AL DÍA:* ${formatPrice(historicalBalance)}
+${ICON_CALENDAR} *Total del Mes:* ${formatPrice(monthlyTotal)}
+${ICON_MONEY} *TOTAL FIADO AL DÍA:* ${formatPrice(historicalBalance)}
 --------------------------
 
-¡Muchas gracias por su preferencia! 🐷`;
+¡Muchas gracias por su preferencia! ${ICON_PIG}`;
 
   const encodedMessage = encodeURIComponent(message);
   return `https://wa.me/${cleanPhone}?text=${encodedMessage}`;
@@ -168,8 +184,15 @@ export function generateWhatsAppLink({
 
   const cleanPhone = phone.replace(/\D/g, '');
 
+  const ICON_BULLET = '\u2022';
+  const ICON_CHART_UP = '\uD83D\uDCC8';
+  const ICON_PLUS = '\u2795';
+  const ICON_MONEY = '\uD83D\uDCB0';
+  const ICON_WAVE = '\uD83D\uDC4B';
+  const ICON_PIG = '\uD83D\uDC37';
+
   const itemsList = items
-    .map((item) => `• ${item.name} (x${item.quantity})`)
+    .map((item) => `${ICON_BULLET} ${item.name} (x${item.quantity})`)
     .join('\n');
 
   const today = new Intl.DateTimeFormat('es-CL', {
@@ -178,18 +201,18 @@ export function generateWhatsAppLink({
     year: 'numeric'
   }).format(new Date());
 
-  const message = `Hola ${customerName}! Te escribo de ChanchiMercado para enviarte el detalle de tu compra de hoy, ${today}. 👋
+  const message = `Hola ${customerName}! Te escribo de ChanchiMercado para enviarte el detalle de tu compra de hoy, ${today}. ${ICON_WAVE}
 
 *Detalle de la Compra:*
 ${itemsList}
 
 --------------------------
-📈 *Total Fiado Previo:* ${formatPrice(previousBalance)}
-➕ *Esta Compra:* ${formatPrice(total)}
-💰 *TOTAL FIADO ACTUAL:* ${formatPrice(newBalance)}
+${ICON_CHART_UP} *Total Fiado Previo:* ${formatPrice(previousBalance)}
+${ICON_PLUS} *Esta Compra:* ${formatPrice(total)}
+${ICON_MONEY} *TOTAL FIADO ACTUAL:* ${formatPrice(newBalance)}
 --------------------------
 
-¡Muchas gracias por su preferencia! 🐷`;
+¡Muchas gracias por su preferencia! ${ICON_PIG}`;
 
   const encodedMessage = encodeURIComponent(message);
   return `https://wa.me/${cleanPhone}?text=${encodedMessage}`;
