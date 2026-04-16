@@ -69,19 +69,22 @@ export default function AdminNavbar({ onAddProduct }: AdminNavbarProps) {
               const isActive = pathname === item.href;
               const Icon = item.icon;
 
-              const colorClasses = {
+              const colorMap: Record<string, string> = {
                 emerald: 'hover:bg-emerald-50 hover:text-emerald-600',
                 amber: 'hover:bg-amber-50 hover:text-amber-600',
                 blue: 'hover:bg-blue-50 hover:text-blue-600',
                 purple: 'hover:bg-purple-50 hover:text-purple-600'
-              }[item.color as keyof typeof colorClasses];
+              };
 
-              const activeClasses = {
+              const activeMap: Record<string, string> = {
                 emerald: 'bg-emerald-50 text-emerald-600',
                 amber: 'bg-amber-50 text-amber-600',
                 blue: 'bg-blue-50 text-blue-600',
                 purple: 'bg-purple-50 text-purple-600'
-              }[item.color as keyof typeof colorClasses];
+              };
+
+              const colorClasses = colorMap[item.color] || colorMap.amber;
+              const activeClasses = activeMap[item.color] || activeMap.amber;
 
               return (
                 <Link
