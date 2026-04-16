@@ -4,12 +4,16 @@ import React, { useState } from 'react';
 import { useCart } from '@/store/useCart';
 import { useCustomers } from '@/store/useCustomers';
 import { useTransactions } from '@/store/useTransactions';
-import { ShoppingCart, X, ArrowRight, Wallet, Send, Plus, Minus, Trash2, ChevronUp } from 'lucide-react';
+import { ShoppingCart, Send, Plus, Minus, Trash2, ChevronUp, MessageCircle } from 'lucide-react';
 import { addConsolidatedDebt } from '@/lib/actions/paymentLogic';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 
-export default function FloatingCart() {
+interface FloatingCartProps {
+  isPublic?: boolean;
+}
+
+export default function FloatingCart({ isPublic = false }: FloatingCartProps) {
   const { items, addItem, removeItem, deleteItem, clearCart, getTotal } = useCart();
   const [isExpanded, setIsExpanded] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -74,6 +78,27 @@ export default function FloatingCart() {
     }
   };
 
+  const handlePublicOrder = async () => {
+    setIsProcessing(true);
+    try {
+      const { generateCustomerOrderLink } = await import('@/lib/whatsapp');
+      const link = generateCustomerOrderLink({
+        items: items.map(i => ({ name: i.name, quantity: i.quantity })),
+        total
+      });
+      window.open(link, '_blank');
+      toast.success("🚀 Redirigiendo a WhatsApp...");
+      // We don't clear the cart automatically in public mode yet, maybe the user wants to adjust
+      // But clearing it is safer for "orders"
+      clearCart();
+      setIsExpanded(false);
+    } catch (err) {
+      toast.error("Error al generar el pedido");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   return (
     <>
       <AnimatePresence>
@@ -97,12 +122,12 @@ export default function FloatingCart() {
           {/* ─── SUMMARY BAR ─── */}
           <div 
             onClick={() => setIsExpanded(!isExpanded)}
-            title="Finalizar la venta actual"
+            title={isPublic ? "Ver mi carrito" : "Finalizar la venta actual"}
             className="flex items-center justify-between px-6 py-5 cursor-pointer hover:bg-slate-50 transition-colors relative z-10"
           >
             <div className="flex items-center gap-4">
               <div className="relative">
-                <div className="h-14 w-14 rounded-2xl bg-slate-900 flex items-center justify-center text-white shadow-lg">
+                <div className={`h-14 w-14 rounded-2xl flex items-center justify-center text-white shadow-lg ${isPublic ? 'bg-amber-500' : 'bg-slate-900'}`}>
                   <ShoppingCart size={24} strokeWidth={1.5} />
                 </div>
                 <AnimatePresence mode="popLayout">
@@ -110,14 +135,14 @@ export default function FloatingCart() {
                     key={itemCount}
                     initial={{ scale: 0.5, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
-                    className="absolute -right-1.5 -top-1.5 h-6 w-6 rounded-full bg-amber-400 border-2 border-white flex items-center justify-center pointer-events-none shadow-md"
+                    className="absolute -right-1.5 -top-1.5 h-6 w-6 rounded-full bg-slate-900 border-2 border-white flex items-center justify-center pointer-events-none shadow-md"
                   >
-                    <span className="text-[10px] font-black text-slate-900 leading-none">{itemCount}</span>
+                    <span className="text-[10px] font-black text-white leading-none">{itemCount}</span>
                   </motion.div>
                 </AnimatePresence>
               </div>
               <div className="leading-tight">
-                <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-slate-400 mb-0.5">Total Pedido</p>
+                <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-slate-400 mb-0.5">{isPublic ? 'Mi Carrito' : 'Total Pedido'}</p>
                 <div className="flex items-baseline gap-1">
                   <span className="font-serif text-4xl font-black text-slate-900 tracking-tight tabular-nums transition-all">
                     {formatPrice(total)}
@@ -128,8 +153,8 @@ export default function FloatingCart() {
             
             <div className="flex items-center gap-4">
               {!isExpanded && (
-                <div className="flex items-center gap-2 text-[9px] font-black uppercase tracking-[0.15em] text-slate-300 whitespace-nowrap">
-                  Ver Detalle
+                <div className="flex items-center gap-2 text-[9px] font-black uppercase tracking-[0.15em] text-slate-400 whitespace-nowrap">
+                  {isPublic ? 'Ver Pedido' : 'Ver Detalle'}
                   <div className="h-9 w-9 rounded-full border border-slate-100 flex items-center justify-center bg-white shadow-sm">
                     <ChevronUp size={18} className="text-slate-400" />
                   </div>
@@ -212,38 +237,53 @@ export default function FloatingCart() {
                 {/* ─── STICKY FOOTER ─── */}
                 <div className="p-6 bg-white border-t border-slate-100">
                   <div className="flex gap-3 max-w-3xl mx-auto">
-                    <button
-                      onClick={() => handleCheckout(false)}
-                      disabled={isProcessing}
-                      className="flex-1 h-16 rounded-2xl bg-white text-slate-900 border border-slate-200 flex items-center justify-center gap-2 transition-all duration-300 hover:bg-slate-50 hover:shadow-md active:scale-[0.98] disabled:opacity-50"
-                    >
-                      {isProcessing ? (
-                        <div className="h-4 w-4 border-2 border-slate-200 border-t-slate-400 rounded-full animate-spin" />
-                      ) : (
-                        <>
-                          <Wallet size={18} strokeWidth={1.5} className="text-slate-400" />
-                          <span className="font-serif text-lg italic tracking-tight">Fiar</span>
-                        </>
-                      )}
-                    </button>
+                    {isPublic ? (
+                      <button
+                        onClick={handlePublicOrder}
+                        disabled={isProcessing}
+                        className="flex-1 h-16 rounded-2xl bg-slate-900 text-white flex items-center justify-center gap-3 transition-all duration-300 hover:shadow-xl active:scale-[0.98] disabled:opacity-50 overflow-hidden relative group"
+                        style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)' }}
+                      >
+                        {isProcessing ? (
+                          <div className="h-5 w-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                        ) : (
+                          <>
+                            <MessageCircle size={20} className="text-emerald-400" />
+                            <span className="font-serif text-lg italic tracking-tight">Pedir por WhatsApp</span>
+                          </>
+                        )}
+                      </button>
+                    ) : (
+                      <>
+                        <button
+                          onClick={() => handleCheckout(false)}
+                          disabled={isProcessing}
+                          className="flex-1 h-16 rounded-2xl bg-white text-slate-900 border border-slate-200 flex items-center justify-center gap-2 transition-all duration-300 hover:bg-slate-50 hover:shadow-md active:scale-[0.98] disabled:opacity-50"
+                        >
+                          {isProcessing ? (
+                            <div className="h-4 w-4 border-2 border-slate-200 border-t-slate-400 rounded-full animate-spin" />
+                          ) : (
+                            <span className="font-serif text-lg italic tracking-tight text-slate-500">Fiar</span>
+                          )}
+                        </button>
 
-                    <button
-                      onClick={() => handleCheckout(true)}
-                      disabled={isProcessing}
-                      className="flex-[2] h-16 rounded-2xl bg-slate-900 text-white flex items-center justify-center gap-3 transition-all duration-300 hover:shadow-xl hover:shadow-amber-900/10 active:scale-[0.98] disabled:opacity-50 overflow-hidden relative group"
-                      style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)' }}
-                    >
-                      {isProcessing ? (
-                        <div className="h-5 w-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-                      ) : (
-                        <>
-                          <div className="absolute inset-0 bg-amber-400/0 group-hover:bg-amber-400/5 transition-colors" />
-                          <Send size={18} strokeWidth={1.5} className="text-emerald-400 transition-transform group-hover:scale-110" />
-                          <span className="font-serif text-lg italic tracking-tight">Fiar y Enviar</span>
-                          <ArrowRight size={16} className="text-emerald-400/50 group-hover:translate-x-2 transition-transform" />
-                        </>
-                      )}
-                    </button>
+                        <button
+                          onClick={() => handleCheckout(true)}
+                          disabled={isProcessing}
+                          className="flex-[2] h-16 rounded-2xl bg-slate-900 text-white flex items-center justify-center gap-3 transition-all duration-300 hover:shadow-xl hover:shadow-amber-900/10 active:scale-[0.98] disabled:opacity-50 overflow-hidden relative group"
+                          style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)' }}
+                        >
+                          {isProcessing ? (
+                            <div className="h-5 w-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                          ) : (
+                            <>
+                              <Send size={18} strokeWidth={1.5} className="text-emerald-400" />
+                              <span className="font-serif text-lg italic tracking-tight">Fiar y Enviar</span>
+                            </>
+                          )}
+                        </button>
+                      </>
+                    )}
                   </div>
                 </div>
               </motion.div>

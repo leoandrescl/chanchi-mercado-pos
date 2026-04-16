@@ -131,36 +131,28 @@ export default function Home() {
         ) : (
           <>
             {/* High-Density Grid/List Container */}
-            <div className={viewMode === 'grid'
-              ? "grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4"
-              : "flex flex-col gap-2"
-            }>
-              <AnimatePresence mode="popLayout">
+            <motion.div 
+              layout
+              transition={{ type: 'spring', bounce: 0, duration: 0.3 }}
+              className={viewMode === 'grid'
+                ? "grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4"
+                : "flex flex-col gap-2"
+              }
+            >
+              <AnimatePresence mode="popLayout" initial={false}>
                 {filteredProducts.map((product) => (
-                  <motion.div
-                    layout
+                  <ProductCard
                     key={product.id}
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    transition={{
-                      type: "spring",
-                      stiffness: 400,
-                      damping: 30
-                    }}
-                  >
-                    <ProductCard
-                      id={product.id}
-                      name={product.name}
-                      price={product.price}
-                      image={product.image}
-                      isFavorite={product.is_favorite}
-                      viewMode={viewMode}
-                    />
-                  </motion.div>
+                    id={product.id}
+                    name={product.name}
+                    price={product.price}
+                    image={product.image}
+                    isFavorite={product.is_favorite}
+                    viewMode={viewMode}
+                  />
                 ))}
               </AnimatePresence>
-            </div>
+            </motion.div>
 
             {filteredProducts.length === 0 && (
               <div className="py-20 text-center animate-in fade-in duration-500">

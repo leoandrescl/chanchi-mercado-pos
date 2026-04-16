@@ -122,7 +122,7 @@ ${historicalLine}📈 Subtotal ${currentMonthName}: ${formatPrice(subtotalMesAct
   return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
 }
 
-// 2. GENERADOR DE COMPRA ACTUAL (EL QUE SOLICITASTE CON FECHA)
+// 2. GENERADOR DE COMPRA ACTUAL (EL QUE SOLICITASTE con FECHA)
 export function generateWhatsAppLink({
   customerName,
   phone,
@@ -183,4 +183,33 @@ TOTAL FIADO AL DIA: ${formatPrice(historicalBalance)}
 *** ChanchiMercado ***`;
 
   return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
+}
+
+// 4. GENERADOR DE PEDIDO DE CLIENTE (STOREFRONT PÚBLICO)
+export function generateCustomerOrderLink({
+  items,
+  total,
+}: {
+  items: { name: string; quantity: number }[];
+  total: number;
+}): string {
+  const CHANCHI_PHONE = '56945541859';
+  const dateStr = getFormattedDate();
+
+  const itemsList = items
+    .map((item) => `- ${item.name} (x${item.quantity})`)
+    .join('\n');
+
+  const message = `👋 *¡Hola! Me gustaría hacer un pedido:*
+
+${itemsList}
+
+--------------------------
+💰 *TOTAL A PAGAR:* ${formatPrice(total)}
+--------------------------
+Fecha: ${dateStr}
+
+Muchas gracias. 🐷`;
+
+  return `https://wa.me/${CHANCHI_PHONE}?text=${encodeURIComponent(message)}`;
 }
