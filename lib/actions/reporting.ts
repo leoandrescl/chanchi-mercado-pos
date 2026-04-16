@@ -20,7 +20,17 @@ export interface MonthlyAuditData {
 
 export async function getDebtorFullAudit(debtorId: string) {
   try {
-    // 1. Fetch ALL debts (paid and unpaid)
+    // 1. Fetch the DEBTOR truth (real balance)
+    const { data: debtor, error: debtorFetchError } = await supabase
+      .from('debtors')
+      .select('balance')
+      .eq('id', debtorId)
+      .single();
+
+    if (debtorFetchError) throw debtorFetchError;
+    const realBalance = debtor.balance || 0;
+
+    // 2. Fetch ALL debts (paid and unpaid)
     const { data: allDebts, error: debtError } = await supabase
       .from('debts')
       .select('*')
@@ -116,7 +126,7 @@ export async function getDebtorFullAudit(debtorId: string) {
         monthsData: grouped,
         totalPurchases,
         totalAbonos,
-        finalBalance: totalPurchases - totalAbonos
+        finalBalance: realBalance
       }
     };
 

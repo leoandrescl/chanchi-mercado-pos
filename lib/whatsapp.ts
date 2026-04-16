@@ -37,33 +37,32 @@ export interface FullAuditDetails {
   finalBalance: number;
 }
 
+const formatPrice = (amount: number) => {
+  return new Intl.NumberFormat('es-CL', {
+    style: 'currency',
+    currency: 'CLP',
+  }).format(amount);
+};
+
+const getFormattedDate = (dateStr?: string) => {
+  const d = dateStr ? new Date(dateStr) : new Date();
+  return `${d.getDate()}/${d.getMonth() + 1}`;
+};
+
+// 1. GENERADOR DE DETALLE DE CUENTA (AUDITORÍA COMPLETA)
 export function generateFullAuditMessage({
   customerName,
   phone,
   monthsData,
-  totalPurchases,
-  totalAbonos,
   finalBalance,
 }: FullAuditDetails): string {
-  const formatPrice = (amount: number) => {
-    return new Intl.NumberFormat('es-CL', {
-      style: 'currency',
-      currency: 'CLP',
-    }).format(amount);
-  };
-
-  const formatDate = (dateStr: string) => {
-    const d = new Date(dateStr);
-    return `${d.getDate()}/${d.getMonth() + 1}`;
-  };
-
   const cleanPhone = phone.replace(/\D/g, '');
-
   const now = new Date();
   const thresholdDate = new Date(now.getFullYear(), now.getMonth(), 1);
+
   let reportContent = '';
-  let detailedSummaries = '';
-  let detailedSubtotalsSum = 0;
+  let subtotalMesActual = 0;
+  let currentMonthName = '';
 
   monthsData.forEach((month) => {
     let monthPurchases = 0;
@@ -75,59 +74,86 @@ export function generateFullAuditMessage({
       const entryDate = new Date(entry.date);
       if (entryDate >= thresholdDate) {
         hasDetailedEntries = true;
-        const dateLabel = formatDate(entry.date);
+        const dateLabel = getFormattedDate(entry.date);
+
         if (entry.type === 'DEBT') {
           monthPurchases += entry.amount;
           const itemsStr = entry.items && entry.items.length > 0
             ? entry.items.map(i => `${i.name} x${i.quantity}`).join(', ')
             : entry.description.replace(/^Compra: /, '');
-          
-          const paidTag = entry.is_paid ? ' [PAGADO]' : '';
-          monthEntriesContent += `- [${dateLabel}] Compra: ${itemsStr}: ${formatPrice(entry.amount)}${paidTag}\n`;
+
+          monthEntriesContent += `- [${dateLabel}] Compra: ${itemsStr}: ${formatPrice(entry.amount)}${entry.is_paid ? ' ✅' : ''}\n`;
         } else {
           monthAbonos += entry.amount;
-          monthEntriesContent += `- [${dateLabel}] [PAGO]: -${formatPrice(entry.amount)}\n`;
+          monthEntriesContent += `- [${dateLabel}] 💰 PAGO: ${formatPrice(entry.amount)}\n`;
         }
       }
     });
 
     if (hasDetailedEntries) {
-      reportContent += `[# ${month.monthName.toUpperCase()} #]\n\n`;
-      reportContent += monthEntriesContent;
       const monthSubtotal = monthPurchases - monthAbonos;
-      detailedSubtotalsSum += monthSubtotal;
-      const monthNameDisplay = month.monthName.charAt(0).toUpperCase() + month.monthName.slice(1).split(' ')[0];
+      subtotalMesActual += monthSubtotal;
+      currentMonthName = month.monthName.charAt(0).toUpperCase() + month.monthName.slice(1).split(' ')[0];
+
+      reportContent += `*# ${month.monthName.toUpperCase()} #*\n\n`;
+      reportContent += monthEntriesContent;
       reportContent += `--------------------------\n`;
-      reportContent += `\u{1F4C8} Subtotal ${monthNameDisplay}: ${formatPrice(monthSubtotal)}\n\n`;
-      
-      // Capturar para el resumen final
-      detailedSummaries += `\u{1F4C8} Subtotal ${monthNameDisplay}: ${formatPrice(monthSubtotal)}\n`;
+      reportContent += `📈 Subtotal ${currentMonthName}: ${formatPrice(monthSubtotal)}\n\n`;
     }
   });
 
-  // HARD-FIX DEFINITIVO: Cálculo inverso desde el Saldo Real de DB
-  const historicalBalance = finalBalance - detailedSubtotalsSum;
-  const historicalLine = historicalBalance > 0 
-    ? `\u{231B} Saldo Anterior: ${formatPrice(historicalBalance)}\n`
+  const saldoAnterior = finalBalance - subtotalMesActual;
+  const historicalLine = saldoAnterior > 0
+    ? `⌛ Saldo Anterior: ${formatPrice(saldoAnterior)}\n`
     : '';
 
-  const message = `\u{1F4E6} *Resumen de cuenta:*
+  const message = `📦 *Resumen de cuenta:*
 
 ${reportContent}==========================
-   \u{1F4B0} RESUMEN DE CUENTA
+   💰 *RESUMEN DE CUENTA*
 ==========================
-${historicalLine}${detailedSummaries}
-\u{1F4B0} TOTAL PENDIENTE: ${formatPrice(finalBalance)}
+${historicalLine}📈 Subtotal ${currentMonthName}: ${formatPrice(subtotalMesActual)}
+
+💰 *TOTAL PENDIENTE: ${formatPrice(finalBalance)}*
 ==========================
 
-¡Muchas gracias por su preferencia! \u{1F437}`;
+¡Muchas gracias por su preferencia! 🐷`;
 
-  const encodedMessage = encodeURIComponent(message);
-  return `https://wa.me/${cleanPhone}?text=${encodedMessage}`;
+  return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
 }
 
+// 2. GENERADOR DE COMPRA ACTUAL (EL QUE SOLICITASTE CON FECHA)
+export function generateWhatsAppLink({
+  customerName,
+  phone,
+  total,
+  previousBalance,
+  newBalance,
+  items,
+}: SaleDetails): string {
+  const cleanPhone = phone.replace(/\D/g, '');
+  const dateStr = getFormattedDate(); // Fecha de hoy
 
+  const itemsList = items
+    .map((item) => `- ${item.name} (x${item.quantity})`)
+    .join('\n');
 
+  const message = `📦 *Detalle de compra (${dateStr}):*
+
+${itemsList}
+
+--------------------------
+📈 *Total Previo:* ${formatPrice(previousBalance)}
+➕ *Esta Compra:* ${formatPrice(total)}
+💰 *TOTAL ACTUAL:* ${formatPrice(newBalance)}
+--------------------------
+
+¡Muchas gracias por su preferencia! 🐷`;
+
+  return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
+}
+
+// 3. GENERADOR DE REPORTE MENSUAL SIMPLE
 export function generateMonthlyReport({
   customerName,
   phone,
@@ -136,21 +162,10 @@ export function generateMonthlyReport({
   historicalBalance,
   items,
 }: MonthlyReportDetails): string {
-  const formatPrice = (amount: number) => {
-    return new Intl.NumberFormat('es-CL', {
-      style: 'currency',
-      currency: 'CLP',
-    }).format(amount);
-  };
-
-  const formatDate = (dateStr: string) => {
-    return new Intl.DateTimeFormat('es-CL', { day: '2-digit', month: 'short' }).format(new Date(dateStr));
-  };
-
   const cleanPhone = phone.replace(/\D/g, '');
 
   const itemsList = items
-    .map((item) => `- [${formatDate(item.date)}] ${item.description}: ${formatPrice(item.amount)}`)
+    .map((item) => `- [${getFormattedDate(item.date)}] ${item.description}: ${formatPrice(item.amount)}`)
     .join('\n');
 
   const message = `Hola ${customerName}, resumen de consumos en ChanchiMercado:
@@ -167,45 +182,5 @@ TOTAL FIADO AL DIA: ${formatPrice(historicalBalance)}
 
 *** ChanchiMercado ***`;
 
-  const encodedMessage = encodeURIComponent(message);
-  return `https://wa.me/${cleanPhone}?text=${encodedMessage}`;
+  return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
 }
-
-export function generateWhatsAppLink({
-  customerName,
-  phone,
-  total,
-  previousBalance,
-  newBalance,
-  items,
-}: SaleDetails): string {
-  const formatPrice = (amount: number) => {
-    return new Intl.NumberFormat('es-CL', {
-      style: 'currency',
-      currency: 'CLP',
-    }).format(amount);
-  };
-
-  const cleanPhone = phone.replace(/\D/g, '');
-
-  const itemsList = items
-    .map((item) => `- ${item.name} (x${item.quantity})`)
-    .join('\n');
-
-  const message = `Hola ${customerName}, detalle de compra en ChanchiMercado:
-
-DETALLE DE LA COMPRA:
-${itemsList}
-
---------------------------
-\u{1F4C8} Total Fiado Previo: ${formatPrice(previousBalance)}
-\u{2795} Esta Compra: ${formatPrice(total)}
-\u{1F4B0} TOTAL FIADO ACTUAL: ${formatPrice(newBalance)}
---------------------------
-
-¡Muchas gracias por su preferencia! \u{1F437}`;
-
-  const encodedMessage = encodeURIComponent(message);
-  return `https://wa.me/${cleanPhone}?text=${encodedMessage}`;
-}
-
