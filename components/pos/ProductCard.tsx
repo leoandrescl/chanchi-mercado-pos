@@ -171,15 +171,13 @@ const ProductCard = memo(({
             >
               <Edit3 size={14} />
             </button>
-            {!isList && (
-              <button
-                onClick={(e) => { e.stopPropagation(); onDelete?.(id); }}
-                className="action-button h-8 w-8 rounded-xl bg-rose-500 text-white border border-rose-600 shadow-sm active:scale-95 transition-transform flex items-center justify-center"
-                title="Eliminar"
-              >
-                <Trash2 size={14} />
-              </button>
-            )}
+            <button
+              onClick={(e) => { e.stopPropagation(); onDelete?.(id); }}
+              className="action-button h-8 w-8 rounded-xl bg-rose-500 text-white border border-rose-600 shadow-sm active:scale-95 transition-transform flex items-center justify-center"
+              title="Eliminar"
+            >
+              <Trash2 size={14} />
+            </button>
           </div>
         )}
       </div>
