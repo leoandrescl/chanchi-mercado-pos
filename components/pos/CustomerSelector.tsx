@@ -2,7 +2,8 @@
 
 import React, { useState } from 'react';
 import { useCustomers, Customer } from '@/store/useCustomers';
-import { Users, Search, X, UserCheck, Smartphone, History, Wallet, ArrowLeft } from 'lucide-react';
+import { Smartphone, History, Wallet, ArrowLeft, Users, Search, X } from 'lucide-react';
+import { toast } from 'sonner';
 import CustomerHistory from '@/components/customers/CustomerHistory';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getDebtorFullAudit } from '@/lib/actions/reporting';
@@ -135,6 +136,7 @@ export default function CustomerSelector({ onOpenAbono }: CustomerSelectorProps)
                     {onOpenAbono && (
                       <button
                         onClick={onOpenAbono}
+                        title="Pagar parte de la deuda"
                         className="col-span-2 flex items-center justify-center gap-3 rounded-2xl bg-slate-900 px-6 py-4 text-xs font-bold uppercase tracking-widest text-white hover:bg-slate-800 transition-all shadow-lg shadow-slate-200 active:scale-[0.98]"
                       >
                         <Wallet size={18} className="text-amber-400" />
@@ -153,6 +155,7 @@ export default function CustomerSelector({ onOpenAbono }: CustomerSelectorProps)
                     <button
                       onClick={() => handleWhatsApp(selectedCustomer)}
                       disabled={!!loadingWhatsAppId}
+                      title="Envía el resumen por WhatsApp"
                       className={`flex items-center justify-center gap-2 rounded-xl px-4 py-4 text-[11px] font-bold uppercase tracking-wider text-white transition-all shadow-md active:scale-[0.98] ${loadingWhatsAppId === selectedCustomer.id ? 'bg-slate-400' : 'bg-green-500 hover:bg-green-600'}`}
                     >
                       <Smartphone size={20} strokeWidth={2} className={loadingWhatsAppId === selectedCustomer.id ? 'animate-bounce' : ''} />
@@ -222,6 +225,7 @@ export default function CustomerSelector({ onOpenAbono }: CustomerSelectorProps)
                 isSelected={selectedCustomerId === c.id}
                 onCardClick={(cust) => {
                   selectCustomer(cust.id);
+                  toast.success(`👤 Cliente ${cust.name} seleccionado`);
                   setIsOpen(false);
                   setSearch('');
                 }}

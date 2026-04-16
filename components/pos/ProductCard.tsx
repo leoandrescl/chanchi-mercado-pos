@@ -72,6 +72,7 @@ const ProductCard = memo(({
           <div className="flex items-center gap-2 shrink-0">
             <button
               onClick={handleToggleFavorite}
+              title="Marcar como frecuente"
               className="favorite-toggle h-9 w-9 rounded-full bg-slate-50 flex items-center justify-center text-slate-300 hover:text-amber-400 hover:bg-amber-50 transition-all border border-transparent hover:border-amber-100"
             >
               <Star size={16} className={isFavorite ? "text-amber-400 fill-amber-400" : ""} />
@@ -119,6 +120,7 @@ const ProductCard = memo(({
         {/* Toggleable Star Icon */}
         <button
           onClick={handleToggleFavorite}
+          title="Marcar como frecuente"
           className="favorite-toggle absolute top-2 right-2 z-10 h-8 w-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center shadow-sm hover:scale-110 active:scale-90 transition-all border border-slate-100 group-hover:bg-white"
         >
           <Star 

@@ -50,7 +50,7 @@ export default function AbonoModal({ onClose }: AbonoModalProps) {
         amount: val,
       });
 
-      toast.success("Abono procesado correctamente 💰");
+      toast.success("💰 Abono aplicado correctamente");
       onClose();
     } catch (err) {
       console.error('Error processing payment:', err);

@@ -49,7 +49,7 @@ export default function FloatingCart() {
       });
 
       await fetchGlobalMetrics();
-      toast.success("Deuda registrada con éxito ✅");
+      toast.success("✅ Venta registrada con éxito");
 
       if (sendWhatsApp) {
         const { generateWhatsAppLink } = await import('@/lib/whatsapp');
@@ -97,6 +97,7 @@ export default function FloatingCart() {
           {/* ─── SUMMARY BAR ─── */}
           <div 
             onClick={() => setIsExpanded(!isExpanded)}
+            title="Finalizar la venta actual"
             className="flex items-center justify-between px-6 py-5 cursor-pointer hover:bg-slate-50 transition-colors relative z-10"
           >
             <div className="flex items-center gap-4">
