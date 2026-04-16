@@ -73,15 +73,10 @@ export function generateFullAuditMessage({
           ? entry.items.map(i => `${i.name} x${i.quantity}`).join(', ')
           : entry.description.replace(/^Compra: /, '');
         
-        const statusEmoji = entry.is_paid ? '✅' : '⏳';
-        const remainingLabel = entry.is_paid 
-          ? 'PAGADO' 
-          : `RESTAN: ${formatPrice(entry.remaining_amount || entry.amount)}`;
-
-        reportContent += `• (${dateLabel}) Compra: ${itemsStr} - ${formatPrice(entry.amount)} (${statusEmoji} ${remainingLabel})\n`;
+        const paidEmoji = entry.is_paid ? ' ✅' : '';
+        reportContent += `• [${dateLabel}] ${itemsStr}: ${formatPrice(entry.amount)}${paidEmoji}\n`;
       } else {
-        const note = entry.liquidationNote ? ` (_${entry.liquidationNote}_)` : '';
-        reportContent += `• (${dateLabel}) 💰 *Abono Recibido:* -${formatPrice(entry.amount)}${note}\n`;
+        reportContent += `💰 [${dateLabel}] ABONO RECIBIDO: -${formatPrice(entry.amount)}\n`;
       }
     });
   });
@@ -93,10 +88,10 @@ export function generateFullAuditMessage({
 ${reportContent}
 --------------------------
 📊 *RESUMEN:*
-(+) Total Compras: ${formatPrice(totalPurchases)}
-(-) Total Abonos: ${formatPrice(totalAbonos)}
+Total Compras: ${formatPrice(totalPurchases)}
+Total Abonos: ${formatPrice(totalAbonos)}
 --------------------------
-💰 *TOTAL A PAGAR: ${formatPrice(finalBalance)}*
+*TOTAL A PAGAR: ${formatPrice(finalBalance)}*
 --------------------------
 
 ¡Muchas gracias por su preferencia! 🐷✨`;

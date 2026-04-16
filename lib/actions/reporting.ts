@@ -45,25 +45,38 @@ export async function getDebtorFullAudit(debtorId: string) {
 
     // 3. Process ALL debts into entries
     for (const debt of (allDebts || [])) {
-      totalPurchases += debt.amount;
-      
-      const matchingLog = logs?.find(l => 
-        l.action_type === 'FIADO' && 
-        (Math.abs(new Date(l.created_at).getTime() - new Date(debt.date).getTime()) < 5000)
-      );
+      if (debt.amount > 0) {
+        // It's a real purchase
+        totalPurchases += debt.amount;
+        
+        const matchingLog = logs?.find(l => 
+          l.action_type === 'FIADO' && 
+          (Math.abs(new Date(l.created_at).getTime() - new Date(debt.date).getTime()) < 5000)
+        );
 
-      entries.push({
-        type: 'DEBT',
-        date: debt.date,
-        description: debt.description,
-        amount: debt.amount,
-        remaining_amount: debt.remaining_amount ?? (debt.is_paid ? 0 : debt.amount),
-        is_paid: debt.is_paid,
-        items: matchingLog?.details?.items || []
-      });
+        entries.push({
+          type: 'DEBT',
+          date: debt.date,
+          description: debt.description,
+          amount: debt.amount,
+          remaining_amount: debt.remaining_amount ?? (debt.is_paid ? 0 : debt.amount),
+          is_paid: debt.is_paid,
+          items: matchingLog?.details?.items || []
+        });
+      } else if (debt.amount < 0) {
+        // It's a legacy abono/credit stored in debts table
+        const absAmount = Math.abs(debt.amount);
+        totalAbonos += absAmount;
+        entries.push({
+          type: 'PAYMENT',
+          date: debt.date,
+          description: debt.description.includes('Favor') ? 'Saldo a Favor' : 'Abono Registrado',
+          amount: absAmount
+        });
+      }
     }
 
-    // 4. Process ALL ABONOS into entries
+    // 4. Process ALL ABONOS (from logs) into entries
     for (const log of (logs || [])) {
       if (log.action_type === 'ABONO') {
         const amount = log.details?.amount || 0;
