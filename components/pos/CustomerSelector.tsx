@@ -185,6 +185,7 @@ export default function CustomerSelector({ onOpenAbono }: CustomerSelectorProps)
           <div className="px-6 py-2">
             <HeaderPage 
               title="Gestión de Deudores"
+              backHref="/acceso-total-chanchi"
               onBack={() => { setIsOpen(false); setSearch(''); }}
               className="flex items-center gap-4 py-4"
             />

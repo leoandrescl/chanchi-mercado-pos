@@ -4,6 +4,7 @@ import { useInventory } from '@/store/useInventory';
 import { ShoppingBag, Star, Edit3, Trash2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { playPop } from '@/lib/audio';
+import Image from 'next/image';
 
 interface ProductCardProps {
   id: string;
@@ -14,13 +15,14 @@ interface ProductCardProps {
   isBundle?: boolean;
   viewMode?: 'grid' | 'list';
   category?: string;
+  isPublic?: boolean;
   onEdit?: (id: string) => void;
   onDelete?: (id: string) => void;
 }
 
 const ProductCard = memo(({ 
   id, name, price, image, isFavorite, isBundle, viewMode = 'grid',
-  category, onEdit, onDelete 
+  category, isPublic, onEdit, onDelete 
 }: ProductCardProps) => {
   const addItem = useCart((state) => state.addItem);
   const toggleFavoriteStore = useInventory((state) => state.toggleFavorite);
@@ -31,6 +33,7 @@ const ProductCard = memo(({
     new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(amount);
 
   const handleClick = (e: React.MouseEvent) => {
+    if (isPublic) return; // Read-only mode
     if ((e.target as HTMLElement).closest('.favorite-toggle')) return;
     addItem({ id, name, price });
     playPop();
@@ -53,7 +56,12 @@ const ProductCard = memo(({
       >
         <div className="h-full w-24 bg-slate-50 relative shrink-0 overflow-hidden border-r border-slate-50">
           {image ? (
-            <img src={image} alt={name} className="h-full w-full object-cover" />
+            <Image 
+              src={image} 
+              alt={name} 
+              fill
+              className="object-cover" 
+            />
           ) : (
             <div className="h-full w-full flex items-center justify-center font-serif text-amber-200 font-black italic">{name.charAt(0)}</div>
           )}
@@ -70,13 +78,15 @@ const ProductCard = memo(({
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
-            <button
-              onClick={handleToggleFavorite}
-              title="Marcar como frecuente"
-              className="favorite-toggle h-9 w-9 rounded-full bg-slate-50 flex items-center justify-center text-slate-300 hover:text-amber-400 hover:bg-amber-50 transition-all border border-transparent hover:border-amber-100"
-            >
-              <Star size={16} className={isFavorite ? "text-amber-400 fill-amber-400" : ""} />
-            </button>
+            {!isPublic && (
+              <button
+                onClick={handleToggleFavorite}
+                title="Marcar como frecuente"
+                className="favorite-toggle h-9 w-9 rounded-full bg-slate-50 flex items-center justify-center text-slate-300 hover:text-amber-400 hover:bg-amber-50 transition-all border border-transparent hover:border-amber-100"
+              >
+                <Star size={16} className={isFavorite ? "text-amber-400 fill-amber-400" : ""} />
+              </button>
+            )}
             
             {isAdmin ? (
               <div className="flex items-center gap-2">
@@ -117,17 +127,26 @@ const ProductCard = memo(({
     >
       {/* Product Image / Fallback */}
       <div className="aspect-[4/3] relative w-full bg-slate-50 flex items-center justify-center overflow-hidden border-b border-slate-50">
-        {/* Toggleable Star Icon */}
-        <button
-          onClick={handleToggleFavorite}
-          title="Marcar como frecuente"
-          className="favorite-toggle absolute top-2 right-2 z-10 h-8 w-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center shadow-sm hover:scale-110 active:scale-90 transition-all border border-slate-100 group-hover:bg-white"
-        >
-          <Star 
-            size={14} 
-            className={isFavorite ? "text-amber-400 fill-amber-400" : "text-slate-300"} 
-          />
-        </button>
+        {/* Toggleable Star Icon (Admin only) */}
+        {!isPublic && (
+          <button
+            onClick={handleToggleFavorite}
+            title="Marcar como frecuente"
+            className="favorite-toggle absolute top-2 right-2 z-10 h-8 w-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center shadow-sm hover:scale-110 active:scale-90 transition-all border border-slate-100 group-hover:bg-white"
+          >
+            <Star 
+              size={14} 
+              className={isFavorite ? "text-amber-400 fill-amber-400" : "text-slate-300"} 
+            />
+          </button>
+        )}
+
+        {/* Status Badge (Public mode) */}
+        {isPublic && (
+          <div className="absolute top-2 right-2 z-10 bg-emerald-50 text-emerald-600 text-[8px] font-black uppercase tracking-[0.2em] px-2 py-1 rounded-full border border-emerald-100 shadow-sm backdrop-blur-md">
+            Disponible
+          </div>
+        )}
 
         {/* Bundle / Promo Badge */}
         {isBundle && (
@@ -137,10 +156,12 @@ const ProductCard = memo(({
         )}
 
         {image ? (
-          <img 
+          <Image 
             src={image} 
             alt={name} 
-            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" 
+            fill
+            sizes="(max-width: 768px) 50vw, 33vw"
+            className="object-cover transition-transform duration-500 group-hover:scale-110" 
           />
         ) : (
           <div className="flex flex-col items-center justify-center p-2 text-center">
@@ -184,7 +205,7 @@ const ProductCard = memo(({
           <span className="text-base font-black text-slate-950 tabular-nums tracking-tight">
             {formatPrice(price)}
           </span>
-          {!isAdmin && (
+          {!isAdmin && !isPublic && (
             <div className="h-5 w-5 rounded-full bg-amber-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
               <ShoppingBag size={10} className="text-amber-400" />
             </div>

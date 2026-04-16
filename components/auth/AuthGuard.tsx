@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Lock, Delete, ArrowRight } from 'lucide-react';
+import { usePathname, useRouter } from 'next/navigation';
 
 interface AuthGuardProps {
   children: React.ReactNode;
@@ -12,6 +13,9 @@ export default function AuthGuard({ children }: AuthGuardProps) {
   const [pin, setPin] = useState<string>('');
   const [error, setError] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  
+  const pathname = usePathname();
+  const router = useRouter();
 
   const CORRECT_PIN = process.env.NEXT_PUBLIC_APP_PIN || '1234';
 
@@ -22,6 +26,13 @@ export default function AuthGuard({ children }: AuthGuardProps) {
     }
     setIsLoading(false);
   }, []);
+
+  useEffect(() => {
+    // If not authenticated and NOT on the secret access page, kick to home
+    if (!isLoading && !isAuthenticated && pathname !== '/acceso-total-chanchi') {
+      router.push('/');
+    }
+  }, [isLoading, isAuthenticated, pathname, router]);
 
   const handleKeyPress = (num: string) => {
     if (pin.length < 4) {
@@ -48,6 +59,10 @@ export default function AuthGuard({ children }: AuthGuardProps) {
   if (isLoading) return null;
 
   if (isAuthenticated) return <>{children}</>;
+
+  // If we are here, and user is NOT on secret route, they should have been redirected by the useEffect.
+  // We show the PIN ONLY on /acceso-total-chanchi
+  if (pathname !== '/acceso-total-chanchi') return null;
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-50 overflow-hidden">

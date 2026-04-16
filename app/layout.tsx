@@ -42,7 +42,7 @@ export default function RootLayout({
       className={`${inter.variable} ${playfair.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-sans">
-        <AuthGuard>{children}</AuthGuard>
+        {children}
         <Toaster position="top-center" expand={false} richColors />
       </body>
     </html>

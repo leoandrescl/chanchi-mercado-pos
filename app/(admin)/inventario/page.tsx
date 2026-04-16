@@ -52,6 +52,7 @@ export default function InventoryPage() {
       <div className="max-w-7xl mx-auto space-y-12">
         <HeaderPage 
           title="Gestión de Inventario"
+          backHref="/acceso-total-chanchi"
           primaryAction={{
             label: "Agregar Nuevo",
             onClick: () => setIsAdding(true)
