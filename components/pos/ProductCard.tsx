@@ -70,7 +70,7 @@ const ProductCard = memo(({
       <motion.div
         layout
         className={`
-          relative bg-slate-50 flex items-center justify-center overflow-hidden shrink-0
+          relative bg-white flex items-center justify-center overflow-hidden shrink-0
           ${isList ? 'h-full aspect-square rounded-xl' : 'aspect-square w-full border-b border-slate-50'}
         `}
       >

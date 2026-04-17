@@ -136,7 +136,7 @@ export default function ProductModal({ product, onClose, onRefresh }: ProductMod
             
             <div 
               onClick={() => fileInputRef.current?.click()}
-              className="relative group aspect-square rounded-[2rem] bg-slate-50 border border-slate-100 overflow-hidden flex items-center justify-center p-4 transition-all hover:bg-slate-100/50 cursor-pointer"
+              className="relative group aspect-square rounded-[2rem] bg-white border border-slate-100 overflow-hidden flex items-center justify-center p-4 transition-all hover:bg-slate-50 cursor-pointer"
             >
               <AnimatePresence mode="wait">
                 {imagePreview ? (
