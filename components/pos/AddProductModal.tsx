@@ -118,7 +118,7 @@ export default function AddProductModal({ onClose }: AddProductModalProps) {
             />
             <div 
               onClick={() => fileInputRef.current?.click()}
-              className={`w-full aspect-video rounded-3xl border border-slate-100 flex flex-col items-center justify-center cursor-pointer transition-all overflow-hidden relative ${
+              className={`w-full aspect-square rounded-3xl border border-slate-100 flex flex-col items-center justify-center cursor-pointer transition-all overflow-hidden relative ${
                 imagePreview 
                   ? 'bg-slate-900 shadow-xl' 
                   : 'bg-slate-50 hover:bg-slate-100/50'

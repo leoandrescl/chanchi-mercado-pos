@@ -71,7 +71,7 @@ const ProductCard = memo(({
         layout
         className={`
           relative bg-slate-50 flex items-center justify-center overflow-hidden shrink-0
-          ${isList ? 'h-full aspect-square rounded-xl' : 'aspect-[4/3] w-full border-b border-slate-50'}
+          ${isList ? 'h-full aspect-square rounded-xl' : 'aspect-square w-full border-b border-slate-50'}
         `}
       >
         <AnimatePresence mode="popLayout">
