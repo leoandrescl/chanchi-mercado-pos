@@ -46,7 +46,7 @@ export default function InventoryPage() {
   return (
     <div className="min-h-screen bg-white flex flex-col">
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-50">
-        <div className="mx-auto w-full max-w-5xl px-6 py-8">
+        <div className="mx-auto w-full max-w-5xl px-6 py-3">
           <HeaderPage 
             title="Gestión de Inventario"
             backHref="/acceso-total-chanchi"
@@ -56,7 +56,7 @@ export default function InventoryPage() {
             }}
           />
 
-          <div className="mt-8 flex items-center gap-4">
+          <div className="mt-2 flex items-center gap-4">
             <div className="flex-1">
               <InputSearch 
                 placeholder="Buscar en el catálogo..."
@@ -84,7 +84,7 @@ export default function InventoryPage() {
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-5xl px-6 py-8 pb-32">
+      <main className="mx-auto w-full max-w-5xl px-6 py-4 pb-32">
         {isFetching && products.length === 0 ? (
           <div className="py-20 flex flex-col items-center justify-center space-y-4">
             <div className="h-8 w-8 border-2 border-slate-100 border-t-amber-400 rounded-full animate-spin" />

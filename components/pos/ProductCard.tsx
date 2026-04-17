@@ -153,10 +153,10 @@ const ProductCard = memo(({
           <button
             onClick={handleToggleFavorite}
             title="Marcar como frecuente"
-            className="action-button favorite-toggle h-8 w-8 bg-white/80 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-sm hover:scale-110 active:scale-90 transition-all border border-slate-100 group-hover:bg-white shrink-0"
+            className="action-button favorite-toggle h-10 w-10 bg-white/80 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-sm hover:scale-110 active:scale-90 transition-all border border-slate-100 group-hover:bg-white shrink-0"
           >
             <Star
-              size={14}
+              size={18}
               className={isFavorite ? "text-amber-400 fill-amber-400" : "text-slate-300"}
             />
           </button>
@@ -166,17 +166,17 @@ const ProductCard = memo(({
           <div className="flex items-center gap-2 shrink-0">
             <button
               onClick={(e) => { e.stopPropagation(); onEdit?.(id); }}
-              className="action-button h-8 w-8 rounded-xl bg-white text-slate-900 border border-slate-100 shadow-sm active:scale-95 transition-transform flex items-center justify-center hover:bg-slate-50 shrink-0"
+              className="action-button h-10 w-10 rounded-xl bg-white text-slate-900 border border-slate-100 shadow-sm active:scale-95 transition-transform flex items-center justify-center hover:bg-slate-50 shrink-0"
               title="Editar"
             >
-              <Edit3 size={14} />
+              <Edit3 size={18} />
             </button>
             <button
               onClick={(e) => { e.stopPropagation(); onDelete?.(id); }}
-              className="action-button h-8 w-8 rounded-xl bg-rose-500 text-white border border-rose-600 shadow-sm active:scale-95 transition-transform flex items-center justify-center shrink-0"
+              className="action-button h-10 w-10 rounded-xl bg-rose-500 text-white border border-rose-600 shadow-sm active:scale-95 transition-transform flex items-center justify-center shrink-0"
               title="Eliminar"
             >
-              <Trash2 size={14} />
+              <Trash2 size={18} />
             </button>
           </div>
         )}

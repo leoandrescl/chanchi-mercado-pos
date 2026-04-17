@@ -75,12 +75,12 @@ export default function CustomerSelector({ onOpenAbono }: CustomerSelectorProps)
       {/* ─── CUSTOMER STATUS RIBBON ─── */}
       <div className="sticky top-[60px] z-40 w-full bg-white border-b border-slate-100 shadow-[0_4px_20px_-5px_rgba(0,0,0,0.05)]">
         <div className="mx-auto w-full max-w-3xl">
-          <div className="flex flex-col md:flex-row items-center justify-center md:justify-between px-6 py-6 md:py-8 gap-4 md:gap-0 transition-colors">
+          <div className="flex flex-col md:flex-row items-center justify-center md:justify-between px-6 py-2 md:py-3 gap-3 md:gap-0 transition-colors">
             {/* Left — Huge Name & Identity */}
             <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6 text-center md:text-left">
 
               <div className="flex flex-col leading-none">
-                <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-amber-500/60 mb-2 md:mb-3">
+                <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-amber-500/60 mb-1">
                   {selectedCustomer ? 'Cliente Actual' : 'Esperando Cliente'}
                 </p>
                 <h3 className={`font-serif text-2xl md:text-4xl tracking-tight transition-all duration-300 ${selectedCustomer ? 'text-slate-900 italic' : 'text-slate-400/50'}`}>
