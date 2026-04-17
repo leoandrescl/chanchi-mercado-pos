@@ -3,13 +3,15 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import {
-  Home,
-  Users,
-  LayoutDashboard,
-  ShoppingBag,
-  History
+import { 
+  Home, 
+  Users, 
+  LayoutDashboard, 
+  ShoppingBag, 
+  History 
 } from 'lucide-react';
+import { useCustomers } from '@/store/useCustomers';
+import { useRouter } from 'next/navigation';
 
 interface AdminNavbarProps {
   onAddProduct?: () => void;
@@ -17,6 +19,8 @@ interface AdminNavbarProps {
 
 export default function AdminNavbar({ onAddProduct }: AdminNavbarProps) {
   const pathname = usePathname();
+  const router = useRouter();
+  const { selectCustomer } = useCustomers();
 
   const navItems = [
     {
@@ -43,7 +47,11 @@ export default function AdminNavbar({ onAddProduct }: AdminNavbarProps) {
     <header className="sticky top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-amber-50 shadow-sm transition-all duration-300">
       <div className="mx-auto w-full max-w-xl px-2 py-3 flex flex-col gap-4">
         {/* Brand */}
-        <Link href="/acceso-total-chanchi" className="flex flex-col items-center text-center leading-none group mx-auto">
+        <Link 
+          href="/acceso-total-chanchi" 
+          onClick={() => selectCustomer(null)}
+          className="flex flex-col items-center text-center leading-none group mx-auto"
+        >
           <span className="font-serif text-2xl text-slate-900 tracking-tight transition-all group-hover:text-amber-600">ChanchiMercado</span>
           <span className="text-[9px] font-bold uppercase tracking-[0.35em] text-amber-400 mt-1">Mercado & Punto de Venta</span>
         </Link>
@@ -51,15 +59,18 @@ export default function AdminNavbar({ onAddProduct }: AdminNavbarProps) {
         {/* Actions & Navigation */}
         <div className="flex items-center justify-between gap-2 overflow-x-auto pb-1 no-scrollbar">
           {/* Main Action - TRANSFORMED TO HOME */}
-          <Link
-            href="/acceso-total-chanchi"
+          <button
+            onClick={() => {
+              selectCustomer(null);
+              router.push('/acceso-total-chanchi');
+            }}
             className="flex flex-col items-center justify-center gap-1.5 px-3 py-2 rounded-2xl text-slate-400 hover:bg-amber-50 hover:text-amber-600 transition-all duration-200 shrink-0"
           >
             <div className="h-8 w-8 flex items-center justify-center">
               <Home size={24} strokeWidth={1.5} />
             </div>
             <span className="text-[8px] font-black uppercase tracking-widest leading-none text-center">Inicio</span>
-          </Link>
+          </button>
 
 
 
