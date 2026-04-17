@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  PlusCircle,
+  Home,
   Users,
   LayoutDashboard,
   ShoppingBag,
@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 
 interface AdminNavbarProps {
-  onAddProduct: () => void;
+  onAddProduct?: () => void;
 }
 
 export default function AdminNavbar({ onAddProduct }: AdminNavbarProps) {
@@ -50,16 +50,16 @@ export default function AdminNavbar({ onAddProduct }: AdminNavbarProps) {
 
         {/* Actions & Navigation */}
         <div className="flex items-center justify-between gap-2 overflow-x-auto pb-1 no-scrollbar">
-          {/* Main Action */}
-          <button
-            onClick={onAddProduct}
+          {/* Main Action - TRANSFORMED TO HOME */}
+          <Link
+            href="/acceso-total-chanchi"
             className="flex flex-col items-center justify-center gap-1.5 px-3 py-2 rounded-2xl text-slate-400 hover:bg-amber-50 hover:text-amber-600 transition-all duration-200 shrink-0"
           >
             <div className="h-8 w-8 flex items-center justify-center">
-              <PlusCircle size={24} strokeWidth={1.5} />
+              <Home size={24} strokeWidth={1.5} />
             </div>
-            <span className="text-[8px] font-black uppercase tracking-widest leading-none text-center">Nuevo Item</span>
-          </button>
+            <span className="text-[8px] font-black uppercase tracking-widest leading-none text-center">Inicio</span>
+          </Link>
 
 
 
