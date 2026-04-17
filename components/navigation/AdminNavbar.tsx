@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { 
   Home, 
+  LogOut,
   Users, 
   LayoutDashboard, 
   ShoppingBag, 
@@ -115,6 +116,23 @@ export default function AdminNavbar({ onAddProduct }: AdminNavbarProps) {
                 </Link>
               );
             })}
+
+            {/* Logout Action */}
+            <button
+              onClick={() => {
+                sessionStorage.removeItem('chanchi_auth');
+                selectCustomer(null);
+                router.push('/');
+              }}
+              className="flex flex-col items-center justify-center gap-1.5 px-2 py-2 rounded-2xl text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition-all duration-200 shrink-0"
+            >
+              <div className="h-8 w-8 flex items-center justify-center">
+                <LogOut size={22} strokeWidth={1.5} />
+              </div>
+              <span className="text-[8px] font-black uppercase tracking-widest leading-none text-center opacity-60">
+                Salir
+              </span>
+            </button>
           </div>
         </div>
       </div>
