@@ -1,0 +1,10 @@
+◇ injected env (3) from .env.local // tip: ◈ encrypted .env [www.dotenvx.com]
+🚀 Iniciando Sincronización Total (Supabase Client)...
+🧹 Vaciando tablas en Supabase...
+✅ Supabase preparado para carga limpia.
+📦 Datos cargados: 158 clientes, 5001 transacciones.
+✅ Clientes sincronizados.
+
+✨ REPORT FINAL ✨
+📊 Clientes procesados: 158 (Mapeados: 158)
+📊 Deudas sincronizadas: 5001 / 5001

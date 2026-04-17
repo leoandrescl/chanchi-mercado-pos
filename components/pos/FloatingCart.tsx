@@ -254,33 +254,21 @@ export default function FloatingCart({ isPublic = false }: FloatingCartProps) {
                       </button>
                     ) : (
                       <>
-                        <button
-                          onClick={() => handleCheckout(false)}
-                          disabled={isProcessing}
-                          className="flex-1 h-16 rounded-2xl bg-white text-slate-900 border border-slate-200 flex items-center justify-center gap-2 transition-all duration-300 hover:bg-slate-50 hover:shadow-md active:scale-[0.98] disabled:opacity-50"
-                        >
-                          {isProcessing ? (
-                            <div className="h-4 w-4 border-2 border-slate-200 border-t-slate-400 rounded-full animate-spin" />
-                          ) : (
-                            <span className="font-serif text-lg italic tracking-tight text-slate-500">Fiar</span>
-                          )}
-                        </button>
-
-                        <button
-                          onClick={() => handleCheckout(true)}
-                          disabled={isProcessing}
-                          className="flex-[2] h-16 rounded-2xl bg-slate-900 text-white flex items-center justify-center gap-3 transition-all duration-300 hover:shadow-xl hover:shadow-amber-900/10 active:scale-[0.98] disabled:opacity-50 overflow-hidden relative group"
-                          style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)' }}
-                        >
-                          {isProcessing ? (
-                            <div className="h-5 w-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-                          ) : (
-                            <>
-                              <Send size={18} strokeWidth={1.5} className="text-emerald-400" />
-                              <span className="font-serif text-lg italic tracking-tight">Fiar y Enviar</span>
-                            </>
-                          )}
-                        </button>
+                      <button
+                        onClick={() => handleCheckout(false)}
+                        disabled={isProcessing}
+                        className="flex-1 h-20 rounded-3xl bg-slate-900 text-white flex items-center justify-center gap-4 transition-all duration-300 hover:shadow-2xl hover:shadow-slate-900/20 active:scale-[0.98] disabled:opacity-50 overflow-hidden relative group"
+                        style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)' }}
+                      >
+                        {isProcessing ? (
+                          <div className="h-6 w-6 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                        ) : (
+                          <>
+                            <ShoppingCart size={22} className="text-amber-400" />
+                            <span className="font-serif text-2xl italic tracking-tight">Fiar y Guardar</span>
+                          </>
+                        )}
+                      </button>
                       </>
                     )}
                   </div>
