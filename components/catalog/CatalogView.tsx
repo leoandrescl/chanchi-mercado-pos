@@ -30,8 +30,8 @@ export default function CatalogView({ isAdmin = false }: CatalogViewProps) {
   return (
     <div className={`flex flex-col ${!isAdmin ? 'min-h-screen bg-white' : ''}`}>
       {/* ─── ELEGANT CATALOG HEADER ─── */}
-      <div className="bg-white/95 backdrop-blur-md border-b border-slate-50">
-        <div className="mx-auto w-full max-w-5xl flex flex-col gap-4 px-6 py-4">
+      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-50">
+        <div className="mx-auto w-full max-w-5xl flex flex-col gap-4 px-6 py-3">
           {!isAdmin && (
             <div className="flex items-center justify-center">
               <Link href="/catalogo" className="flex flex-col items-center leading-none group">
@@ -67,7 +67,7 @@ export default function CatalogView({ isAdmin = false }: CatalogViewProps) {
             </div>
           </div>
         </div>
-      </div>
+      </header>
 
       {/* ─── MAIN CATALOG ─── */}
       <main className="mx-auto w-full max-w-5xl px-6 py-2 pb-32">

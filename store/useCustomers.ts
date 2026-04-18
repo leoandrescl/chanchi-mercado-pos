@@ -102,7 +102,7 @@ export const useCustomers = create<CustomerStore>()(
           .from('debts')
           .select('*, debtors(name)')
           .order('date', { ascending: false })
-          .limit(5);
+          .limit(20);
 
         if (!movementsError && movements) {
           set({ lastMovements: movements });

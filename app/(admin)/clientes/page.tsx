@@ -92,50 +92,53 @@ export default function CustomersPage() {
   };
 
   return (
-    <main className="min-h-screen bg-[#FDFCF9] px-6 sm:px-12 py-8 pb-32">
-      <div className="max-w-4xl mx-auto space-y-12">
-        <HeaderPage 
-          title="Gestión de Deudores"
-          className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pb-8 mb-8 border-b border-slate-100"
-          primaryAction={{
-            label: "Nuevo Deudor",
-            onClick: handleCreate
-          }}
-        />
-
-        <div className="space-y-8">
-          <InputSearch 
-            placeholder="¿A quién busca?"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+    <div className="min-h-screen bg-white flex flex-col">
+      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-50">
+        <div className="mx-auto w-full max-w-5xl px-6 py-3">
+          <HeaderPage 
+            title="Gestión de Deudores"
+            primaryAction={{
+              label: "Nuevo Deudor",
+              onClick: handleCreate
+            }}
           />
 
-          <div className="grid gap-4">
-            <AnimatePresence mode="popLayout">
-              {filteredCustomers.map((customer, index) => (
-                <CustomerCard
-                  key={customer.id}
-                  customer={customer}
-                  index={index}
-                  onCardClick={handleEnterProfile}
-                  onWhatsAppClick={handleWhatsApp}
-                  onEditClick={handleEdit}
-                  loadingWhatsApp={loadingWhatsAppId === customer.id}
-                />
-              ))}
-            </AnimatePresence>
-
-            {filteredCustomers.length === 0 && (
-              <div className="py-24 text-center">
-                <div className="h-16 w-16 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-200 mx-auto mb-6">
-                  <Search size={32} strokeWidth={1.5} />
-                </div>
-                <p className="font-bold text-slate-300 text-lg">No encontramos resultados...</p>
-              </div>
-            )}
+          <div className="mt-2">
+            <InputSearch 
+              placeholder="¿A quién busca?"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
           </div>
         </div>
-      </div>
+      </header>
+
+      <main className="mx-auto w-full max-w-5xl px-6 py-4 pb-32">
+        <div className="grid gap-4">
+          <AnimatePresence mode="popLayout">
+            {filteredCustomers.map((customer, index) => (
+              <CustomerCard
+                key={customer.id}
+                customer={customer}
+                index={index}
+                onCardClick={handleEnterProfile}
+                onWhatsAppClick={handleWhatsApp}
+                onEditClick={handleEdit}
+                loadingWhatsApp={loadingWhatsAppId === customer.id}
+              />
+            ))}
+          </AnimatePresence>
+
+          {filteredCustomers.length === 0 && (
+            <div className="py-24 text-center">
+              <div className="h-16 w-16 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-200 mx-auto mb-6">
+                <Search size={32} strokeWidth={1.5} />
+              </div>
+              <p className="font-bold text-slate-300 text-lg">No encontramos resultados...</p>
+            </div>
+          )}
+        </div>
+      </main>
 
       <CustomerAdminModal
         isOpen={isModalOpen}
@@ -143,6 +146,6 @@ export default function CustomersPage() {
         customer={selectedCustomer}
         mode={modalMode}
       />
-    </main>
+    </div>
   );
 }
