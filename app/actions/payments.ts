@@ -8,7 +8,7 @@ import { revalidatePath } from 'next/cache';
  * Registers a payment (Abono) for a debtor.
  * Strictly validates that the amount does not exceed the current balance.
  */
-export async function registerAbono(debtorId: string, amount: number) {
+export async function registerAbono(debtorId: string, amount: number, date?: string) {
   try {
     // 1. Fetch current balance to validate
     const { data: debtor, error: fetchError } = await supabase
@@ -35,7 +35,7 @@ export async function registerAbono(debtorId: string, amount: number) {
 
     // 3. Register the payment as a negative debt record
     // This will trigger the DB synchronization to update the balance
-    const timestamp = new Date().toISOString();
+    const timestamp = date || new Date().toISOString();
     const { error: insertError } = await supabase
       .from('debts')
       .insert({

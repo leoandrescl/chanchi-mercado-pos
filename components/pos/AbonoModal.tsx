@@ -19,6 +19,15 @@ export default function AbonoModal({ onClose }: AbonoModalProps) {
   const [amount, setAmount] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Default date to now in local format YYYY-MM-DDTHH:mm
+  const getLocalDateTime = () => {
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    return now.toISOString().slice(0, 16);
+  };
+
+  const [date, setDate] = useState(getLocalDateTime());
+
   const customer = customers.find((c) => c.id === selectedCustomerId);
   if (!customer) return null;
 
@@ -32,7 +41,8 @@ export default function AbonoModal({ onClose }: AbonoModalProps) {
 
     setIsSubmitting(true);
     try {
-      const res = await registerAbono(customer.id, val);
+      // Pass the selected date to registerAbono
+      const res = await registerAbono(customer.id, val, new Date(date).toISOString());
       
       if (!res.success) {
         toast.error(res.error || 'Error al procesar el abono. ❌');
@@ -77,30 +87,43 @@ export default function AbonoModal({ onClose }: AbonoModalProps) {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6 pt-4">
-          <div className="space-y-2">
-            <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 block px-4">Monto a abonar (CLP)</label>
-            <div className="relative">
-              <span className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 font-bold">$</span>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 block px-4">Fecha y Hora</label>
               <input
-                autoFocus
-                required
-                type="number"
-                placeholder="0"
-                className={`w-full h-14 pl-12 pr-6 rounded-xl border transition-all shadow-sm font-bold text-slate-950 tabular-nums text-sm ${
-                  isExcessive 
-                  ? 'border-rose-200 bg-rose-50 focus:border-rose-300' 
-                  : 'bg-slate-50 border-slate-100 focus:bg-white focus:border-amber-300 focus:ring-4 focus:ring-amber-50 focus:outline-none'
-                }`}
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
+                type="datetime-local"
+                className="w-full h-14 px-6 rounded-xl border border-slate-100 bg-slate-50 focus:bg-white focus:border-amber-300 focus:ring-4 focus:ring-amber-50 focus:outline-none transition-all font-bold text-slate-950 text-sm"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
               />
             </div>
-            {isExcessive && (
-              <p className="text-[10px] font-bold text-rose-500 uppercase tracking-widest mt-2 px-1 text-center leading-none">
-                ⚠️ El abono supera la deuda
-              </p>
-            )}
+
+            <div className="space-y-2">
+              <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 block px-4">Monto a abonar (CLP)</label>
+              <div className="relative">
+                <span className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 font-bold">$</span>
+                <input
+                  autoFocus
+                  required
+                  type="number"
+                  placeholder="0"
+                  className={`w-full h-14 pl-12 pr-6 rounded-xl border transition-all shadow-sm font-bold text-slate-950 tabular-nums text-sm ${
+                    isExcessive 
+                    ? 'border-rose-200 bg-rose-50 focus:border-rose-300' 
+                    : 'bg-slate-50 border-slate-100 focus:bg-white focus:border-amber-300 focus:ring-4 focus:ring-amber-50 focus:outline-none'
+                  }`}
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                />
+              </div>
+            </div>
           </div>
+
+          {isExcessive && (
+            <p className="text-[10px] font-bold text-rose-500 uppercase tracking-widest mt-2 px-1 text-center leading-none">
+              ⚠️ El abono supera la deuda
+            </p>
+          )}
 
           <div className={`p-6 rounded-2xl border transition-all flex items-center justify-between shadow-sm ${isExcessive ? 'bg-slate-50/50 border-slate-100 opacity-30 grayscale' : 'bg-amber-50/20 border-amber-100/50'}`}>
             <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Saldo Restante</span>
