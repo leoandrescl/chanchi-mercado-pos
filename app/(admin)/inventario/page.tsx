@@ -40,7 +40,7 @@ interface SortableItemProps {
 
 const SortableProductItem = ({ product, viewMode, onEdit, onDelete }: SortableItemProps) => {
   const isList = viewMode === 'list';
-  
+
   const {
     attributes,
     listeners,
@@ -48,7 +48,7 @@ const SortableProductItem = ({ product, viewMode, onEdit, onDelete }: SortableIt
     transform,
     transition,
     isDragging
-  } = useSortable({ 
+  } = useSortable({
     id: product.id,
     disabled: !isList // Disable DND completely in grid mode
   });
@@ -72,12 +72,12 @@ const SortableProductItem = ({ product, viewMode, onEdit, onDelete }: SortableIt
           {...attributes}
           {...listeners}
           className={`
-            w-10 rounded-2xl flex items-center justify-center transition-all shrink-0 cursor-grab active:cursor-grabbing
-            ${isDragging 
-              ? 'bg-amber-400 text-white shadow-lg shadow-amber-200' 
+            w-10 rounded-2xl flex items-center justify-center transition-all shrink-0 cursor-grab active:cursor-grabbing touch-none
+            ${isDragging
+              ? 'bg-amber-400 text-white shadow-lg shadow-amber-200'
               : 'bg-slate-50 border border-slate-100 text-slate-300 hover:bg-amber-50 hover:border-amber-100 hover:text-amber-400'}
           `}
-          title="Arrastra para reordenar"
+          title="Arrastre para reordenar"
         >
           <GripVertical size={20} />
         </div>
@@ -119,7 +119,7 @@ export default function InventoryPage() {
     }),
     useSensor(TouchSensor, {
       activationConstraint: {
-        delay: 0, // NO DELAY! The handle is small enough to avoid accidental scroll
+        distance: 5, // Better feel: start moving after 5px of finger movement
         tolerance: 8,
       },
     }),
@@ -219,7 +219,7 @@ export default function InventoryPage() {
           <div>
             <h4 className="text-xs font-black uppercase tracking-widest text-slate-500 mb-1">Tip de Organización</h4>
             <p className="text-sm text-slate-700 font-medium leading-tight">
-              Viejita: Para ordenar, use la <strong>franja gris de la izquierda</strong> de cada producto. El resto de la tarjeta es para mover la página libremente.
+              Viejita: Para ordenar, arrastre desde la <strong>franja gris de la izquierda</strong> de cada producto hacia arriba o abajo donde quiera posicionarlo.
             </p>
           </div>
         </div>
