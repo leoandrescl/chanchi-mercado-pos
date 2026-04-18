@@ -56,9 +56,9 @@ const SortableProductItem = ({ product, viewMode, onEdit, onDelete }: SortableIt
   };
 
   return (
-    <div 
-      ref={setNodeRef} 
-      style={style} 
+    <div
+      ref={setNodeRef}
+      style={style}
       className={`relative group ${isDragging ? 'cursor-grabbing' : 'cursor-grab'} touch-none`}
       {...attributes}
       {...listeners}
@@ -109,7 +109,7 @@ export default function InventoryPage() {
     fetchProducts();
   }, [fetchProducts]);
 
-  const sortedAndFilteredProducts = products.filter(p => 
+  const sortedAndFilteredProducts = products.filter(p =>
     p.name.toLowerCase().includes(search.toLowerCase()) ||
     p.category?.toLowerCase().includes(search.toLowerCase())
   );
@@ -122,7 +122,7 @@ export default function InventoryPage() {
       const newIndex = products.findIndex((p) => p.id === over.id);
 
       const newOrder = arrayMove(products, oldIndex, newIndex);
-      
+
       try {
         await updateProductsOrder(newOrder);
         toast.success("Orden actualizado correctamente");
@@ -150,7 +150,7 @@ export default function InventoryPage() {
     <div className="min-h-screen bg-white flex flex-col">
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-50">
         <div className="mx-auto w-full max-w-5xl px-6 py-3">
-          <HeaderPage 
+          <HeaderPage
             title="Gestión de Inventario"
             backHref="/acceso-total-chanchi"
             primaryAction={{
@@ -161,7 +161,7 @@ export default function InventoryPage() {
 
           <div className="mt-2 flex items-center gap-4">
             <div className="flex-1">
-              <InputSearch 
+              <InputSearch
                 placeholder="Buscar en el catálogo..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
@@ -196,7 +196,7 @@ export default function InventoryPage() {
           <div>
             <h4 className="text-xs font-black uppercase tracking-widest text-amber-600 mb-1">Tip de Organización</h4>
             <p className="text-sm text-amber-900 font-medium leading-tight">
-              ¡Hola! Ahora puedes reordenar tus productos <strong>arrastrándolos con el dedo</strong> directamente hacia arriba o abajo para dejarlos como más te gusten.
+              Viejita: Ahora puede reordenar sus productos <strong>arrastrándolos con el dedo</strong> hacia arriba o abajo para dejarlos como más le guste.
             </p>
           </div>
         </div>
@@ -223,11 +223,11 @@ export default function InventoryPage() {
               items={sortedAndFilteredProducts.map(p => p.id)}
               strategy={verticalListSortingStrategy}
             >
-              <motion.div 
+              <motion.div
                 layout
                 transition={{ type: 'spring', bounce: 0, duration: 0.3 }}
-                className={viewMode === 'grid' 
-                  ? "grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6" 
+                className={viewMode === 'grid'
+                  ? "grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6"
                   : "flex flex-col gap-3"
                 }
               >
@@ -251,22 +251,22 @@ export default function InventoryPage() {
       {/* Modals */}
       <AnimatePresence>
         {isAdding && (
-          <ProductModal 
-            onClose={() => setIsAdding(false)} 
+          <ProductModal
+            onClose={() => setIsAdding(false)}
             onRefresh={fetchProducts}
           />
         )}
-        
+
         {editingProduct && (
-          <ProductModal 
+          <ProductModal
             product={editingProduct}
-            onClose={() => setEditingProduct(null)} 
+            onClose={() => setEditingProduct(null)}
             onRefresh={fetchProducts}
           />
         )}
 
         {productToDelete && (
-          <ConfirmDeleteModal 
+          <ConfirmDeleteModal
             productName={productToDelete.name}
             onCancel={() => setProductToDelete(null)}
             onConfirm={handleDelete}
