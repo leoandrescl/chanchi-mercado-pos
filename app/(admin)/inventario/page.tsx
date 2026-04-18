@@ -39,6 +39,8 @@ interface SortableItemProps {
 }
 
 const SortableProductItem = ({ product, viewMode, onEdit, onDelete }: SortableItemProps) => {
+  const isList = viewMode === 'list';
+  
   const {
     attributes,
     listeners,
@@ -46,7 +48,10 @@ const SortableProductItem = ({ product, viewMode, onEdit, onDelete }: SortableIt
     transform,
     transition,
     isDragging
-  } = useSortable({ id: product.id });
+  } = useSortable({ 
+    id: product.id,
+    disabled: !isList // Disable DND completely in grid mode
+  });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -59,21 +64,39 @@ const SortableProductItem = ({ product, viewMode, onEdit, onDelete }: SortableIt
     <div
       ref={setNodeRef}
       style={style}
-      className={`relative group ${isDragging ? 'cursor-grabbing' : 'cursor-grab'} touch-none`}
-      {...attributes}
-      {...listeners}
+      className={`flex items-stretch gap-2 w-full ${isDragging ? 'z-50' : ''}`}
     >
-      <ProductCard
-        id={product.id}
-        name={product.name}
-        price={product.price}
-        image={product.image}
-        category={product.category}
-        isVisible={product.is_visible}
-        viewMode={viewMode}
-        onEdit={onEdit}
-        onDelete={onDelete}
-      />
+      {/* ─── EL ESPINAZO (Grip Strip) ─── */}
+      {isList && (
+        <div
+          {...attributes}
+          {...listeners}
+          className={`
+            w-10 rounded-2xl flex items-center justify-center transition-all shrink-0 cursor-grab active:cursor-grabbing
+            ${isDragging 
+              ? 'bg-amber-400 text-white shadow-lg shadow-amber-200' 
+              : 'bg-slate-50 border border-slate-100 text-slate-300 hover:bg-amber-50 hover:border-amber-100 hover:text-amber-400'}
+          `}
+          title="Arrastra para reordenar"
+        >
+          <GripVertical size={20} />
+        </div>
+      )}
+
+      {/* ─── PRODUCT CONTENT ─── */}
+      <div className="flex-1 min-w-0">
+        <ProductCard
+          id={product.id}
+          name={product.name}
+          price={product.price}
+          image={product.image}
+          category={product.category}
+          isVisible={product.is_visible}
+          viewMode={viewMode}
+          onEdit={onEdit}
+          onDelete={onDelete}
+        />
+      </div>
     </div>
   );
 };
@@ -91,13 +114,13 @@ export default function InventoryPage() {
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 8,
+        distance: 5, // Responsive but prevents accidental shakes
       },
     }),
     useSensor(TouchSensor, {
       activationConstraint: {
-        delay: 250,
-        tolerance: 5,
+        delay: 0, // NO DELAY! The handle is small enough to avoid accidental scroll
+        tolerance: 8,
       },
     }),
     useSensor(KeyboardSensor, {
@@ -189,14 +212,14 @@ export default function InventoryPage() {
 
       <main className="mx-auto w-full max-w-5xl px-6 py-4 pb-32">
         {/* Instruction Banner for Mom */}
-        <div className="mb-6 bg-amber-50 border border-amber-100 p-4 rounded-2xl flex items-start gap-4">
-          <div className="h-10 w-10 rounded-full bg-amber-400 flex items-center justify-center shrink-0 text-white shadow-sm">
+        <div className="mb-6 bg-slate-50 border border-slate-100 p-4 rounded-2xl flex items-start gap-4">
+          <div className="h-10 w-10 rounded-full bg-slate-200 flex items-center justify-center shrink-0 text-slate-500 shadow-sm">
             <GripVertical size={20} />
           </div>
           <div>
-            <h4 className="text-xs font-black uppercase tracking-widest text-amber-600 mb-1">Tip de Organización</h4>
-            <p className="text-sm text-amber-900 font-medium leading-tight">
-              Viejita: Ahora puede reordenar sus productos <strong>arrastrándolos con el dedo</strong> hacia arriba o abajo para dejarlos como más le guste.
+            <h4 className="text-xs font-black uppercase tracking-widest text-slate-500 mb-1">Tip de Organización</h4>
+            <p className="text-sm text-slate-700 font-medium leading-tight">
+              Viejita: Para ordenar, use la <strong>franja gris de la izquierda</strong> de cada producto. El resto de la tarjeta es para mover la página libremente.
             </p>
           </div>
         </div>
