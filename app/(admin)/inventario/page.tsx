@@ -164,7 +164,7 @@ export default function InventoryPage() {
               <InputSearch
                 placeholder="Buscar en el catálogo..."
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
             <div className="flex bg-slate-50 p-1 rounded-xl border border-slate-100 shrink-0">
