@@ -23,6 +23,7 @@ interface InventoryStore {
   removeProduct: (id: string) => Promise<void>;
   toggleVisibility: (id: string) => Promise<void>;
   updateProductsOrder: (reorderedProducts: Product[]) => Promise<void>;
+  syncOrderWithPopularity: () => Promise<void>;
 }
 
 export const useInventory = create<InventoryStore>()(
@@ -31,6 +32,44 @@ export const useInventory = create<InventoryStore>()(
       products: [],
       isFetching: false,
       
+      syncOrderWithPopularity: async () => {
+        set({ isFetching: true });
+        const { getSalesRanking, getProductScore } = await import('@/lib/rankingLogic');
+        
+        try {
+          const ranking = await getSalesRanking(15);
+          const currentProducts = [...get().products];
+          
+          // Sort by score (descending)
+          const sortedProducts = currentProducts.sort((a, b) => {
+            const scoreA = getProductScore(a.name, ranking);
+            const scoreB = getProductScore(b.name, ranking);
+            
+            if (scoreB !== scoreA) {
+              return scoreB - scoreA;
+            }
+            // Tie-breaker: visibility or name
+            return a.name.localeCompare(b.name);
+          });
+
+          // Update in DB
+          const updates = sortedProducts.map((p, index) => 
+            supabase
+              .from('products')
+              .update({ order_index: index })
+              .eq('id', p.id)
+          );
+
+          await Promise.all(updates);
+          await get().fetchProducts();
+          
+        } catch (err) {
+          console.error("Error syncing order with popularity:", err);
+        } finally {
+          set({ isFetching: false });
+        }
+      },
+
       fetchProducts: async () => {
         set({ isFetching: true });
         

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useInventory, Product } from '@/store/useInventory';
-import { Package, LayoutGrid, List as ListIcon, GripVertical } from 'lucide-react';
+import { Package, LayoutGrid, List as ListIcon, GripVertical, Sparkles } from 'lucide-react';
 import ProductModal from '@/components/products/ProductModal';
 import ConfirmDeleteModal from '@/components/products/ConfirmDeleteModal';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -102,7 +102,7 @@ const SortableProductItem = ({ product, viewMode, onEdit, onDelete }: SortableIt
 };
 
 export default function InventoryPage() {
-  const { products, fetchProducts, removeProduct, isFetching, updateProductsOrder } = useInventory();
+  const { products, fetchProducts, removeProduct, isFetching, updateProductsOrder, syncOrderWithPopularity } = useInventory();
   const [search, setSearch] = useState('');
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
@@ -190,6 +190,31 @@ export default function InventoryPage() {
                 onChange={(e) => setSearch(e.target.value)}
               />
             </div>
+
+            <div className="flex bg-slate-50 p-1 rounded-xl border border-slate-100 shrink-0 gap-1">
+              <button
+                onClick={async () => {
+                  try {
+                    toast.promise(syncOrderWithPopularity(), {
+                      loading: 'Analizando ventas de los últimos 15 días...',
+                      success: '¡Catálogo ordenado por popularidad! 🔥',
+                      error: 'Error al sincronizar el orden por ventas'
+                    });
+                  } catch (err) {}
+                }}
+                disabled={isFetching}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg text-[10px] font-black uppercase tracking-wider bg-white text-slate-900 shadow-sm hover:bg-amber-50 hover:text-amber-600 transition-all active:scale-95 disabled:opacity-50"
+                title="Ordenar por más vendidos (últimos 15 días)"
+              >
+                {isFetching ? (
+                  <div className="h-3 w-3 border-2 border-slate-200 border-t-amber-500 rounded-full animate-spin" />
+                ) : (
+                  <Sparkles size={14} className="text-amber-500" />
+                )}
+                <span className="hidden xs:inline">Sincronizar Ventas</span>
+              </button>
+            </div>
+
             <div className="flex bg-slate-50 p-1 rounded-xl border border-slate-100 shrink-0">
               <button
                 onClick={() => setViewMode('list')}
