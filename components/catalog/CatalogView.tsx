@@ -23,10 +23,8 @@ export default function CatalogView({ isAdmin = false }: CatalogViewProps) {
   }, [fetchProducts]);
 
   const filteredProducts = products.filter(p =>
-    p.is_visible && (
-      p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.category?.toLowerCase().includes(searchTerm.toLowerCase())
-    )
+    p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    p.category?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (

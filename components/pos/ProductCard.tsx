@@ -35,8 +35,9 @@ const ProductCard = memo(({
     new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(amount);
 
   const handleClick = (e: React.MouseEvent) => {
-    // Prevent adding to cart if clicking an action button
+    // Prevent adding to cart if clicking an action button or if it's an out-of-stock public item
     if ((e.target as HTMLElement).closest('.action-button')) return;
+    if (isPublic && !isVisible) return;
 
     addItem({ id, name, price });
     playPop();
@@ -63,7 +64,8 @@ const ProductCard = memo(({
       className={`
         group relative flex bg-white border border-slate-100 overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-amber-200 outline-none focus:ring-2 focus:ring-amber-200
         ${isList ? 'flex-row items-center w-full h-[82px] rounded-2xl p-1' : 'flex-col w-full rounded-3xl'}
-        ${!isAdmin ? 'cursor-pointer' : ''}
+        ${!isAdmin && (isVisible || !isPublic) ? 'cursor-pointer' : 'cursor-default'}
+        ${isPublic && !isVisible ? 'grayscale opacity-70 cursor-not-allowed' : ''}
         ${!isVisible && isAdmin ? 'opacity-60 grayscale-[0.5]' : ''}
       `}
     >
@@ -106,9 +108,15 @@ const ProductCard = memo(({
 
         {/* Status Badge (Public mode) - only for Grid */}
         {isPublic && !isList && (
-          <div className="absolute top-2 right-2 z-10 bg-emerald-50 text-emerald-600 text-[8px] font-black uppercase tracking-[0.2em] px-2 py-1 rounded-full border border-emerald-100 shadow-sm backdrop-blur-md">
-            Disponible
-          </div>
+          isVisible ? (
+            <div className="absolute top-2 right-2 z-10 bg-emerald-50 text-emerald-600 text-[8px] font-black uppercase tracking-[0.2em] px-2 py-1 rounded-full border border-emerald-100 shadow-sm backdrop-blur-md">
+              Disponible
+            </div>
+          ) : (
+            <div className="absolute top-2 right-2 z-10 bg-slate-900/90 text-white text-[8px] font-black uppercase tracking-[0.2em] px-3 py-1.5 rounded-full shadow-xl backdrop-blur-md border border-white/20 whitespace-nowrap">
+              ¡Se acabó! 🔥 / Vuelve pronto
+            </div>
+          )
         )}
 
         {/* Visibility Badge (Admin mode) */}
@@ -150,7 +158,7 @@ const ProductCard = memo(({
         ${isList ? 'w-[140px] px-2 md:px-4 gap-2 shrink-0' : 'absolute top-2 right-2 z-20 gap-2'}
       `}>
         {/* PUBLIC: Shopping Cart Button */}
-        {isPublic && !isAdmin && (
+        {isPublic && !isAdmin && isVisible && (
           <div className={`rounded-xl bg-amber-50 flex items-center justify-center transition-all shrink-0 ${isList ? 'h-9 w-9 border border-amber-100' : 'h-6 w-6 opacity-0 group-hover:opacity-100'}`}>
             <ShoppingBag size={isList ? 16 : 12} className="text-amber-500" />
           </div>
