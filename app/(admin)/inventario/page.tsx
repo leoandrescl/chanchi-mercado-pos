@@ -17,6 +17,7 @@ import {
   closestCenter,
   KeyboardSensor,
   PointerSensor,
+  TouchSensor,
   useSensor,
   useSensors,
   DragEndEvent
@@ -55,16 +56,13 @@ const SortableProductItem = ({ product, viewMode, onEdit, onDelete }: SortableIt
   };
 
   return (
-    <div ref={setNodeRef} style={style} className="relative group">
-      {/* Drag Handle - visible in admin management */}
-      <div 
-        {...attributes} 
-        {...listeners}
-        className="absolute left-[-32px] top-1/2 -translate-y-1/2 p-2 opacity-0 group-hover:opacity-100 cursor-grab active:cursor-grabbing z-30 transition-opacity hidden md:flex text-slate-300 hover:text-amber-500"
-      >
-        <GripVertical size={20} />
-      </div>
-
+    <div 
+      ref={setNodeRef} 
+      style={style} 
+      className={`relative group ${isDragging ? 'cursor-grabbing' : 'cursor-grab'} touch-none`}
+      {...attributes}
+      {...listeners}
+    >
       <ProductCard
         id={product.id}
         name={product.name}
@@ -94,6 +92,12 @@ export default function InventoryPage() {
     useSensor(PointerSensor, {
       activationConstraint: {
         distance: 8,
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 250,
+        tolerance: 5,
       },
     }),
     useSensor(KeyboardSensor, {
@@ -184,6 +188,19 @@ export default function InventoryPage() {
       </header>
 
       <main className="mx-auto w-full max-w-5xl px-6 py-4 pb-32">
+        {/* Instruction Banner for Mom */}
+        <div className="mb-6 bg-amber-50 border border-amber-100 p-4 rounded-2xl flex items-start gap-4">
+          <div className="h-10 w-10 rounded-full bg-amber-400 flex items-center justify-center shrink-0 text-white shadow-sm">
+            <GripVertical size={20} />
+          </div>
+          <div>
+            <h4 className="text-xs font-black uppercase tracking-widest text-amber-600 mb-1">Tip de Organización</h4>
+            <p className="text-sm text-amber-900 font-medium leading-tight">
+              ¡Hola! Ahora puedes reordenar tus productos <strong>arrastrándolos con el dedo</strong> directamente hacia arriba o abajo para dejarlos como más te gusten.
+            </p>
+          </div>
+        </div>
+
         {isFetching && products.length === 0 ? (
           <div className="py-20 flex flex-col items-center justify-center space-y-4">
             <div className="h-8 w-8 border-2 border-slate-100 border-t-amber-400 rounded-full animate-spin" />

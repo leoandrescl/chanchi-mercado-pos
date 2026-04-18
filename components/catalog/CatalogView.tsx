@@ -109,6 +109,7 @@ export default function CatalogView({ isAdmin = false }: CatalogViewProps) {
                   price={product.price}
                   image={product.image}
                   viewMode={viewMode}
+                  isVisible={product.is_visible}
                   isPublic={true}
                 />
               ))}

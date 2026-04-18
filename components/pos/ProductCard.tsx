@@ -114,7 +114,7 @@ const ProductCard = memo(({
             </div>
           ) : (
             <div className="absolute top-2 right-2 z-10 bg-slate-900/90 text-white text-[8px] font-black uppercase tracking-[0.2em] px-3 py-1.5 rounded-full shadow-xl backdrop-blur-md border border-white/20 whitespace-nowrap">
-              ¡Se acabó! 🔥 / Vuelve pronto
+              Vuelve pronto 🔥
             </div>
           )
         )}
@@ -168,6 +168,7 @@ const ProductCard = memo(({
         {!isPublic && (
           <button
             onClick={handleToggleVisibility}
+            onPointerDown={(e) => e.stopPropagation()}
             title={isVisible ? "Ocultar del catálogo" : "Mostrar en el catálogo"}
             className={`action-button h-10 w-10 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-sm hover:scale-110 active:scale-90 transition-all border shrink-0 ${isVisible ? 'bg-white border-slate-100 text-slate-400' : 'bg-amber-400 border-amber-500 text-white shadow-amber-200'}`}
           >
@@ -179,6 +180,7 @@ const ProductCard = memo(({
           <div className="flex items-center gap-2 shrink-0">
             <button
               onClick={(e) => { e.stopPropagation(); onEdit?.(id); }}
+              onPointerDown={(e) => e.stopPropagation()}
               className="action-button h-10 w-10 rounded-xl bg-white text-slate-900 border border-slate-100 shadow-sm active:scale-95 transition-transform flex items-center justify-center hover:bg-slate-50 shrink-0"
               title="Editar"
             >
@@ -186,6 +188,7 @@ const ProductCard = memo(({
             </button>
             <button
               onClick={(e) => { e.stopPropagation(); onDelete?.(id); }}
+              onPointerDown={(e) => e.stopPropagation()}
               className="action-button h-10 w-10 rounded-xl bg-rose-500 text-white border border-rose-600 shadow-sm active:scale-95 transition-transform flex items-center justify-center shrink-0"
               title="Eliminar"
             >
