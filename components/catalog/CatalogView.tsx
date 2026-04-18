@@ -23,8 +23,10 @@ export default function CatalogView({ isAdmin = false }: CatalogViewProps) {
   }, [fetchProducts]);
 
   const filteredProducts = products.filter(p =>
-    p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.category?.toLowerCase().includes(searchTerm.toLowerCase())
+    p.is_visible && (
+      p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      p.category?.toLowerCase().includes(searchTerm.toLowerCase())
+    )
   );
 
   return (
@@ -70,7 +72,7 @@ export default function CatalogView({ isAdmin = false }: CatalogViewProps) {
       </div>
 
       {/* ─── MAIN CATALOG ─── */}
-      <main className="mx-auto w-full max-w-5xl px-6 py-8 pb-32">
+      <main className="mx-auto w-full max-w-5xl px-6 py-2 pb-32">
         {/* Help Banner for Customers */}
         <div className="mb-8 p-4 bg-amber-50 rounded-2xl border border-amber-100 flex items-center gap-4">
           <div className="h-10 w-10 rounded-full bg-amber-400 flex items-center justify-center shrink-0 shadow-sm text-white">

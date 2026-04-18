@@ -41,7 +41,7 @@ export default function AdminPOSPage() {
 
       {/* ─── STICKY SEARCH BAR ─── */}
       {selectedCustomerId && (
-        <div className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-slate-50 px-6 py-4">
+        <div className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-slate-50 px-6 py-2">
           <div className="mx-auto w-full max-w-3xl">
             <div className="flex items-center gap-4">
               <div className="flex-1">
@@ -73,7 +73,7 @@ export default function AdminPOSPage() {
       )}
 
       {/* ─── MAIN CONTENT ─── */}
-      <main className="mx-auto w-full max-w-3xl px-4 py-2 md:px-6 md:py-8 pb-72">
+      <main className="mx-auto w-full max-w-3xl px-4 py-2 md:px-6 md:py-4 pb-72">
 
         {!selectedCustomerId ? (
           <GlobalDashboard onAddCustomer={() => setIsAddCustomerOpen(true)} />
@@ -95,7 +95,7 @@ export default function AdminPOSPage() {
                     name={product.name}
                     price={product.price}
                     image={product.image}
-                    isFavorite={product.is_favorite}
+                    isVisible={product.is_visible}
                     viewMode={viewMode}
                   />
                 ))}

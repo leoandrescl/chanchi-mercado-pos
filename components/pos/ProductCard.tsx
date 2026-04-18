@@ -3,7 +3,7 @@
 import React, { memo } from 'react';
 import { useCart } from '@/store/useCart';
 import { useInventory } from '@/store/useInventory';
-import { ShoppingBag, Star, Edit3, Trash2 } from 'lucide-react';
+import { ShoppingBag, Eye, EyeOff, Edit3, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { playPop } from '@/lib/audio';
 import Image from 'next/image';
@@ -13,21 +13,21 @@ interface ProductCardProps {
   name: string;
   price: number;
   image?: string;
-  isFavorite?: boolean;
+  isPublic?: boolean;
+  isVisible?: boolean;
   isBundle?: boolean;
   viewMode?: 'grid' | 'list';
   category?: string;
-  isPublic?: boolean;
   onEdit?: (id: string) => void;
   onDelete?: (id: string) => void;
 }
 
 const ProductCard = memo(({
-  id, name, price, image, isFavorite, isBundle, viewMode = 'grid',
+  id, name, price, image, isVisible, isBundle, viewMode = 'grid',
   category, isPublic, onEdit, onDelete
 }: ProductCardProps) => {
   const addItem = useCart((state) => state.addItem);
-  const toggleFavoriteStore = useInventory((state) => state.toggleFavorite);
+  const toggleVisibilityStore = useInventory((state) => state.toggleVisibility);
 
   const isAdmin = !!(onEdit || onDelete);
 
@@ -42,9 +42,9 @@ const ProductCard = memo(({
     playPop();
   };
 
-  const handleToggleFavorite = async (e: React.MouseEvent) => {
+  const handleToggleVisibility = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    await toggleFavoriteStore(id);
+    await toggleVisibilityStore(id);
     playPop();
   };
 
@@ -64,6 +64,7 @@ const ProductCard = memo(({
         group relative flex bg-white border border-slate-100 overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-amber-200 outline-none focus:ring-2 focus:ring-amber-200
         ${isList ? 'flex-row items-center w-full h-[82px] rounded-2xl p-1' : 'flex-col w-full rounded-3xl'}
         ${!isAdmin ? 'cursor-pointer' : ''}
+        ${!isVisible && isAdmin ? 'opacity-60 grayscale-[0.5]' : ''}
       `}
     >
       {/* ─── PRODUCT IMAGE / FALLBACK ─── */}
@@ -110,6 +111,13 @@ const ProductCard = memo(({
           </div>
         )}
 
+        {/* Visibility Badge (Admin mode) */}
+        {!isPublic && isAdmin && !isVisible && (
+          <div className="absolute top-2 left-2 z-10 bg-rose-500 text-white text-[8px] font-black uppercase tracking-[0.2em] px-2 py-1 rounded-full shadow-lg">
+            Oculto
+          </div>
+        )}
+
         {/* Bundle / Promo Badge */}
         {isBundle && (
           <div className={`absolute z-10 bg-emerald-500 text-white text-[9px] font-black uppercase tracking-[0.2em] px-3 py-1.5 rounded-full shadow-md animate-pulse ${isList ? 'top-1 left-1 px-1.5 py-1 text-[7px]' : 'top-2 left-3'}`}>
@@ -148,17 +156,14 @@ const ProductCard = memo(({
           </div>
         )}
 
-        {/* ADMIN (or Internal POS): Favorite + Admin Actions */}
+        {/* ADMIN (or Internal POS): Visibility + Admin Actions */}
         {!isPublic && (
           <button
-            onClick={handleToggleFavorite}
-            title="Marcar como frecuente"
-            className="action-button favorite-toggle h-10 w-10 bg-white/80 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-sm hover:scale-110 active:scale-90 transition-all border border-slate-100 group-hover:bg-white shrink-0"
+            onClick={handleToggleVisibility}
+            title={isVisible ? "Ocultar del catálogo" : "Mostrar en el catálogo"}
+            className={`action-button h-10 w-10 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-sm hover:scale-110 active:scale-90 transition-all border shrink-0 ${isVisible ? 'bg-white border-slate-100 text-slate-400' : 'bg-amber-400 border-amber-500 text-white shadow-amber-200'}`}
           >
-            <Star
-              size={18}
-              className={isFavorite ? "text-amber-400 fill-amber-400" : "text-slate-300"}
-            />
+            {isVisible ? <Eye size={18} /> : <EyeOff size={18} />}
           </button>
         )}
 

@@ -8,7 +8,8 @@ export interface Product {
   price: number;
   image?: string;
   category?: string;
-  is_favorite?: boolean;
+  is_visible?: boolean;
+  order_index?: number;
   is_bundle?: boolean;
   created_at?: string;
 }
@@ -18,9 +19,10 @@ interface InventoryStore {
   isFetching: boolean;
   fetchProducts: () => Promise<void>;
   updateProduct: (id: string, product: Partial<Product>) => Promise<void>;
-  addProduct: (product: Omit<Product, 'id' | 'created_at' | 'is_favorite'>) => Promise<void>;
+  addProduct: (product: Omit<Product, 'id' | 'created_at' | 'is_visible' | 'order_index'>) => Promise<void>;
   removeProduct: (id: string) => Promise<void>;
-  toggleFavorite: (id: string) => Promise<void>;
+  toggleVisibility: (id: string) => Promise<void>;
+  updateProductsOrder: (reorderedProducts: Product[]) => Promise<void>;
 }
 
 export const useInventory = create<InventoryStore>()(
@@ -32,10 +34,12 @@ export const useInventory = create<InventoryStore>()(
       fetchProducts: async () => {
         set({ isFetching: true });
         
-        // 1. Fetch Products
+        // Fetch sorted by order_index
         const { data: productsData, error: prodError } = await supabase
           .from('products')
-          .select('*');
+          .select('*')
+          .order('order_index', { ascending: true })
+          .order('name', { ascending: true });
 
         if (prodError) {
           console.error("Error fetching products:", prodError);
@@ -43,55 +47,23 @@ export const useInventory = create<InventoryStore>()(
           return;
         }
 
-        // 2. Fetch Popularity data (Debts)
-        const { data: debtsData, error: debtError } = await supabase
-          .from('debts')
-          .select('description')
-          .filter('description', 'ilike', 'Compra:%');
-
-        const popularityMap: Record<string, number> = {};
-
-        if (!debtError && debtsData) {
-          debtsData.forEach(debt => {
-            productsData.forEach(product => {
-              if (debt.description.includes(product.name)) {
-                popularityMap[product.id] = (popularityMap[product.id] || 0) + 1;
-              }
-            });
-          });
-        }
-
-        // 3. TRIPLE SORT: is_favorite DESC, then Popularity DESC, then Name ASC
-        const sortedProducts = [...productsData].sort((a, b) => {
-          // A. Priority 1: Favorites
-          if (a.is_favorite !== b.is_favorite) {
-            return a.is_favorite ? -1 : 1;
-          }
-
-          // B. Priority 2: Popularity
-          const popularityA = popularityMap[a.id] || 0;
-          const popularityB = popularityMap[b.id] || 0;
-          
-          if (popularityB !== popularityA) {
-            return popularityB - popularityA;
-          }
-
-          // C. Priority 3: Alphabetical
-          return a.name.localeCompare(b.name);
-        });
-        
-        set({ products: sortedProducts, isFetching: false });
+        set({ products: productsData, isFetching: false });
       },
 
       addProduct: async (data) => {
-        await get().fetchProducts();
+        const { products } = get();
+        // Max order index + 1
+        const maxIndex = products.length > 0 
+          ? Math.max(...products.map(p => p.order_index || 0)) 
+          : 0;
         
         const payload = {
           name: data.name,
           price: data.price,
           category: data.category,
           image: data.image,
-          is_favorite: false // default for new
+          is_visible: true,
+          order_index: maxIndex + 1
         };
 
         const { data: newProd, error } = await supabase
@@ -101,7 +73,6 @@ export const useInventory = create<InventoryStore>()(
           .single();
         
         if (!error && newProd) {
-          // Re-sort everything after adding
           await get().fetchProducts();
         } else if (error) {
           console.error("❌ [ERROR PRODUCTO] Detalle de Supabase:", error);
@@ -115,7 +86,8 @@ export const useInventory = create<InventoryStore>()(
         if (data.price !== undefined) payload.price = data.price;
         if (data.category !== undefined) payload.category = data.category;
         if (data.image !== undefined) payload.image = data.image;
-        if (data.is_favorite !== undefined) payload.is_favorite = data.is_favorite;
+        if (data.is_visible !== undefined) payload.is_visible = data.is_visible;
+        if (data.order_index !== undefined) payload.order_index = data.order_index;
 
         const { error } = await supabase
           .from('products')
@@ -123,7 +95,6 @@ export const useInventory = create<InventoryStore>()(
           .eq('id', id);
         
         if (!error) {
-          // Re-sort because popularity or favorite status might have changed the desired order
           await get().fetchProducts();
         } else {
           console.error("❌ [ERROR UPDATE] Detalle de Supabase:", error);
@@ -131,30 +102,53 @@ export const useInventory = create<InventoryStore>()(
         }
       },
 
-      toggleFavorite: async (id) => {
+      toggleVisibility: async (id) => {
         const product = get().products.find(p => p.id === id);
         if (!product) return;
 
-        const newFavoriteState = !product.is_favorite;
+        const newVisibleState = !product.is_visible;
 
         // Optimistic update
         set((state) => ({
           products: state.products.map(p => 
-            p.id === id ? { ...p, is_favorite: newFavoriteState } : p
+            p.id === id ? { ...p, is_visible: newVisibleState } : p
           )
         }));
 
         const { error } = await supabase
           .from('products')
-          .update({ is_favorite: newFavoriteState })
+          .update({ is_visible: newVisibleState })
           .eq('id', id);
 
         if (error) {
-          console.error("❌ Error toggling favorite:", error);
-          // Revert optimistic update
+          console.error("❌ Error toggling visibility:", error);
           await get().fetchProducts();
-        } else {
-          // Re-fetch to apply new sorting correctly across the whole list
+        }
+      },
+
+      updateProductsOrder: async (reorderedProducts) => {
+        // 1. Optimistic local update
+        const productsWithIndices = reorderedProducts.map((p, index) => ({
+          ...p,
+          order_index: index
+        }));
+        
+        set({ products: productsWithIndices });
+
+        // 2. Persist to Supabase
+        // We do this individually to ensure correctness, or batch if possible
+        const updates = productsWithIndices.map(p => 
+          supabase
+            .from('products')
+            .update({ order_index: p.order_index })
+            .eq('id', p.id)
+        );
+
+        const results = await Promise.all(updates);
+        const hasError = results.some(r => r.error);
+
+        if (hasError) {
+          console.error("❌ Error persisting new order");
           await get().fetchProducts();
         }
       },

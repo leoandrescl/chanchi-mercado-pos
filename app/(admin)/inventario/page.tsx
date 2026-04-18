@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useInventory, Product } from '@/store/useInventory';
-import { Package, LayoutGrid, List as ListIcon } from 'lucide-react';
+import { Package, LayoutGrid, List as ListIcon, GripVertical } from 'lucide-react';
 import ProductModal from '@/components/products/ProductModal';
 import ConfirmDeleteModal from '@/components/products/ConfirmDeleteModal';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -11,8 +11,77 @@ import HeaderPage from '@/components/ui/HeaderPage';
 import InputSearch from '@/components/ui/InputSearch';
 import ProductCard from '@/components/pos/ProductCard';
 
+// DND Kit Imports
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+
+interface SortableItemProps {
+  product: Product;
+  viewMode: 'grid' | 'list';
+  onEdit: () => void;
+  onDelete: () => void;
+}
+
+const SortableProductItem = ({ product, viewMode, onEdit, onDelete }: SortableItemProps) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging
+  } = useSortable({ id: product.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 100 : 'auto',
+    opacity: isDragging ? 0.6 : 1,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style} className="relative group">
+      {/* Drag Handle - visible in admin management */}
+      <div 
+        {...attributes} 
+        {...listeners}
+        className="absolute left-[-32px] top-1/2 -translate-y-1/2 p-2 opacity-0 group-hover:opacity-100 cursor-grab active:cursor-grabbing z-30 transition-opacity hidden md:flex text-slate-300 hover:text-amber-500"
+      >
+        <GripVertical size={20} />
+      </div>
+
+      <ProductCard
+        id={product.id}
+        name={product.name}
+        price={product.price}
+        image={product.image}
+        category={product.category}
+        isVisible={product.is_visible}
+        viewMode={viewMode}
+        onEdit={onEdit}
+        onDelete={onDelete}
+      />
+    </div>
+  );
+};
+
 export default function InventoryPage() {
-  const { products, fetchProducts, removeProduct, isFetching } = useInventory();
+  const { products, fetchProducts, removeProduct, isFetching, updateProductsOrder } = useInventory();
   const [search, setSearch] = useState('');
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
@@ -20,14 +89,44 @@ export default function InventoryPage() {
   const [isAdding, setIsAdding] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
 
+  // DND Sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
   useEffect(() => {
     fetchProducts();
   }, [fetchProducts]);
 
-  const filteredProducts = products.filter(p => 
+  const sortedAndFilteredProducts = products.filter(p => 
     p.name.toLowerCase().includes(search.toLowerCase()) ||
     p.category?.toLowerCase().includes(search.toLowerCase())
   );
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      const oldIndex = products.findIndex((p) => p.id === active.id);
+      const newIndex = products.findIndex((p) => p.id === over.id);
+
+      const newOrder = arrayMove(products, oldIndex, newIndex);
+      
+      try {
+        await updateProductsOrder(newOrder);
+        toast.success("Orden actualizado correctamente");
+      } catch (err) {
+        toast.error("Error al guardar el nuevo orden");
+      }
+    }
+  };
 
   const handleDelete = async () => {
     if (!productToDelete) return;
@@ -90,7 +189,7 @@ export default function InventoryPage() {
             <div className="h-8 w-8 border-2 border-slate-100 border-t-amber-400 rounded-full animate-spin" />
             <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Accediendo a bodega...</p>
           </div>
-        ) : filteredProducts.length === 0 ? (
+        ) : sortedAndFilteredProducts.length === 0 ? (
           <div className="py-24 text-center">
             <div className="h-16 w-16 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-200 mx-auto mb-6">
               <Package size={32} strokeWidth={1.5} />
@@ -98,54 +197,66 @@ export default function InventoryPage() {
             <p className="font-serif italic text-slate-300 text-lg">No encontramos productos...</p>
           </div>
         ) : (
-          <motion.div 
-            layout
-            transition={{ type: 'spring', bounce: 0, duration: 0.3 }}
-            className={viewMode === 'grid' 
-              ? "grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6" 
-              : "flex flex-col gap-3"
-            }
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
           >
-            <AnimatePresence mode="popLayout" initial={false}>
-              {filteredProducts.map((p) => (
-                <ProductCard
-                  key={p.id}
-                  id={p.id}
-                  name={p.name}
-                  price={p.price}
-                  image={p.image}
-                  category={p.category}
-                  isFavorite={p.is_favorite}
-                  viewMode={viewMode}
-                  onEdit={() => setEditingProduct(p)}
-                  onDelete={() => setProductToDelete(p)}
-                />
-              ))}
-            </AnimatePresence>
-          </motion.div>
+            <SortableContext
+              items={sortedAndFilteredProducts.map(p => p.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              <motion.div 
+                layout
+                transition={{ type: 'spring', bounce: 0, duration: 0.3 }}
+                className={viewMode === 'grid' 
+                  ? "grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6" 
+                  : "flex flex-col gap-3"
+                }
+              >
+                <AnimatePresence mode="popLayout" initial={false}>
+                  {sortedAndFilteredProducts.map((p) => (
+                    <SortableProductItem
+                      key={p.id}
+                      product={p}
+                      viewMode={viewMode}
+                      onEdit={() => setEditingProduct(p)}
+                      onDelete={() => setProductToDelete(p)}
+                    />
+                  ))}
+                </AnimatePresence>
+              </motion.div>
+            </SortableContext>
+          </DndContext>
         )}
       </main>
 
       {/* Modals */}
-      {(editingProduct || isAdding) && (
-        <ProductModal
-          product={editingProduct || undefined}
-          onClose={() => {
-            setEditingProduct(null);
-            setIsAdding(false);
-          }}
-          onRefresh={fetchProducts}
-        />
-      )}
+      <AnimatePresence>
+        {isAdding && (
+          <ProductModal 
+            onClose={() => setIsAdding(false)} 
+            onRefresh={fetchProducts}
+          />
+        )}
+        
+        {editingProduct && (
+          <ProductModal 
+            product={editingProduct}
+            onClose={() => setEditingProduct(null)} 
+            onRefresh={fetchProducts}
+          />
+        )}
 
-      {productToDelete && (
-        <ConfirmDeleteModal
-          productName={productToDelete.name}
-          onConfirm={handleDelete}
-          onCancel={() => setProductToDelete(null)}
-          isDeleting={isDeleting}
-        />
-      )}
+        {productToDelete && (
+          <ConfirmDeleteModal 
+            productName={productToDelete.name}
+            onCancel={() => setProductToDelete(null)}
+            onConfirm={handleDelete}
+            isDeleting={isDeleting}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
