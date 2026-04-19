@@ -2,36 +2,25 @@
 
 import React, { useState, useEffect } from 'react';
 import ProductGrid from '@/components/pos/ProductGrid';
-import CartDrawer from '@/components/pos/CartDrawer';
 import FloatingCart from '@/components/pos/FloatingCart';
 import CustomerSelector from '@/components/pos/CustomerSelector';
 import AbonoModal from '@/components/pos/AbonoModal';
 import AddCustomerModal from '@/components/customers/AddCustomerModal';
 import { useCustomers } from '@/store/useCustomers';
 import { useInventory } from '@/store/useInventory';
-import { useCart } from '@/store/useCart';
-import { useTransactions } from '@/store/useTransactions';
-import { addConsolidatedDebt } from '@/lib/actions/paymentLogic';
 import GlobalDashboard from '@/components/pos/GlobalDashboard';
 import { LayoutGrid, List as ListIcon, ShoppingBag } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import InputSearch from '@/components/ui/InputSearch';
-import { toast } from 'sonner';
 
 export default function AdminPOSPage() {
   const [isAbonoOpen, setIsAbonoOpen] = useState(false);
   const [isAddCustomerOpen, setIsAddCustomerOpen] = useState(false);
-  const [isCartOpen, setIsCartOpen] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   
-  const { customers, selectedCustomerId, fetchCustomers, fetchGlobalMetrics, updateBalance } = useCustomers();
+  const { customers, selectedCustomerId, fetchCustomers, fetchGlobalMetrics } = useCustomers();
   const { products, fetchProducts } = useInventory();
-  const { items, clearCart, total } = useCart();
-  const { addTransaction } = useTransactions();
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-
-  const selectedCustomer = customers.find(c => c.id === selectedCustomerId);
 
   useEffect(() => {
     fetchCustomers();
@@ -43,37 +32,6 @@ export default function AdminPOSPage() {
     p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     p.category?.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
-  const handleCheckout = async () => {
-    if (!selectedCustomer) {
-      toast.error('Selecciona un cliente para fiar');
-      return;
-    }
-
-    setIsProcessing(true);
-    try {
-      await addConsolidatedDebt(selectedCustomer.id, items, total);
-      
-      updateBalance(selectedCustomer.id, total);
-      addTransaction({
-        customerId: selectedCustomer.id,
-        customerName: selectedCustomer.name,
-        type: 'Venta',
-        amount: total,
-        items: items.map((i) => `${i.name} x${i.quantity}`).join(', '),
-      });
-
-      await fetchGlobalMetrics();
-      toast.success("✅ Venta registrada con éxito");
-      clearCart();
-      setIsCartOpen(false);
-    } catch (err) {
-      console.error('Checkout error:', err);
-      toast.error('Error al registrar la venta ❌');
-    } finally {
-      setIsProcessing(false);
-    }
-  };
 
   return (
     <div className="flex flex-col min-h-screen bg-[#FDFCF9]">
@@ -151,15 +109,8 @@ export default function AdminPOSPage() {
       </main>
 
       {/* ─── OVERLAYS ─── */}
-      <FloatingCart onClick={() => setIsCartOpen(true)} />
+      <FloatingCart />
       
-      <CartDrawer 
-        isOpen={isCartOpen} 
-        onClose={() => setIsCartOpen(false)}
-        onCheckout={handleCheckout}
-        isProcessing={isProcessing}
-      />
-
       <AnimatePresence>
         {isAbonoOpen && <AbonoModal onClose={() => setIsAbonoOpen(false)} />}
         {isAddCustomerOpen && <AddCustomerModal onClose={() => setIsAddCustomerOpen(false)} />}

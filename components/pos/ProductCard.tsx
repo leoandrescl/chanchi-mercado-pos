@@ -171,8 +171,6 @@ const ProductCard = memo(({
     </motion.div>
   );
 });
-  );
-});
 
 ProductCard.displayName = 'ProductCard';
 

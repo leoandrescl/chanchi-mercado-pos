@@ -21,9 +21,8 @@ export default function ProductGrid({ products, viewMode, isAdmin, onEdit, onDel
       const { id, image, rect } = e.detail;
       const flyingId = Math.random().toString(36).substring(7);
       
-      // We aim for the cart icon position. 
-      // In ChanchiMercado, FloatingCart or CartDrawer trigger is usually bottom-right.
-      const targetX = window.innerWidth - 80;
+      // We aim for the cart icon position (center bottom)
+      const targetX = window.innerWidth / 2 - 25; // Centered
       const targetY = window.innerHeight - 80;
 
       setFlyingItems(prev => [...prev, {

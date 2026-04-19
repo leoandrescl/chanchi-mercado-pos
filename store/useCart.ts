@@ -58,7 +58,7 @@ export const useCart = create<CartStore>()(
           return { items: newItems, total: newItems.reduce((acc, i) => acc + i.price * i.quantity, 0) };
         });
       },
-      deleteItem: (id) => {
+      deleteItem: (id: string) => {
         set((state) => {
           const newItems = state.items.filter((item) => item.id !== id);
           return { items: newItems, total: newItems.reduce((acc, i) => acc + i.price * i.quantity, 0) };
