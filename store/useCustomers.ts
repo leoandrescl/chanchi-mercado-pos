@@ -29,7 +29,14 @@ interface CustomerStore {
   toggleGlobalBalance: () => void;
   deleteDebtSupabase: (debtId: string, debtorId: string, amount: number, description: string) => Promise<void>;
   quickPayDebtSupabase: (debtId: string, debtorId: string, amount: number, description: string) => Promise<void>;
-  updateDebtSupabase: (debtId: string, debtorId: string, newAmount: number, oldAmount: number, newDescription: string) => Promise<void>;
+  updateDebtSupabase: (
+    debtId: string,
+    debtorId: string,
+    newAmount: number,
+    oldAmount: number,
+    newDescription: string,
+    newDateInput?: string
+  ) => Promise<void>;
 }
 
 export const useCustomers = create<CustomerStore>()(
@@ -173,9 +180,9 @@ export const useCustomers = create<CustomerStore>()(
           throw new Error(res.error);
         }
       },
-      updateDebtSupabase: async (debtId, debtorId, newAmount, oldAmount, newDescription) => {
+      updateDebtSupabase: async (debtId, debtorId, newAmount, oldAmount, newDescription, newDateInput) => {
         const { updateDebtAction } = await import('@/app/actions/history');
-        const res = await updateDebtAction(debtId, debtorId, newAmount, oldAmount, newDescription);
+        const res = await updateDebtAction(debtId, debtorId, newAmount, oldAmount, newDescription, newDateInput);
         if (res.success) {
           get().updateBalance(debtorId, newAmount - oldAmount);
           await get().fetchGlobalMetrics();

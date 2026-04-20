@@ -15,7 +15,7 @@ interface FloatingCartProps {
 }
 
 export default function FloatingCart({ isPublic = false }: FloatingCartProps) {
-  const { items, addItem, removeItem, deleteItem, clearCart, getTotal } = useCart();
+  const { items, addItem, removeItem, deleteItem, clearCart, getTotal, saleDate, setSaleDate } = useCart();
   const [isExpanded, setIsExpanded] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [shouldBounce, setShouldBounce] = useState(false);
@@ -52,7 +52,7 @@ export default function FloatingCart({ isPublic = false }: FloatingCartProps) {
     
     try {
       const previousBalance = selectedCustomer.balance;
-      await addConsolidatedDebt(selectedCustomer.id, items, total);
+      await addConsolidatedDebt(selectedCustomer.id, items, total, saleDate);
 
       updateBalance(selectedCustomer.id, total);
       addTransaction({
@@ -216,7 +216,25 @@ export default function FloatingCart({ isPublic = false }: FloatingCartProps) {
                   ))}
                 </div>
 
-                <div className="p-6 bg-white/50 backdrop-blur-md border-t border-white/20">
+                <div className="p-6 bg-white/50 backdrop-blur-md border-t border-white/20 space-y-4">
+                  {!isPublic && (
+                    <div className="space-y-2">
+                      <label
+                        htmlFor="floating-cart-sale-date"
+                        className="text-[10px] font-bold uppercase tracking-widest text-slate-400 block px-1"
+                      >
+                        Fecha de la venta
+                      </label>
+                      <input
+                        id="floating-cart-sale-date"
+                        type="date"
+                        value={saleDate}
+                        onChange={(e) => setSaleDate(e.target.value)}
+                        onClick={(e) => e.stopPropagation()}
+                        className="w-full h-12 px-4 rounded-2xl border border-slate-100 bg-white font-bold text-slate-900 text-sm focus:border-amber-300 focus:ring-4 focus:ring-amber-50 focus:outline-none transition-all"
+                      />
+                    </div>
+                  )}
                   <button
                     onClick={() => (isPublic ? handlePublicOrder() : handleCheckout(false))}
                     disabled={isProcessing}

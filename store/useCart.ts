@@ -10,6 +10,9 @@ export interface CartItem {
 
 interface CartStore {
   items: CartItem[];
+  /** YYYY-MM-DD for venta fiada (persisted). */
+  saleDate: string;
+  setSaleDate: (date: string) => void;
   addItem: (item: Omit<CartItem, 'quantity'>) => void;
   removeItem: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
@@ -24,6 +27,8 @@ export const useCart = create<CartStore>()(
     (set, get) => ({
       items: [],
       total: 0,
+      saleDate: new Date().toISOString().split('T')[0],
+      setSaleDate: (saleDate) => set({ saleDate }),
       addItem: (product) => {
         set((state) => {
           const existingItem = state.items.find((item) => item.id === product.id);
@@ -65,13 +70,27 @@ export const useCart = create<CartStore>()(
           return { items: newItems, total: newItems.reduce((acc, i) => acc + i.price * i.quantity, 0) };
         });
       },
-      clearCart: () => set({ items: [], total: 0 }),
+      clearCart: () =>
+        set({ items: [], total: 0, saleDate: new Date().toISOString().split('T')[0] }),
       getTotal: () => {
         return get().items.reduce((acc, item) => acc + item.price * item.quantity, 0);
       },
     }),
     {
       name: 'chanchi-cart',
+      merge: (persisted, current) => {
+        const p = (persisted ?? {}) as Partial<CartStore>;
+        const fallbackDate = new Date().toISOString().split('T')[0];
+        return {
+          ...current,
+          items: p.items ?? current.items,
+          total: typeof p.total === 'number' ? p.total : current.total,
+          saleDate:
+            typeof p.saleDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(p.saleDate)
+              ? p.saleDate
+              : fallbackDate,
+        };
+      },
     }
   )
 );

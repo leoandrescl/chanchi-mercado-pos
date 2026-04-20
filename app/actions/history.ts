@@ -3,6 +3,7 @@
 import { supabase } from '@/lib/supabase';
 import { logAuditAction } from './audit';
 import { revalidatePath } from 'next/cache';
+import { saleDateInputToIso } from '@/lib/actions/paymentLogic';
 
 /**
  * Deletes a specific debt record.
@@ -83,17 +84,31 @@ export async function quickPayDebtAction(debtId: string, debtorId: string, amoun
  * Updates the amount or description of a debt.
  * The DB trigger should handle updating the debtor's balance if the amount changes.
  */
-export async function updateDebtAction(debtId: string, debtorId: string, newAmount: number, oldAmount: number, newDescription: string) {
+export async function updateDebtAction(
+  debtId: string,
+  debtorId: string,
+  newAmount: number,
+  oldAmount: number,
+  newDescription: string,
+  /** `YYYY-MM-DD` from date input; updates `date` and `created_at` when set. */
+  newDateInput?: string
+) {
   try {
-    const { error } = await supabase
-      .from('debts')
-      .update({
-        amount: newAmount,
-        remaining_amount: newAmount, // Reset remaining if it was unpaid
-        description: newDescription,
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', debtId);
+    const now = new Date().toISOString();
+    const payload: Record<string, unknown> = {
+      amount: newAmount,
+      remaining_amount: newAmount, // Reset remaining if it was unpaid
+      description: newDescription,
+      updated_at: now,
+    };
+
+    if (newDateInput) {
+      const ts = saleDateInputToIso(newDateInput);
+      payload.date = ts;
+      payload.created_at = ts;
+    }
+
+    const { error } = await supabase.from('debts').update(payload).eq('id', debtId);
 
     if (error) throw error;
 
@@ -107,7 +122,8 @@ export async function updateDebtAction(debtId: string, debtorId: string, newAmou
         newAmount, 
         diff: newAmount - oldAmount,
         newDescription, 
-        timestamp: new Date().toISOString() 
+        newDateInput: newDateInput ?? null,
+        timestamp: now 
       }
     });
 

@@ -11,6 +11,16 @@ export interface Debt {
   created_at?: string;
 }
 
+/** Converts YYYY-MM-DD from `<input type="date" />` to ISO for timestamptz (noon local, stable vs DST). */
+export function saleDateInputToIso(dateStr: string): string {
+  const parts = dateStr.split('-').map(Number);
+  const y = parts[0];
+  const m = parts[1];
+  const d = parts[2];
+  if (!y || !m || !d) return new Date().toISOString();
+  return new Date(y, m - 1, d, 12, 0, 0, 0).toISOString();
+}
+
 /**
  * Allocates a payment to the oldest unpaid debts first (FIFO).
  * Replicates the logic from the legacy database.py
@@ -102,11 +112,17 @@ export async function processPayment(debtorId: string, amountPaid: number, dateS
 /**
  * Consolidates a cart into a single debt record.
  */
-export async function addConsolidatedDebt(debtorId: string, items: { name: string; quantity: number }[], total: number) {
+export async function addConsolidatedDebt(
+  debtorId: string,
+  items: { name: string; quantity: number }[],
+  total: number,
+  /** `YYYY-MM-DD` from cart; sets both `date` and `created_at` instead of server defaults. */
+  saleDateInput?: string
+) {
   const itemDescription = items.map(i => `${i.name} x${i.quantity}`).join(', ');
   const description = `Compra: ${itemDescription.length > 50 ? itemDescription.substring(0, 47) + '...' : itemDescription}`;
 
-  const timestamp = new Date().toISOString();
+  const timestamp = saleDateInput ? saleDateInputToIso(saleDateInput) : new Date().toISOString();
   const { error } = await supabase
     .from('debts')
     .insert({
@@ -115,6 +131,7 @@ export async function addConsolidatedDebt(debtorId: string, items: { name: strin
       amount: total,
       remaining_amount: total, // Initialize remaining amount
       date: timestamp,
+      created_at: timestamp,
       is_paid: false,
     });
 

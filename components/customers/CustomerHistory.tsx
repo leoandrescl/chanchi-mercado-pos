@@ -21,6 +21,16 @@ interface GroupedDebts {
   };
 }
 
+function debtDateToInputValue(iso: string | undefined): string {
+  if (!iso) return new Date().toISOString().split('T')[0];
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return new Date().toISOString().split('T')[0];
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
 export default function CustomerHistory({ debtorId }: CustomerHistoryProps) {
   const { customers, deleteDebtSupabase, quickPayDebtSupabase, updateDebtSupabase } = useCustomers();
   const [debts, setDebts] = useState<Debt[]>([]);
@@ -28,7 +38,7 @@ export default function CustomerHistory({ debtorId }: CustomerHistoryProps) {
   const [filter, setFilter] = useState<'all' | 'unpaid' | 'paid'>('all');
   const [viewMode, setViewMode] = useState<'all' | 'currentMonth'>('currentMonth');
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [editingDebt, setEditingDebt] = useState<any>(null);
+  const [editingDebt, setEditingDebt] = useState<Debt | null>(null);
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
   const [isPaying, setIsPaying] = useState<string | null>(null);
 
@@ -316,10 +326,11 @@ export default function CustomerHistory({ debtorId }: CustomerHistoryProps) {
   );
 }
 
-function EditDebtModal({ debt, onClose, onSuccess }: { debt: any; onClose: () => void; onSuccess: () => void }) {
+function EditDebtModal({ debt, onClose, onSuccess }: { debt: Debt; onClose: () => void; onSuccess: () => void }) {
   const { updateDebtSupabase } = useCustomers();
   const [description, setDescription] = useState(debt.description);
   const [amount, setAmount] = useState(debt.amount.toString());
+  const [dateInput, setDateInput] = useState(() => debtDateToInputValue(debt.date ?? debt.created_at));
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -329,7 +340,7 @@ function EditDebtModal({ debt, onClose, onSuccess }: { debt: any; onClose: () =>
 
     setIsSubmitting(true);
     try {
-      await updateDebtSupabase(debt.id, debt.debtor_id, newAmount, debt.amount, description);
+      await updateDebtSupabase(debt.id, debt.debtor_id, newAmount, debt.amount, description, dateInput);
       toast.success('Pedido actualizado correctamente ✨');
       onSuccess();
     } catch (err: any) {
@@ -366,6 +377,20 @@ function EditDebtModal({ debt, onClose, onSuccess }: { debt: any; onClose: () =>
               onChange={(e) => setAmount(e.target.value)}
             />
           </div>
+        </div>
+
+        <div className="space-y-2">
+          <label htmlFor="edit-debt-date" className="text-[10px] font-bold uppercase tracking-widest text-slate-400 block px-4">
+            Fecha del movimiento
+          </label>
+          <input
+            id="edit-debt-date"
+            type="date"
+            required
+            className="w-full h-14 px-6 rounded-xl border border-slate-100 bg-slate-50 focus:bg-white focus:border-amber-300 focus:ring-4 focus:ring-amber-50 focus:outline-none transition-all font-bold text-slate-950 text-sm"
+            value={dateInput}
+            onChange={(e) => setDateInput(e.target.value)}
+          />
         </div>
 
         <div className="pt-4 flex gap-3">
