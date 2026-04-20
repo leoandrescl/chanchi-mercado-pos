@@ -18,13 +18,14 @@ interface ProductCardProps {
   isBundle?: boolean;
   viewMode?: 'grid' | 'list';
   category?: string;
+  priority?: boolean;
   onEdit?: (id: string) => void;
   onDelete?: (id: string) => void;
 }
 
 const ProductCard = memo(({
   id, name, price, image, isVisible, isBundle, viewMode = 'grid',
-  category, isPublic, onEdit, onDelete
+  category, isPublic, priority, onEdit, onDelete
 }: ProductCardProps) => {
   const addItem = useCart((state) => state.addItem);
   const toggleVisibilityStore = useInventory((state) => state.toggleVisibility);
@@ -101,6 +102,7 @@ const ProductCard = memo(({
                 alt={name}
                 fill
                 sizes={isList ? "120px" : "400px"}
+                priority={priority}
                 className="object-cover transition-transform duration-700 group-hover:scale-110"
               />
             </motion.div>

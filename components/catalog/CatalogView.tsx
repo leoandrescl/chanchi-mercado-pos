@@ -104,7 +104,7 @@ export default function CatalogView({ isAdmin = false }: CatalogViewProps) {
             }
           >
             <AnimatePresence mode="popLayout" initial={false}>
-              {filteredProducts.map((product) => (
+              {filteredProducts.map((product, index) => (
                 <ProductCard
                   key={product.id}
                   id={product.id}
@@ -114,6 +114,7 @@ export default function CatalogView({ isAdmin = false }: CatalogViewProps) {
                   viewMode={viewMode}
                   isVisible={product.is_visible}
                   isPublic={true}
+                  priority={index < 4}
                 />
               ))}
             </AnimatePresence>
