@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import InputSearch from '@/components/ui/InputSearch';
 import Link from 'next/link';
 import FloatingCart from '@/components/pos/FloatingCart';
+import PWAInstallButton from '@/components/pwa/PWAInstallButton';
 
 interface CatalogViewProps {
   isAdmin?: boolean;
@@ -33,11 +34,13 @@ export default function CatalogView({ isAdmin = false }: CatalogViewProps) {
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-50">
         <div className="mx-auto w-full max-w-5xl flex flex-col gap-4 px-6 py-3">
           {!isAdmin && (
-            <div className="flex items-center justify-center">
-              <Link href="/catalogo" className="flex flex-col items-center leading-none group">
+            <div className="flex items-center justify-between">
+              <Link href="/catalogo" className="flex flex-col leading-none group">
                 <span className="font-serif text-2xl text-slate-900 tracking-tight transition-all group-hover:text-amber-600">ChanchiMercado</span>
                 <span className="text-[9px] font-bold uppercase tracking-[0.35em] text-amber-400 mt-1">Catálogo de Productos</span>
               </Link>
+              {/* PWA Install — compact pill in top-right */}
+              <PWAInstallButton compact />
             </div>
           )}
 

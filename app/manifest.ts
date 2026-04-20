@@ -4,14 +4,15 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: 'ChanchiMercado',
     short_name: 'Chanchi',
-    description: 'Punto de Venta e Inventario — Hecho con amor ❤️',
-    start_url: '/acceso-total-chanchi',
+    description: 'Tu almacén de barrio en tu celular',
+    // Public clients land on the catalog; admin accesses via /acceso-total-chanchi directly
+    start_url: '/catalogo',
     scope: '/',
     display: 'standalone',
     orientation: 'portrait',
-    background_color: '#0f172a',
+    background_color: '#ffffff',
     theme_color: '#0f172a',
-    categories: ['business', 'finance', 'shopping'],
+    categories: ['shopping', 'food', 'business'],
     icons: [
       {
         src: '/icon-192.png',

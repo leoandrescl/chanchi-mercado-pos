@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
-import AuthGuard from '@/components/auth/AuthGuard';
+
 
 const inter = Inter({
   variable: "--font-inter",
