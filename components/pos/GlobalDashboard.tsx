@@ -6,6 +6,7 @@ import { TrendingUp, Clock, ArrowUpRight, ArrowDownRight, Wallet, UserPlus, Eye,
 import Link from 'next/link';
 import { generateBackup } from '@/app/actions/backup';
 import { toast } from 'sonner';
+import PWAInstallButton from '@/components/pwa/PWAInstallButton';
 
 interface GlobalDashboardProps {
   onAddCustomer: () => void;
@@ -197,6 +198,11 @@ export default function GlobalDashboard({ onAddCustomer }: GlobalDashboardProps)
             {isExporting ? 'Generando respaldo...' : 'Descargar Respaldo Completo'}
           </span>
         </button>
+      </div>
+
+      {/* ─── PWA INSTALL ─── */}
+      <div className="px-1">
+        <PWAInstallButton />
       </div>
 
       {/* ─── DASHBOARD FOOTER ─── */}

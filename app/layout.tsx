@@ -22,12 +22,18 @@ export const metadata: Metadata = {
     title: "ChanchiMercado POS",
     description: "Tu punto de venta inteligente y control de deudores.",
     type: "website",
-    images: [{ url: "/icon.png", width: 512, height: 512, alt: "ChanchiMercado Pos Logo" }], // Fallback to icon.png
+    images: [{ url: "/icon-512.png", width: 512, height: 512, alt: "ChanchiMercado Logo" }],
   },
-  manifest: "/manifest.json",
+  // Next.js auto-serves app/manifest.ts at /manifest.webmanifest
   icons: {
-    icon: "/icon.png",
-    apple: "/apple-icon.png",
+    icon: "/icon-192.png",
+    apple: "/apple-touch-icon.png",
+    shortcut: "/icon-192.png",
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'ChanchiMercado',
   },
 };
 
