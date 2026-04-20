@@ -27,6 +27,9 @@ interface CustomerStore {
   fetchGlobalMetrics: () => Promise<void>;
   showGlobalBalance: boolean;
   toggleGlobalBalance: () => void;
+  deleteDebtSupabase: (debtId: string, debtorId: string, amount: number, description: string) => Promise<void>;
+  quickPayDebtSupabase: (debtId: string, debtorId: string, amount: number, description: string) => Promise<void>;
+  updateDebtSupabase: (debtId: string, debtorId: string, newAmount: number, oldAmount: number, newDescription: string) => Promise<void>;
 }
 
 export const useCustomers = create<CustomerStore>()(
@@ -150,6 +153,36 @@ export const useCustomers = create<CustomerStore>()(
         await get().fetchCustomers();
       },
       toggleGlobalBalance: () => set((state) => ({ showGlobalBalance: !state.showGlobalBalance })),
+      deleteDebtSupabase: async (debtId, debtorId, amount, description) => {
+        const { deleteDebtAction } = await import('@/app/actions/history');
+        const res = await deleteDebtAction(debtId, debtorId, amount, description);
+        if (res.success) {
+          get().updateBalance(debtorId, -amount);
+          await get().fetchGlobalMetrics();
+        } else {
+          throw new Error(res.error);
+        }
+      },
+      quickPayDebtSupabase: async (debtId, debtorId, amount, description) => {
+        const { quickPayDebtAction } = await import('@/app/actions/history');
+        const res = await quickPayDebtAction(debtId, debtorId, amount, description);
+        if (res.success) {
+          get().updateBalance(debtorId, -amount);
+          await get().fetchGlobalMetrics();
+        } else {
+          throw new Error(res.error);
+        }
+      },
+      updateDebtSupabase: async (debtId, debtorId, newAmount, oldAmount, newDescription) => {
+        const { updateDebtAction } = await import('@/app/actions/history');
+        const res = await updateDebtAction(debtId, debtorId, newAmount, oldAmount, newDescription);
+        if (res.success) {
+          get().updateBalance(debtorId, newAmount - oldAmount);
+          await get().fetchGlobalMetrics();
+        } else {
+          throw new Error(res.error);
+        }
+      },
     }),
     {
       name: 'chanchi-customers',

@@ -1,9 +1,11 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useCustomers } from '@/store/useCustomers';
-import { TrendingUp, Clock, ArrowUpRight, ArrowDownRight, Wallet, UserPlus, Eye, EyeOff, Package } from 'lucide-react';
+import { TrendingUp, Clock, ArrowUpRight, ArrowDownRight, Wallet, UserPlus, Eye, EyeOff, Package, Download, Loader2 } from 'lucide-react';
 import Link from 'next/link';
+import { generateBackup } from '@/app/actions/backup';
+import { toast } from 'sonner';
 
 interface GlobalDashboardProps {
   onAddCustomer: () => void;
@@ -11,6 +13,42 @@ interface GlobalDashboardProps {
 
 export default function GlobalDashboard({ onAddCustomer }: GlobalDashboardProps) {
   const { globalTotal, lastMovements, isFetchingMetrics, showGlobalBalance, toggleGlobalBalance } = useCustomers();
+  const [isExporting, setIsExporting] = useState(false);
+
+  const handleBackup = async () => {
+    setIsExporting(true);
+    try {
+      const result = await generateBackup();
+      if (!result.success) {
+        toast.error('Error al generar el respaldo: ' + result.error);
+        return;
+      }
+
+      const { data } = result;
+      const json = JSON.stringify(data, null, 2);
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+
+      const date = new Date().toISOString().slice(0, 10);
+      const filename = `chanchi-respaldo-${date}.json`;
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      toast.success(
+        `✅ Respaldo generado: ${data.metadata.totalCustomers} clientes, ${data.metadata.totalDebts} movimientos, ${data.metadata.totalProducts} productos`
+      );
+    } catch (err: any) {
+      toast.error('Error inesperado: ' + err.message);
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   const formatPrice = (amount: number) =>
     new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(amount);
@@ -141,6 +179,24 @@ export default function GlobalDashboard({ onAddCustomer }: GlobalDashboardProps)
             ))
           )}
         </div>
+      </div>
+
+      {/* ─── BACKUP SECTION ─── */}
+      <div className="mt-2 px-1">
+        <button
+          onClick={handleBackup}
+          disabled={isExporting}
+          className="w-full flex items-center justify-center gap-3 rounded-2xl border border-dashed border-slate-200 bg-slate-50/50 px-6 py-4 text-slate-400 transition-all hover:border-slate-400 hover:bg-white hover:text-slate-700 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isExporting ? (
+            <Loader2 size={16} className="animate-spin" />
+          ) : (
+            <Download size={16} />
+          )}
+          <span className="text-[10px] font-bold uppercase tracking-[0.2em]">
+            {isExporting ? 'Generando respaldo...' : 'Descargar Respaldo Completo'}
+          </span>
+        </button>
       </div>
 
       {/* ─── DASHBOARD FOOTER ─── */}

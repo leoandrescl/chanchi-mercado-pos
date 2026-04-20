@@ -135,3 +135,55 @@ export async function getDebtorFullAudit(debtorId: string) {
     return { success: false, error: error.message };
   }
 }
+
+/**
+ * Fetches only UNPAID debts for a debtor, formatted for the summary WhatsApp report.
+ * Includes partial payment info when a debt has been partially covered.
+ */
+export async function getDebtorSummary(debtorId: string) {
+  try {
+    const { data: debtor, error: debtorError } = await supabase
+      .from('debtors')
+      .select('balance, name, phone')
+      .eq('id', debtorId)
+      .single();
+
+    if (debtorError) throw debtorError;
+
+    // Only fetch unpaid debts with positive amounts (real purchases)
+    const { data: debts, error: debtsError } = await supabase
+      .from('debts')
+      .select('*')
+      .eq('debtor_id', debtorId)
+      .eq('is_paid', false)
+      .gt('amount', 0)
+      .order('date', { ascending: true });
+
+    if (debtsError) throw debtsError;
+
+    const pendingDebts = (debts || []).map((d: any) => {
+      const remaining = d.remaining_amount ?? d.amount;
+      const isPartial = remaining < d.amount;
+      return {
+        date: d.date,
+        description: d.description,
+        originalAmount: d.amount,
+        remainingAmount: remaining,
+        isPartial,
+      };
+    });
+
+    return {
+      success: true,
+      data: {
+        pendingDebts,
+        totalBalance: debtor.balance || 0,
+        name: debtor.name,
+        phone: debtor.phone || '',
+      }
+    };
+  } catch (error: any) {
+    console.error('Error fetching summary:', error.message);
+    return { success: false, error: error.message };
+  }
+}

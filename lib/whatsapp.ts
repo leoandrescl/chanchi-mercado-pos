@@ -213,3 +213,71 @@ Muchas gracias.`;
 
   return `https://wa.me/${CHANCHI_PHONE}?text=${encodeURIComponent(message)}`;
 }
+
+// 5. GENERADOR DE RESUMEN SIMPLIFICADO (solo ítems pendientes)
+export interface SummaryReportDetails {
+  customerName: string;
+  phone: string;
+  pendingDebts: {
+    date: string;
+    description: string;
+    originalAmount: number;
+    remainingAmount: number;
+    isPartial: boolean; // partial payment covers part of this debt
+  }[];
+  totalBalance: number;
+}
+
+export function generateSummaryMessage({
+  customerName,
+  phone,
+  pendingDebts,
+  totalBalance,
+}: SummaryReportDetails): string {
+  const cleanPhone = phone.replace(/\D/g, '');
+
+  // Group by month
+  const monthFormatter = new Intl.DateTimeFormat('es-CL', { month: 'long', year: 'numeric' });
+  const grouped: Record<string, typeof pendingDebts> = {};
+
+  for (const d of pendingDebts) {
+    const monthKey = monthFormatter.format(new Date(d.date));
+    if (!grouped[monthKey]) grouped[monthKey] = [];
+    grouped[monthKey].push(d);
+  }
+
+  let body = '';
+  const monthSubtotals: { name: string; total: number }[] = [];
+
+  for (const [monthName, items] of Object.entries(grouped)) {
+    const monthTotal = items.reduce((s, i) => s + i.remainingAmount, 0);
+    const monthShort = monthName.charAt(0).toUpperCase() + monthName.slice(1).split(' ')[0];
+    monthSubtotals.push({ name: monthShort, total: monthTotal });
+
+    body += `*# ${monthName.toUpperCase()} #*\n\n`;
+
+    for (const item of items) {
+      const dateLabel = `${new Date(item.date).getDate()}/${new Date(item.date).getMonth() + 1}`;
+      const desc = item.description.replace(/^Compra: /, '');
+
+      if (item.isPartial) {
+        // Show the original amount and what's still owed
+        body += `- [${dateLabel}] ${desc}: ${formatPrice(item.originalAmount)}\n`;
+        body += `  ↳ 📌 Queda pendiente: ${formatPrice(item.remainingAmount)}\n`;
+      } else {
+        body += `- [${dateLabel}] ${desc}: ${formatPrice(item.remainingAmount)}\n`;
+      }
+    }
+
+    body += `--------------------------\n`;
+    body += `📈 Subtotal ${monthShort}: ${formatPrice(monthTotal)}\n\n`;
+  }
+
+  const subtotalLines = monthSubtotals
+    .map(m => `📈 Subtotal ${m.name}: ${formatPrice(m.total)}`)
+    .join('\n');
+
+  const message = `📦 *Resumen de cuenta:*\n\n${body}==========================\n   💰 *RESUMEN DE CUENTA*\n==========================\n${subtotalLines}\n\n*TOTAL PENDIENTE: ${formatPrice(totalBalance)}*\n==========================\n\n¡Muchas gracias por su preferencia!`;
+
+  return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
+}

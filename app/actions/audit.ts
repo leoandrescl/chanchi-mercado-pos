@@ -2,7 +2,7 @@
 
 import { supabase } from '@/lib/supabase';
 
-export type AuditActionType = 'FIADO' | 'ABONO' | 'CREACION_CLIENTE' | 'EDICION_CLIENTE' | 'ELIMINACION_CLIENTE';
+export type AuditActionType = 'FIADO' | 'ABONO' | 'CREACION_CLIENTE' | 'EDICION_CLIENTE' | 'ELIMINACION_CLIENTE' | 'DELETE_DEBT' | 'QUICK_PAY' | 'UPDATE_DEBT';
 
 export async function logAuditAction({
   actionType,
