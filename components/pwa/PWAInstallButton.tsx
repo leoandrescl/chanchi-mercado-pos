@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Smartphone, X, Share, Plus, Download } from 'lucide-react';
+import { Smartphone, X, Share, Plus, Download, MoreVertical } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePWAInstall } from '@/hooks/usePWAInstall';
 
@@ -11,15 +11,28 @@ interface PWAInstallButtonProps {
 }
 
 export default function PWAInstallButton({ compact = false }: PWAInstallButtonProps) {
-  const { canInstall, isIOS, isInstalled, isPrompting, promptInstall } = usePWAInstall();
+  const { canInstall, isIOS, isAndroid, hasNativeInstallPrompt, isInstalled, isPrompting, promptInstall } =
+    usePWAInstall();
   const [showIOSGuide, setShowIOSGuide] = useState(false);
+  const [showAndroidGuide, setShowAndroidGuide] = useState(false);
   const [dismissed, setDismissed] = useState(false);
 
   if (isInstalled || !canInstall || dismissed) return null;
 
-  const handleClick = () => {
-    if (isIOS) setShowIOSGuide(true);
-    else promptInstall();
+  const handleClick = async () => {
+    if (isIOS) {
+      setShowIOSGuide(true);
+      return;
+    }
+    if (hasNativeInstallPrompt) {
+      await promptInstall();
+      return;
+    }
+    if (isAndroid) {
+      setShowAndroidGuide(true);
+      return;
+    }
+    await promptInstall();
   };
 
   return (
@@ -93,6 +106,100 @@ export default function PWAInstallButton({ compact = false }: PWAInstallButtonPr
           </button>
         </motion.div>
       )}
+
+      {/* ── Android / Chrome: menú cuando no hay `beforeinstallprompt` ─── */}
+      <AnimatePresence>
+        {showAndroidGuide && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowAndroidGuide(false)}
+              className="fixed inset-0 z-[10001] bg-slate-900/60 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ y: '100%', opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: '100%', opacity: 0 }}
+              transition={{ type: 'spring', damping: 28, stiffness: 300 }}
+              className="fixed bottom-0 left-0 right-0 z-[10002] bg-white rounded-t-[2.5rem] shadow-2xl overflow-hidden"
+            >
+              <div className="flex justify-center pt-4 pb-2">
+                <div className="h-1.5 w-12 rounded-full bg-slate-200" />
+              </div>
+
+              <div className="px-7 pb-10 pt-4 space-y-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-[9px] font-black uppercase tracking-[0.3em] text-amber-500 mb-1">Instalación</p>
+                    <h3 className="font-serif text-2xl italic text-slate-900">ChanchiMercado</h3>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowAndroidGuide(false)}
+                    className="h-10 w-10 flex items-center justify-center rounded-2xl bg-slate-100 text-slate-500"
+                  >
+                    <X size={18} />
+                  </button>
+                </div>
+
+                <p className="text-[11px] text-slate-500 leading-relaxed">
+                  En muchos celulares el botón de instalación depende de Chrome. Si no aparece el aviso automático,
+                  instálala desde el menú del navegador (suele pasar si ya tienes otra acceso directo del mismo sitio).
+                </p>
+
+                <div className="space-y-4">
+                  {[
+                    {
+                      step: 1,
+                      icon: <MoreVertical size={22} className="text-slate-700" />,
+                      title: 'Toca el menú ⋮ de Chrome',
+                      description: 'Arriba a la derecha en la barra de direcciones (tres puntos verticales)',
+                    },
+                    {
+                      step: 2,
+                      icon: <Download size={22} className="text-amber-500" />,
+                      title: 'Elige “Instalar aplicación” o “Añadir a pantalla de inicio”',
+                      description: 'El texto exacto varía según la versión de Chrome o del fabricante',
+                    },
+                    {
+                      step: 3,
+                      icon: <Smartphone size={22} className="text-emerald-600" />,
+                      title: 'Confirma y listo',
+                      description: 'Se creará un icono en tu pantalla de inicio como una app',
+                    },
+                  ].map(({ step, icon, title, description }) => (
+                    <div key={step} className="flex items-start gap-4">
+                      <div className="flex flex-col items-center gap-1.5 shrink-0">
+                        <div className="h-11 w-11 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center shadow-sm">
+                          {icon}
+                        </div>
+                        {step < 3 && <div className="h-5 w-px bg-slate-100" />}
+                      </div>
+                      <div className="pt-2.5">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-[8px] font-black uppercase tracking-[0.2em] text-slate-300">Paso {step}</span>
+                        </div>
+                        <p className="text-sm font-black text-slate-900 mb-0.5">{title}</p>
+                        <p className="text-[11px] text-slate-400 leading-relaxed">{description}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setShowAndroidGuide(false)}
+                  className="w-full h-14 rounded-2xl bg-slate-900 text-white text-[11px] font-black uppercase tracking-widest"
+                >
+                  ¡Entendido!
+                </button>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
       {/* ── iOS Step-by-Step Guide (shared for both modes) ─── */}
       <AnimatePresence>
