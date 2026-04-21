@@ -11,8 +11,16 @@ interface PWAInstallButtonProps {
 }
 
 export default function PWAInstallButton({ compact = false }: PWAInstallButtonProps) {
-  const { canInstall, isIOS, isAndroid, hasNativeInstallPrompt, isInstalled, isPrompting, promptInstall } =
-    usePWAInstall();
+  const {
+    canInstall,
+    isIOS,
+    isAndroid,
+    hasNativeInstallPrompt,
+    isInstalled,
+    isPrompting,
+    promptInstall,
+    tryPromptAfterBriefWait,
+  } = usePWAInstall();
   const [showIOSGuide, setShowIOSGuide] = useState(false);
   const [showAndroidGuide, setShowAndroidGuide] = useState(false);
   const [dismissed, setDismissed] = useState(false);
@@ -29,7 +37,10 @@ export default function PWAInstallButton({ compact = false }: PWAInstallButtonPr
       return;
     }
     if (isAndroid) {
-      setShowAndroidGuide(true);
+      // En PC con “modo móvil” el UA suele seguir siendo escritorio → aquí hay evento nativo.
+      // En Chrome Android a veces el evento llega tras el SW; esperamos antes de la guía manual.
+      const shown = await tryPromptAfterBriefWait();
+      if (!shown) setShowAndroidGuide(true);
       return;
     }
     await promptInstall();
@@ -153,8 +164,9 @@ export default function PWAInstallButton({ compact = false }: PWAInstallButtonPr
                 </div>
 
                 <p className="mt-4 text-[11px] text-slate-500 leading-relaxed">
-                  En muchos celulares el botón de instalación depende de Chrome. Si no aparece el aviso automático,
-                  instálala desde el menú del navegador (suele pasar si ya tienes otra acceso directo del mismo sitio).
+                  Si ya instalaste otra pantalla de ChanchiMercado desde este mismo sitio, Chrome a veces no muestra el
+                  aviso de instalación otra vez: en ese caso usa el menú ⋮. También puede pasar la primera vez que
+                  entras tras una actualización; prueba recargar la página y volver a tocar Instalar.
                 </p>
 
                 <div className="mt-5 space-y-4">

@@ -14,6 +14,7 @@ const playfair = Playfair_Display({
 });
 
 import { Toaster } from 'sonner';
+import ServiceWorkerRegister from '@/components/pwa/ServiceWorkerRegister';
 
 export const metadata: Metadata = {
   title: "ChanchiMercado - Mercado & Punto de Venta",
@@ -48,6 +49,7 @@ export default function RootLayout({
       className={`${inter.variable} ${playfair.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-sans">
+        <ServiceWorkerRegister />
         {children}
         <Toaster position="top-center" expand={false} richColors />
       </body>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -14,17 +14,23 @@ interface UsePWAInstallReturn {
   hasNativeInstallPrompt: boolean;
   /** True when running on iOS / iPadOS (Safari “Añadir a inicio”) */
   isIOS: boolean;
-  /** Android browser (typical case: need menu install if no native prompt yet) */
+  /** Android browser (Chrome puede no entregar el evento si el sitio ya está instalado u otro motivo) */
   isAndroid: boolean;
   /** True when the app is already installed / running in standalone mode */
   isInstalled: boolean;
   /** True while waiting for the user to respond to the install prompt */
   isPrompting: boolean;
-  /** Trigger the native install prompt (Android/Chrome). No-op on iOS or if no event. */
-  promptInstall: () => Promise<void>;
+  /** Trigger the native install prompt when the event was already captured. Returns whether a prompt was shown. */
+  promptInstall: () => Promise<boolean>;
+  /**
+   * En Android a veces `beforeinstallprompt` llega unos cientos de ms después del SW o del gesto.
+   * Espera un poco y, si aparece el evento, abre el instalador nativo.
+   */
+  tryPromptAfterBriefWait: (maxMs?: number) => Promise<boolean>;
 }
 
 export function usePWAInstall(): UsePWAInstallReturn {
+  const deferredRef = useRef<BeforeInstallPromptEvent | null>(null);
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isIOS, setIsIOS] = useState(false);
   const [isAndroid, setIsAndroid] = useState(false);
@@ -33,7 +39,6 @@ export function usePWAInstall(): UsePWAInstallReturn {
 
   useEffect(() => {
     const ua = window.navigator.userAgent;
-    // iPhone / iPod / iPad (incl. iPadOS con UA de “Macintosh”)
     const ios =
       /iphone|ipad|ipod/i.test(ua) ||
       (typeof navigator !== 'undefined' &&
@@ -42,22 +47,21 @@ export function usePWAInstall(): UsePWAInstallReturn {
     setIsIOS(ios);
     setIsAndroid(/Android/i.test(ua));
 
-    // Detect standalone (already installed)
     const standalone =
       window.matchMedia('(display-mode: standalone)').matches ||
-      // @ts-ignore – iOS Safari specific
+      // @ts-expect-error iOS Safari
       window.navigator.standalone === true;
     setIsInstalled(standalone);
 
-    // Capture the Chrome/Android install prompt
     const handleBeforeInstall = (e: Event) => {
       e.preventDefault();
-      setDeferredPrompt(e as BeforeInstallPromptEvent);
+      const ev = e as BeforeInstallPromptEvent;
+      deferredRef.current = ev;
+      setDeferredPrompt(ev);
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstall);
 
-    // If installed from homescreen, update state
     const mq = window.matchMedia('(display-mode: standalone)');
     const handleChange = (e: MediaQueryListEvent) => setIsInstalled(e.matches);
     mq.addEventListener('change', handleChange);
@@ -69,25 +73,44 @@ export function usePWAInstall(): UsePWAInstallReturn {
   }, []);
 
   const promptInstall = useCallback(async () => {
-    if (!deferredPrompt) return;
+    const p = deferredRef.current;
+    if (!p) return false;
     setIsPrompting(true);
     try {
-      await deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
+      await p.prompt();
+      const { outcome } = await p.userChoice;
       if (outcome === 'accepted') {
         setIsInstalled(true);
-        setDeferredPrompt(null);
       }
+      deferredRef.current = null;
+      setDeferredPrompt(null);
+      return true;
+    } catch {
+      return false;
     } finally {
       setIsPrompting(false);
     }
-  }, [deferredPrompt]);
+  }, []);
+
+  const tryPromptAfterBriefWait = useCallback(
+    async (maxMs = 3200) => {
+      const step = 200;
+      for (let waited = 0; waited < maxMs; waited += step) {
+        if (deferredRef.current) {
+          return promptInstall();
+        }
+        await new Promise((r) => setTimeout(r, step));
+      }
+      if (deferredRef.current) {
+        return promptInstall();
+      }
+      return false;
+    },
+    [promptInstall]
+  );
 
   const hasNativeInstallPrompt = deferredPrompt !== null;
-  // Android: en muchos celulares `beforeinstallprompt` no llega (PWA ya instalada mismo dominio,
-  // incógnito, políticas, etc.) pero igual conviene mostrar el acceso con guía al menú ⋮.
-  const canInstall =
-    !isInstalled && (hasNativeInstallPrompt || isIOS || isAndroid);
+  const canInstall = !isInstalled && (hasNativeInstallPrompt || isIOS || isAndroid);
 
   return {
     canInstall,
@@ -97,5 +120,6 @@ export function usePWAInstall(): UsePWAInstallReturn {
     isInstalled,
     isPrompting,
     promptInstall,
+    tryPromptAfterBriefWait,
   };
 }
