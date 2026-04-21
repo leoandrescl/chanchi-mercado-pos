@@ -123,33 +123,38 @@ export default function PWAInstallButton({ compact = false }: PWAInstallButtonPr
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: '100%', opacity: 0 }}
               transition={{ type: 'spring', damping: 28, stiffness: 300 }}
-              className="fixed bottom-0 left-0 right-0 z-[10002] bg-white rounded-t-[2.5rem] shadow-2xl overflow-hidden"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="pwa-android-sheet-title"
+              className="fixed bottom-0 left-0 right-0 z-[10002] flex max-h-[min(92dvh,calc(100svh-8px))] flex-col overflow-hidden rounded-t-[2.5rem] bg-white shadow-2xl"
             >
-              <div className="flex justify-center pt-4 pb-2">
-                <div className="h-1.5 w-12 rounded-full bg-slate-200" />
+              <div className="shrink-0 flex justify-center pt-3 pb-1.5">
+                <div className="h-1.5 w-12 rounded-full bg-slate-200" aria-hidden />
               </div>
 
-              <div className="px-7 pb-10 pt-4 space-y-6">
-                <div className="flex items-center justify-between">
-                  <div>
+              <div className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-7 pt-1 pb-4 [-webkit-overflow-scrolling:touch]">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="min-w-0">
                     <p className="text-[9px] font-black uppercase tracking-[0.3em] text-amber-500 mb-1">Instalación</p>
-                    <h3 className="font-serif text-2xl italic text-slate-900">ChanchiMercado</h3>
+                    <h3 id="pwa-android-sheet-title" className="font-serif text-xl italic text-slate-900 sm:text-2xl">
+                      ChanchiMercado
+                    </h3>
                   </div>
                   <button
                     type="button"
                     onClick={() => setShowAndroidGuide(false)}
-                    className="h-10 w-10 flex items-center justify-center rounded-2xl bg-slate-100 text-slate-500"
+                    className="h-10 w-10 shrink-0 flex items-center justify-center rounded-2xl bg-slate-100 text-slate-500"
                   >
                     <X size={18} />
                   </button>
                 </div>
 
-                <p className="text-[11px] text-slate-500 leading-relaxed">
+                <p className="mt-4 text-[11px] text-slate-500 leading-relaxed">
                   En muchos celulares el botón de instalación depende de Chrome. Si no aparece el aviso automático,
                   instálala desde el menú del navegador (suele pasar si ya tienes otra acceso directo del mismo sitio).
                 </p>
 
-                <div className="space-y-4">
+                <div className="mt-5 space-y-4">
                   {[
                     {
                       step: 1,
@@ -177,7 +182,7 @@ export default function PWAInstallButton({ compact = false }: PWAInstallButtonPr
                         </div>
                         {step < 3 && <div className="h-5 w-px bg-slate-100" />}
                       </div>
-                      <div className="pt-2.5">
+                      <div className="min-w-0 pt-2.5">
                         <div className="flex items-center gap-2 mb-1">
                           <span className="text-[8px] font-black uppercase tracking-[0.2em] text-slate-300">Paso {step}</span>
                         </div>
@@ -187,7 +192,9 @@ export default function PWAInstallButton({ compact = false }: PWAInstallButtonPr
                     </div>
                   ))}
                 </div>
+              </div>
 
+              <div className="shrink-0 border-t border-slate-100 bg-white px-7 pt-3 pb-[max(1rem,env(safe-area-inset-bottom,0px))]">
                 <button
                   type="button"
                   onClick={() => setShowAndroidGuide(false)}
@@ -217,27 +224,33 @@ export default function PWAInstallButton({ compact = false }: PWAInstallButtonPr
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: '100%', opacity: 0 }}
               transition={{ type: 'spring', damping: 28, stiffness: 300 }}
-              className="fixed bottom-0 left-0 right-0 z-[10002] bg-white rounded-t-[2.5rem] shadow-2xl overflow-hidden"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="pwa-ios-sheet-title"
+              className="fixed bottom-0 left-0 right-0 z-[10002] flex max-h-[min(92dvh,calc(100svh-8px))] flex-col overflow-hidden rounded-t-[2.5rem] bg-white shadow-2xl"
             >
-              <div className="flex justify-center pt-4 pb-2">
-                <div className="h-1.5 w-12 rounded-full bg-slate-200" />
+              <div className="shrink-0 flex justify-center pt-3 pb-1.5">
+                <div className="h-1.5 w-12 rounded-full bg-slate-200" aria-hidden />
               </div>
 
-              <div className="px-7 pb-10 pt-4 space-y-7">
-                <div className="flex items-center justify-between">
-                  <div>
+              <div className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-7 pt-1 pb-4 [-webkit-overflow-scrolling:touch]">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="min-w-0">
                     <p className="text-[9px] font-black uppercase tracking-[0.3em] text-amber-500 mb-1">Instalación</p>
-                    <h3 className="font-serif text-2xl italic text-slate-900">ChanchiMercado</h3>
+                    <h3 id="pwa-ios-sheet-title" className="font-serif text-xl italic text-slate-900 sm:text-2xl">
+                      ChanchiMercado
+                    </h3>
                   </div>
                   <button
+                    type="button"
                     onClick={() => setShowIOSGuide(false)}
-                    className="h-10 w-10 flex items-center justify-center rounded-2xl bg-slate-100 text-slate-500"
+                    className="h-10 w-10 shrink-0 flex items-center justify-center rounded-2xl bg-slate-100 text-slate-500"
                   >
                     <X size={18} />
                   </button>
                 </div>
 
-                <div className="space-y-4">
+                <div className="mt-5 space-y-4">
                   {[
                     {
                       step: 1,
@@ -265,7 +278,7 @@ export default function PWAInstallButton({ compact = false }: PWAInstallButtonPr
                         </div>
                         {step < 3 && <div className="h-5 w-px bg-slate-100" />}
                       </div>
-                      <div className="pt-2.5">
+                      <div className="min-w-0 pt-2.5">
                         <div className="flex items-center gap-2 mb-1">
                           <span className="text-[8px] font-black uppercase tracking-[0.2em] text-slate-300">Paso {step}</span>
                         </div>
@@ -275,8 +288,11 @@ export default function PWAInstallButton({ compact = false }: PWAInstallButtonPr
                     </div>
                   ))}
                 </div>
+              </div>
 
+              <div className="shrink-0 border-t border-slate-100 bg-white px-7 pt-3 pb-[max(1rem,env(safe-area-inset-bottom,0px))]">
                 <button
+                  type="button"
                   onClick={() => setShowIOSGuide(false)}
                   className="w-full h-14 rounded-2xl bg-slate-900 text-white text-[11px] font-black uppercase tracking-widest"
                 >
