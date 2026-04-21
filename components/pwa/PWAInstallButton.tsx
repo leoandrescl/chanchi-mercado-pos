@@ -110,30 +110,33 @@ export default function PWAInstallButton({ compact = false }: PWAInstallButtonPr
       {/* ── Android / Chrome: menú cuando no hay `beforeinstallprompt` ─── */}
       <AnimatePresence>
         {showAndroidGuide && (
-          <>
+          <motion.div
+            key="pwa-install-android"
+            className="fixed inset-0 z-[10002] flex items-center justify-center p-3 sm:p-5 pt-[max(0.75rem,env(safe-area-inset-top,0px))] pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pl-[max(0.75rem,env(safe-area-inset-left,0px))] pr-[max(0.75rem,env(safe-area-inset-right,0px))]"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setShowAndroidGuide(false)}
-              className="fixed inset-0 z-[10001] bg-slate-900/60 backdrop-blur-sm"
+              className="absolute inset-0 z-0 bg-slate-900/60 backdrop-blur-sm"
             />
             <motion.div
-              initial={{ y: '100%', opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: '100%', opacity: 0 }}
-              transition={{ type: 'spring', damping: 28, stiffness: 300 }}
               role="dialog"
               aria-modal="true"
               aria-labelledby="pwa-android-sheet-title"
-              className="fixed bottom-0 left-0 right-0 z-[10002] flex max-h-[min(92dvh,calc(100svh-8px))] flex-col overflow-hidden rounded-t-[2.5rem] bg-white shadow-2xl"
+              initial={{ opacity: 0, scale: 0.94 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.94 }}
+              transition={{ type: 'spring', damping: 26, stiffness: 320 }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative z-10 flex w-full max-w-md max-h-[min(82dvh,calc(100svh-1.5rem))] flex-col overflow-hidden rounded-[1.75rem] bg-white shadow-2xl"
             >
-              <div className="shrink-0 flex justify-center pt-3 pb-1.5">
-                <div className="h-1.5 w-12 rounded-full bg-slate-200" aria-hidden />
-              </div>
-
-              <div className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-7 pt-1 pb-4 [-webkit-overflow-scrolling:touch]">
-                <div className="flex items-center justify-between gap-3">
+              <div className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-6 py-5 [-webkit-overflow-scrolling:touch]">
+                <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <p className="text-[9px] font-black uppercase tracking-[0.3em] text-amber-500 mb-1">Instalación</p>
                     <h3 id="pwa-android-sheet-title" className="font-serif text-xl italic text-slate-900 sm:text-2xl">
@@ -192,49 +195,50 @@ export default function PWAInstallButton({ compact = false }: PWAInstallButtonPr
                     </div>
                   ))}
                 </div>
-              </div>
 
-              <div className="shrink-0 border-t border-slate-100 bg-white px-7 pt-3 pb-[max(1rem,env(safe-area-inset-bottom,0px))]">
                 <button
                   type="button"
                   onClick={() => setShowAndroidGuide(false)}
-                  className="w-full h-14 rounded-2xl bg-slate-900 text-white text-[11px] font-black uppercase tracking-widest"
+                  className="mt-6 w-full h-14 rounded-2xl bg-slate-900 text-white text-[11px] font-black uppercase tracking-widest"
                 >
                   ¡Entendido!
                 </button>
               </div>
             </motion.div>
-          </>
+          </motion.div>
         )}
       </AnimatePresence>
 
       {/* ── iOS Step-by-Step Guide (shared for both modes) ─── */}
       <AnimatePresence>
         {showIOSGuide && (
-          <>
+          <motion.div
+            key="pwa-install-ios"
+            className="fixed inset-0 z-[10002] flex items-center justify-center p-3 sm:p-5 pt-[max(0.75rem,env(safe-area-inset-top,0px))] pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pl-[max(0.75rem,env(safe-area-inset-left,0px))] pr-[max(0.75rem,env(safe-area-inset-right,0px))]"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setShowIOSGuide(false)}
-              className="fixed inset-0 z-[10001] bg-slate-900/60 backdrop-blur-sm"
+              className="absolute inset-0 z-0 bg-slate-900/60 backdrop-blur-sm"
             />
             <motion.div
-              initial={{ y: '100%', opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: '100%', opacity: 0 }}
-              transition={{ type: 'spring', damping: 28, stiffness: 300 }}
               role="dialog"
               aria-modal="true"
               aria-labelledby="pwa-ios-sheet-title"
-              className="fixed bottom-0 left-0 right-0 z-[10002] flex max-h-[min(92dvh,calc(100svh-8px))] flex-col overflow-hidden rounded-t-[2.5rem] bg-white shadow-2xl"
+              initial={{ opacity: 0, scale: 0.94 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.94 }}
+              transition={{ type: 'spring', damping: 26, stiffness: 320 }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative z-10 flex w-full max-w-md max-h-[min(82dvh,calc(100svh-1.5rem))] flex-col overflow-hidden rounded-[1.75rem] bg-white shadow-2xl"
             >
-              <div className="shrink-0 flex justify-center pt-3 pb-1.5">
-                <div className="h-1.5 w-12 rounded-full bg-slate-200" aria-hidden />
-              </div>
-
-              <div className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-7 pt-1 pb-4 [-webkit-overflow-scrolling:touch]">
-                <div className="flex items-center justify-between gap-3">
+              <div className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-6 py-5 [-webkit-overflow-scrolling:touch]">
+                <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <p className="text-[9px] font-black uppercase tracking-[0.3em] text-amber-500 mb-1">Instalación</p>
                     <h3 id="pwa-ios-sheet-title" className="font-serif text-xl italic text-slate-900 sm:text-2xl">
@@ -288,19 +292,17 @@ export default function PWAInstallButton({ compact = false }: PWAInstallButtonPr
                     </div>
                   ))}
                 </div>
-              </div>
 
-              <div className="shrink-0 border-t border-slate-100 bg-white px-7 pt-3 pb-[max(1rem,env(safe-area-inset-bottom,0px))]">
                 <button
                   type="button"
                   onClick={() => setShowIOSGuide(false)}
-                  className="w-full h-14 rounded-2xl bg-slate-900 text-white text-[11px] font-black uppercase tracking-widest"
+                  className="mt-6 w-full h-14 rounded-2xl bg-slate-900 text-white text-[11px] font-black uppercase tracking-widest"
                 >
                   ¡Entendido!
                 </button>
               </div>
             </motion.div>
-          </>
+          </motion.div>
         )}
       </AnimatePresence>
     </>
