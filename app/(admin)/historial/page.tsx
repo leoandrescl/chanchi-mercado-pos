@@ -36,7 +36,7 @@ export default function Historial() {
       setError(qError.message);
       setRows([]);
     } else {
-      setRows((data as DebtMovement[]) || []);
+      setRows((data as unknown as DebtMovement[]) || []);
     }
     setLoading(false);
   }, []);

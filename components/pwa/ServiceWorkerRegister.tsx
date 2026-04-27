@@ -16,16 +16,24 @@ export default function ServiceWorkerRegister() {
     if (protocol !== 'https:' && !isLocal) return;
 
     let cancelled = false;
+    let removeFocus: (() => void) | undefined;
+
     navigator.serviceWorker
       .register('/sw.js', { scope: '/' })
       .then((reg) => {
         if (cancelled) return;
         void reg.update();
+        const onFocus = () => {
+          void reg.update();
+        };
+        window.addEventListener('focus', onFocus);
+        removeFocus = () => window.removeEventListener('focus', onFocus);
       })
       .catch(() => {});
 
     return () => {
       cancelled = true;
+      removeFocus?.();
     };
   }, []);
 
