@@ -107,12 +107,14 @@ export const useCustomers = create<CustomerStore>()(
           set({ globalTotal: total });
         }
 
-        // 2. Fetch last 5 movements
+        // 2. Fetch recent movements (debts ledger)
         const { data: movements, error: movementsError } = await supabase
           .from('debts')
           .select('*, debtors(name)')
           .order('date', { ascending: false })
-          .limit(20);
+          .order('created_at', { ascending: false })
+          .order('id', { ascending: false })
+          .limit(50);
 
         if (!movementsError && movements) {
           set({ lastMovements: movements });

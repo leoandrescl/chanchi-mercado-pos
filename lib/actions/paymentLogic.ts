@@ -1,5 +1,8 @@
 import { supabase } from '@/lib/supabase';
 import { logAuditAction } from '@/app/actions/audit';
+import { debtTimestampForSaleDate } from '@/lib/date/saleCalendar';
+
+export { saleDateInputToIso } from '@/lib/date/saleCalendar';
 
 export interface Debt {
   id: string;
@@ -9,16 +12,6 @@ export interface Debt {
   date: string;
   is_paid: boolean;
   created_at?: string;
-}
-
-/** Converts YYYY-MM-DD from `<input type="date" />` to ISO for timestamptz (noon local, stable vs DST). */
-export function saleDateInputToIso(dateStr: string): string {
-  const parts = dateStr.split('-').map(Number);
-  const y = parts[0];
-  const m = parts[1];
-  const d = parts[2];
-  if (!y || !m || !d) return new Date().toISOString();
-  return new Date(y, m - 1, d, 12, 0, 0, 0).toISOString();
 }
 
 /**
@@ -122,7 +115,9 @@ export async function addConsolidatedDebt(
   const itemDescription = items.map(i => `${i.name} x${i.quantity}`).join(', ');
   const description = `Compra: ${itemDescription.length > 50 ? itemDescription.substring(0, 47) + '...' : itemDescription}`;
 
-  const timestamp = saleDateInput ? saleDateInputToIso(saleDateInput) : new Date().toISOString();
+  const timestamp = saleDateInput
+    ? debtTimestampForSaleDate(saleDateInput)
+    : new Date().toISOString();
   const { error } = await supabase
     .from('debts')
     .insert({

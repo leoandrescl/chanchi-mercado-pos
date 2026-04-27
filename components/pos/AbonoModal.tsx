@@ -5,6 +5,7 @@ import { useCustomers } from '@/store/useCustomers';
 import { useTransactions } from '@/store/useTransactions';
 import { Wallet, Loader2 } from 'lucide-react';
 import { registerAbono } from '@/app/actions/payments';
+import { ABONO_MOTIVO_MAX_LENGTH } from '@/lib/constants/abono';
 import { toast } from 'sonner';
 import AdaptiveDialog from '@/components/ui/AdaptiveDialog';
 import Button from '@/components/ui/Button';
@@ -17,6 +18,7 @@ export default function AbonoModal({ onClose }: AbonoModalProps) {
   const { customers, selectedCustomerId, updateBalance, fetchGlobalMetrics } = useCustomers();
   const { addTransaction } = useTransactions();
   const [amount, setAmount] = useState('');
+  const [motivo, setMotivo] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Default date to now in local format YYYY-MM-DDTHH:mm
@@ -41,8 +43,13 @@ export default function AbonoModal({ onClose }: AbonoModalProps) {
 
     setIsSubmitting(true);
     try {
-      // Pass the selected date to registerAbono
-      const res = await registerAbono(customer.id, val, new Date(date).toISOString());
+      const motivoTrimmed = motivo.trim();
+      const res = await registerAbono(
+        customer.id,
+        val,
+        new Date(date).toISOString(),
+        motivoTrimmed.length > 0 ? motivoTrimmed : undefined
+      );
       
       if (!res.success) {
         toast.error(res.error || 'Error al procesar el abono. ❌');
@@ -58,6 +65,7 @@ export default function AbonoModal({ onClose }: AbonoModalProps) {
         customerName: customer.name,
         type: 'Abono',
         amount: val,
+        ...(motivoTrimmed.length > 0 ? { items: motivoTrimmed } : {}),
       });
 
       toast.success("💰 Abono aplicado correctamente");
@@ -124,6 +132,26 @@ export default function AbonoModal({ onClose }: AbonoModalProps) {
               ⚠️ El abono supera la deuda
             </p>
           )}
+
+          <div className="space-y-2">
+            <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 block px-4">
+              Motivo / asunto (opcional)
+            </label>
+            <textarea
+              rows={3}
+              maxLength={ABONO_MOTIVO_MAX_LENGTH}
+              placeholder="Ej.: abono parcial del pedido del martes…"
+              className="w-full min-h-[5.5rem] px-6 py-4 rounded-xl border border-slate-100 bg-slate-50 focus:bg-white focus:border-amber-300 focus:ring-4 focus:ring-amber-50 focus:outline-none transition-all font-bold text-slate-950 text-sm resize-y placeholder:font-medium placeholder:text-slate-300"
+              value={motivo}
+              onChange={(e) => setMotivo(e.target.value)}
+            />
+            <p className="text-[9px] font-medium text-slate-400 px-4 leading-relaxed">
+              Útil para abonos parciales: deja constancia a qué corresponde el monto.
+            </p>
+            <p className="text-[9px] font-bold text-slate-300 px-4 tabular-nums">
+              {motivo.length}/{ABONO_MOTIVO_MAX_LENGTH}
+            </p>
+          </div>
 
           <div className={`p-6 rounded-2xl border transition-all flex items-center justify-between shadow-sm ${isExcessive ? 'bg-slate-50/50 border-slate-100 opacity-30 grayscale' : 'bg-amber-50/20 border-amber-100/50'}`}>
             <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Saldo Restante</span>

@@ -3,7 +3,7 @@
 import { supabase } from '@/lib/supabase';
 import { logAuditAction } from './audit';
 import { revalidatePath } from 'next/cache';
-import { saleDateInputToIso } from '@/lib/actions/paymentLogic';
+import { saleDateInputToIso } from '@/lib/date/saleCalendar';
 
 /**
  * Deletes a specific debt record.

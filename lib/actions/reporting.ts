@@ -80,8 +80,10 @@ export async function getDebtorFullAudit(debtorId: string) {
         entries.push({
           type: 'PAYMENT',
           date: debt.date,
-          description: debt.description.includes('Favor') ? 'Saldo a Favor' : 'Abono Registrado',
-          amount: absAmount
+          description: debt.description.includes('Favor')
+            ? 'Saldo a Favor'
+            : debt.description,
+          amount: absAmount,
         });
       }
     }

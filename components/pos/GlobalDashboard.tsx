@@ -54,10 +54,14 @@ export default function GlobalDashboard({ onAddCustomer }: GlobalDashboardProps)
   const formatPrice = (amount: number) =>
     new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(amount);
 
-  const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleTimeString('es-CL', {
+  const formatMovementTime = (item: { date?: string; created_at?: string }) => {
+    const raw = item.date || item.created_at;
+    if (!raw) return '—';
+    return new Date(raw).toLocaleString('es-CL', {
+      day: '2-digit',
+      month: 'short',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
     });
   };
 
@@ -167,7 +171,7 @@ export default function GlobalDashboard({ onAddCustomer }: GlobalDashboardProps)
                       {item.debtors?.name || 'Desconocido'}
                     </p>
                     <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-tighter mt-1">
-                      {item.description} • {formatDate(item.date)}
+                      {item.description} • {formatMovementTime(item)}
                     </p>
                   </div>
                 </div>

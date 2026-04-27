@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { localDateKeyFromDate } from '@/lib/date/saleCalendar';
 
 export interface CartItem {
   id: string;
@@ -27,7 +28,7 @@ export const useCart = create<CartStore>()(
     (set, get) => ({
       items: [],
       total: 0,
-      saleDate: new Date().toISOString().split('T')[0],
+      saleDate: localDateKeyFromDate(),
       setSaleDate: (saleDate) => set({ saleDate }),
       addItem: (product) => {
         set((state) => {
@@ -71,7 +72,7 @@ export const useCart = create<CartStore>()(
         });
       },
       clearCart: () =>
-        set({ items: [], total: 0, saleDate: new Date().toISOString().split('T')[0] }),
+        set({ items: [], total: 0, saleDate: localDateKeyFromDate() }),
       getTotal: () => {
         return get().items.reduce((acc, item) => acc + item.price * item.quantity, 0);
       },
@@ -80,7 +81,7 @@ export const useCart = create<CartStore>()(
       name: 'chanchi-cart',
       merge: (persisted, current) => {
         const p = (persisted ?? {}) as Partial<CartStore>;
-        const fallbackDate = new Date().toISOString().split('T')[0];
+        const fallbackDate = localDateKeyFromDate();
         return {
           ...current,
           items: p.items ?? current.items,

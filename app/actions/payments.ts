@@ -1,6 +1,7 @@
 'use server';
 
 import { supabase } from '@/lib/supabase';
+import { ABONO_MOTIVO_MAX_LENGTH } from '@/lib/constants/abono';
 import { logAuditAction } from './audit';
 import { revalidatePath } from 'next/cache';
 
@@ -8,8 +9,26 @@ import { revalidatePath } from 'next/cache';
  * Registers a payment (Abono) for a debtor.
  * Strictly validates that the amount does not exceed the current balance.
  */
-export async function registerAbono(debtorId: string, amount: number, date?: string) {
+export async function registerAbono(
+  debtorId: string,
+  amount: number,
+  date?: string,
+  motivo?: string | null
+) {
   try {
+    const motivoTrimmed = (motivo ?? '').trim();
+    if (motivoTrimmed.length > ABONO_MOTIVO_MAX_LENGTH) {
+      return {
+        success: false,
+        error: `El motivo no puede superar ${ABONO_MOTIVO_MAX_LENGTH} caracteres.`,
+      };
+    }
+
+    const description =
+      motivoTrimmed.length > 0
+        ? `Abono Registrado — ${motivoTrimmed}`
+        : 'Abono Registrado';
+
     // 1. Fetch current balance to validate
     const { data: debtor, error: fetchError } = await supabase
       .from('debtors')
@@ -40,9 +59,10 @@ export async function registerAbono(debtorId: string, amount: number, date?: str
       .from('debts')
       .insert({
         debtor_id: debtorId,
-        description: 'Abono Registrado',
+        description,
         amount: -amount,
         date: timestamp,
+        created_at: timestamp,
         is_paid: false,
       });
 
@@ -56,13 +76,14 @@ export async function registerAbono(debtorId: string, amount: number, date?: str
       actionType: 'ABONO',
       entityType: 'debtors',
       entityId: debtorId,
-      details: { 
-        amount, 
-        previousBalance: currentBalance, 
+      details: {
+        amount,
+        previousBalance: currentBalance,
         newBalance: currentBalance - amount,
         customerName: debtor.name,
-        timestamp 
-      }
+        timestamp,
+        ...(motivoTrimmed.length > 0 ? { motivo: motivoTrimmed } : {}),
+      },
     });
 
     revalidatePath('/');
