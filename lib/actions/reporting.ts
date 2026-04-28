@@ -93,10 +93,13 @@ export async function getDebtorFullAudit(debtorId: string) {
       if (log.action_type === 'ABONO') {
         const amount = log.details?.amount || 0;
         totalAbonos += amount;
+        const motivo = typeof log.details?.motivo === 'string' ? log.details.motivo.trim() : '';
         entries.push({
           type: 'PAYMENT',
           date: log.created_at,
-          description: log.details?.type === 'Surplus/Credit' ? 'Saldo a Favor' : 'Abono Recibido',
+          description: log.details?.type === 'Surplus/Credit'
+            ? 'Saldo a Favor'
+            : (motivo || 'Abono Recibido'),
           amount: amount,
           liquidationNote: log.details?.liquidationNote
         });
@@ -175,10 +178,26 @@ export async function getDebtorSummary(debtorId: string) {
       };
     });
 
+    const { data: paymentRows, error: paymentsError } = await supabase
+      .from('debts')
+      .select('date, description, amount')
+      .eq('debtor_id', debtorId)
+      .lt('amount', 0)
+      .order('date', { ascending: true });
+
+    if (paymentsError) throw paymentsError;
+
+    const payments = (paymentRows || []).map((p: any) => ({
+      date: p.date,
+      description: typeof p.description === 'string' ? p.description : 'Abono Registrado',
+      amount: Math.abs(p.amount || 0),
+    }));
+
     return {
       success: true,
       data: {
         pendingDebts,
+        payments,
         totalBalance: debtor.balance || 0,
         name: debtor.name,
         phone: debtor.phone || '',

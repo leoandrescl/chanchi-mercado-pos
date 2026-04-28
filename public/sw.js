@@ -9,12 +9,5 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  const req = event.request;
-  if (req.mode === 'navigate' || (req.destination === 'document' && req.method === 'GET')) {
-    event.respondWith(
-      fetch(req, { cache: 'no-store', redirect: 'follow' })
-    );
-    return;
-  }
-  event.respondWith(fetch(req));
+  event.respondWith(fetch(event.request));
 });

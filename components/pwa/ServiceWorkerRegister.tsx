@@ -15,6 +15,15 @@ export default function ServiceWorkerRegister() {
     const isLocal = hostname === 'localhost' || hostname === '127.0.0.1';
     if (protocol !== 'https:' && !isLocal) return;
 
+    if (process.env.NODE_ENV !== 'production') {
+      void navigator.serviceWorker.getRegistrations().then((regs) => {
+        regs.forEach((reg) => {
+          void reg.unregister();
+        });
+      });
+      return;
+    }
+
     let cancelled = false;
     let removeFocus: (() => void) | undefined;
 

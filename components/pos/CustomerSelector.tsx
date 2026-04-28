@@ -82,6 +82,7 @@ export default function CustomerSelector({ onOpenAbono }: CustomerSelectorProps)
           customerName: customer.name,
           phone: customer.whatsapp,
           pendingDebts: result.data.pendingDebts,
+          payments: result.data.payments,
           totalBalance: result.data.totalBalance,
         });
         window.open(link, '_blank');

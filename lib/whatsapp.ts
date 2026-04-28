@@ -49,6 +49,18 @@ const getFormattedDate = (dateStr?: string) => {
   return `${d.getDate()}/${d.getMonth() + 1}`;
 };
 
+const getExactAbonoMotivo = (description?: string) => {
+  if (!description) return '';
+  const normalized = description.trim();
+  const prefixes = ['Abono Registrado — ', 'Abono Registrado - ', 'Abono Registrado: '];
+  for (const prefix of prefixes) {
+    if (normalized.startsWith(prefix)) {
+      return normalized.slice(prefix.length).trim();
+    }
+  }
+  return '';
+};
+
 // 1. GENERADOR DE DETALLE DE CUENTA (AUDITORÍA COMPLETA)
 export function generateFullAuditMessage({
   customerName,
@@ -85,7 +97,10 @@ export function generateFullAuditMessage({
           monthEntriesContent += `- [${dateLabel}] Compra: ${itemsStr}: ${formatPrice(entry.amount)}${entry.is_paid ? ' ✅' : ''}\n`;
         } else {
           monthAbonos += entry.amount;
-          monthEntriesContent += `- [${dateLabel}] 💰 PAGO: ${formatPrice(entry.amount)}\n`;
+          const motivo = getExactAbonoMotivo(entry.description);
+          monthEntriesContent += motivo
+            ? `- [${dateLabel}] 💰 PAGO (${motivo}): ${formatPrice(entry.amount)}\n`
+            : `- [${dateLabel}] 💰 PAGO: ${formatPrice(entry.amount)}\n`;
         }
       }
     });
@@ -225,6 +240,11 @@ export interface SummaryReportDetails {
     remainingAmount: number;
     isPartial: boolean; // partial payment covers part of this debt
   }[];
+  payments?: {
+    date: string;
+    description: string;
+    amount: number;
+  }[];
   totalBalance: number;
 }
 
@@ -232,6 +252,7 @@ export function generateSummaryMessage({
   customerName,
   phone,
   pendingDebts,
+  payments = [],
   totalBalance,
 }: SummaryReportDetails): string {
   const cleanPhone = phone.replace(/\D/g, '');
@@ -277,7 +298,20 @@ export function generateSummaryMessage({
     .map(m => `📈 Subtotal ${m.name}: ${formatPrice(m.total)}`)
     .join('\n');
 
-  const message = `📦 *Resumen de cuenta:*\n\n${body}==========================\n   💰 *RESUMEN DE CUENTA*\n==========================\n${subtotalLines}\n\n*TOTAL PENDIENTE: ${formatPrice(totalBalance)}*\n==========================\n\n¡Muchas gracias por su preferencia!`;
+  const paymentLines = payments
+    .map((p) => {
+      const motivo = getExactAbonoMotivo(p.description);
+      if (!motivo) return '';
+      return `- [${getFormattedDate(p.date)}] 💰 Abono (${motivo}): ${formatPrice(p.amount)}`;
+    })
+    .filter(Boolean)
+    .join('\n');
+
+  const paymentSection = paymentLines
+    ? `\n🧾 *Abonos:*\n${paymentLines}\n`
+    : '';
+
+  const message = `📦 *Resumen de cuenta:*\n\n${body}${paymentSection}==========================\n   💰 *RESUMEN DE CUENTA*\n==========================\n${subtotalLines}\n\n*TOTAL PENDIENTE: ${formatPrice(totalBalance)}*\n==========================\n\n¡Muchas gracias por su preferencia!`;
 
   return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
 }
