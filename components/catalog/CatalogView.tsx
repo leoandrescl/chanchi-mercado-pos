@@ -95,30 +95,55 @@ export default function CatalogView({ isAdmin = false }: CatalogViewProps) {
             <p className="font-serif italic text-slate-300 text-lg">No encontramos ese producto...</p>
           </div>
         ) : (
-          <motion.div 
-            layout
-            transition={{ type: 'spring', bounce: 0, duration: 0.3 }}
-            className={viewMode === 'grid'
-              ? "grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6"
-              : "flex flex-col gap-3"
-            }
-          >
-            <AnimatePresence mode="popLayout" initial={false}>
-              {filteredProducts.map((product, index) => (
-                <ProductCard
-                  key={product.id}
-                  id={product.id}
-                  name={product.name}
-                  price={product.price}
-                  image={product.image}
-                  viewMode={viewMode}
-                  isVisible={product.is_visible}
-                  isPublic={true}
-                  priority={index < 4}
-                />
-              ))}
-            </AnimatePresence>
-          </motion.div>
+          <AnimatePresence mode="wait" initial={false}>
+            {viewMode === 'list' ? (
+              <motion.div
+                key="public-catalog-list"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.2, ease: 'easeOut' }}
+                className="flex flex-col gap-3"
+              >
+                {filteredProducts.map((product, index) => (
+                  <ProductCard
+                    key={product.id}
+                    id={product.id}
+                    name={product.name}
+                    price={product.price}
+                    image={product.image}
+                    viewMode="list"
+                    isVisible={product.is_visible}
+                    isPublic={true}
+                    priority={index < 4}
+                  />
+                ))}
+              </motion.div>
+            ) : (
+              <motion.div
+                key="public-catalog-grid"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.2, ease: 'easeOut' }}
+                className="grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6"
+              >
+                {filteredProducts.map((product, index) => (
+                  <ProductCard
+                    key={product.id}
+                    id={product.id}
+                    name={product.name}
+                    price={product.price}
+                    image={product.image}
+                    viewMode="grid"
+                    isVisible={product.is_visible}
+                    isPublic={true}
+                    priority={index < 4}
+                  />
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
         )}
 
         {/* Boutique Footer */}

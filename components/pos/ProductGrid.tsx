@@ -48,29 +48,55 @@ export default function ProductGrid({ products, viewMode, isAdmin, onEdit, onDel
 
   return (
     <>
-      <motion.div
-        layout
-        className={viewMode === 'grid'
-          ? "grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6"
-          : "flex flex-col gap-3"
-        }
-      >
-        <AnimatePresence mode="popLayout" initial={false}>
-          {products.map((product) => (
-            <ProductCard
-              key={product.id}
-              id={product.id}
-              name={product.name}
-              price={product.price}
-              image={product.image}
-              isVisible={product.is_visible}
-              viewMode={viewMode}
-              onEdit={onEdit}
-              onDelete={onDelete}
-            />
-          ))}
-        </AnimatePresence>
-      </motion.div>
+      <AnimatePresence mode="wait" initial={false}>
+        {viewMode === 'list' ? (
+          <motion.div
+            key="catalog-list"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.2, ease: 'easeOut' }}
+            className="flex flex-col gap-3"
+          >
+            {products.map((product) => (
+              <ProductCard
+                key={product.id}
+                id={product.id}
+                name={product.name}
+                price={product.price}
+                image={product.image}
+                isVisible={product.is_visible}
+                viewMode="list"
+                onEdit={onEdit}
+                onDelete={onDelete}
+              />
+            ))}
+          </motion.div>
+        ) : (
+          <motion.div
+            key="catalog-grid"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.2, ease: 'easeOut' }}
+            className="grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6"
+          >
+            {products.map((product) => (
+              <ProductCard
+                key={product.id}
+                id={product.id}
+                name={product.name}
+                price={product.price}
+                image={product.image}
+                isVisible={product.is_visible}
+                viewMode="grid"
+                onEdit={onEdit}
+                onDelete={onDelete}
+              />
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Portal for flying items */}
       {typeof document !== 'undefined' && createPortal(
