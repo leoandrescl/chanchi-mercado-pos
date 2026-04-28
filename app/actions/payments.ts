@@ -52,9 +52,51 @@ export async function registerAbono(
       return { success: false, error: `El abono no puede ser mayor al Total Fiado (${formatPrice(currentBalance)}).` };
     }
 
-    // 3. Register the payment as a negative debt record
-    // This will trigger the DB synchronization to update the balance
     const timestamp = date || new Date().toISOString();
+
+    // 3. Apply payment FIFO to unpaid positive debts (oldest first)
+    const { data: unpaidDebts, error: unpaidDebtsError } = await supabase
+      .from('debts')
+      .select('id, amount, remaining_amount, is_paid')
+      .eq('debtor_id', debtorId)
+      .eq('is_paid', false)
+      .gt('amount', 0)
+      .order('date', { ascending: true })
+      .order('created_at', { ascending: true });
+
+    if (unpaidDebtsError) {
+      console.error('Error fetching unpaid debts for FIFO allocation:', unpaidDebtsError);
+      return { success: false, error: 'Error al aplicar el abono sobre las deudas pendientes.' };
+    }
+
+    let remainingToApply = amount;
+    for (const debt of unpaidDebts || []) {
+      if (remainingToApply <= 0) break;
+
+      const currentRemaining = debt.remaining_amount ?? debt.amount;
+      if (currentRemaining <= 0) continue;
+
+      const applied = Math.min(remainingToApply, currentRemaining);
+      const newRemaining = currentRemaining - applied;
+
+      const { error: updateError } = await supabase
+        .from('debts')
+        .update({
+          remaining_amount: newRemaining,
+          is_paid: newRemaining === 0,
+        })
+        .eq('id', debt.id);
+
+      if (updateError) {
+        console.error('Error updating debt during FIFO allocation:', updateError);
+        return { success: false, error: 'Error al actualizar deudas con el abono parcial.' };
+      }
+
+      remainingToApply -= applied;
+    }
+
+    // 4. Register the payment as a negative debt record
+    // This keeps an explicit "abono" movement in history.
     const { error: insertError } = await supabase
       .from('debts')
       .insert({
@@ -63,7 +105,7 @@ export async function registerAbono(
         amount: -amount,
         date: timestamp,
         created_at: timestamp,
-        is_paid: false,
+        is_paid: true,
       });
 
     if (insertError) {
@@ -71,7 +113,7 @@ export async function registerAbono(
       return { success: false, error: 'Error al registrar el abono en la base de datos.' };
     }
 
-    // 4. Log Audit Action
+    // 5. Log Audit Action
     await logAuditAction({
       actionType: 'ABONO',
       entityType: 'debtors',
