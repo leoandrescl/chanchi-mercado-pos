@@ -66,18 +66,20 @@ const ProductCard = memo(({
   };
 
   const isList = viewMode === 'list';
+  const actionButtonClass = isList
+    ? 'h-9 w-9 rounded-lg'
+    : 'h-10 w-10 rounded-xl';
+  const actionIconSize = isList ? 16 : 18;
 
   return (
     <motion.div
-      layout
-      transition={{ type: 'spring', bounce: 0, duration: 0.4 }}
+      transition={{ duration: 0.18 }}
       id={`product-card-${id}`}
       onClick={!isAdmin ? handleAdd : undefined}
-      whileTap={{ scale: 0.95 }}
-      whileHover={{ y: -4 }}
+      whileTap={{ scale: 0.98 }}
       className={`
         group relative flex bg-white border border-slate-100 overflow-hidden transition-all duration-300 hover:shadow-2xl hover:border-amber-200 outline-none focus:ring-4 focus:ring-amber-100
-        ${isList ? 'flex-row items-center w-full h-24 rounded-3xl p-2' : 'flex-col w-full rounded-[2.5rem]'}
+        ${isList ? 'flex-row items-center w-full min-h-[6.5rem] rounded-3xl p-2.5 sm:p-3 shadow-sm' : 'flex-col w-full rounded-[2.5rem]'}
         ${!isAdmin && (isVisible || !isPublic) ? 'cursor-pointer' : 'cursor-default'}
         ${isPublic && !isVisible ? 'grayscale opacity-70 cursor-not-allowed' : ''}
       `}
@@ -86,7 +88,7 @@ const ProductCard = memo(({
       <div
         className={`
           relative bg-slate-50 flex items-center justify-center overflow-hidden shrink-0
-          ${isList ? 'h-full aspect-square rounded-2xl' : 'aspect-square w-full'}
+          ${isList ? 'h-16 w-16 sm:h-20 sm:w-20 rounded-2xl border border-slate-100' : 'aspect-square w-full'}
         `}
       >
         <AnimatePresence mode="popLayout">
@@ -101,7 +103,7 @@ const ProductCard = memo(({
                 src={image}
                 alt={name}
                 fill
-                sizes={isList ? "120px" : "400px"}
+                sizes={isList ? "80px" : "400px"}
                 priority={priority}
                 className="object-cover transition-transform duration-700 group-hover:scale-110"
               />
@@ -124,14 +126,14 @@ const ProductCard = memo(({
       {/* ─── CONTENT ─── */}
       <div className={`
         flex flex-1 flex-col min-w-0
-        ${isList ? 'px-6 py-2 justify-center' : 'p-6 space-y-2 text-center'}
+        ${isList ? 'px-3 py-1.5 justify-center' : 'p-6 space-y-2 text-center'}
       `}>
-        <h3 className={`font-serif italic font-bold text-slate-900 truncate leading-tight group-hover:text-amber-600 transition-colors ${isList ? 'text-lg' : 'text-sm'}`}>
+        <h3 className={`font-serif italic font-bold text-slate-900 leading-tight group-hover:text-amber-600 transition-colors ${isList ? 'text-base sm:text-lg line-clamp-2' : 'text-sm truncate'}`}>
           {name}
         </h3>
 
         <div className={`flex items-center gap-2 ${isList ? '' : 'justify-center'}`}>
-          <span className="text-xl font-black text-slate-950 tabular-nums tracking-tighter">
+          <span className={`${isList ? 'text-xl sm:text-2xl' : 'text-xl'} font-black text-slate-950 tabular-nums tracking-tight whitespace-nowrap leading-none`}>
             {formatPrice(price)}
           </span>
         </div>
@@ -149,24 +151,24 @@ const ProductCard = memo(({
 
       {/* ─── ADMIN ACTIONS ─── */}
       {isAdmin && (
-        <div className={`flex items-center gap-2 ${isList ? 'px-4' : 'absolute top-4 right-4'}`}>
+        <div className={`flex items-center gap-1.5 ${isList ? 'pr-1 pl-1 py-1 rounded-xl bg-slate-50/70 border border-slate-100' : 'absolute top-4 right-4'}`}>
           <button
             onClick={handleToggleVisibility}
-            className={`h-10 w-10 rounded-xl flex items-center justify-center transition-all ${isVisible ? 'bg-white/80 backdrop-blur-md text-slate-400 border border-slate-100' : 'bg-amber-400 text-white shadow-lg shadow-amber-100 border border-amber-500'}`}
+            className={`${actionButtonClass} flex items-center justify-center transition-all ${isVisible ? 'bg-white/80 backdrop-blur-md text-slate-400 border border-slate-100' : 'bg-amber-400 text-white shadow-lg shadow-amber-100 border border-amber-500'}`}
           >
-            {isVisible ? <Eye size={18} /> : <EyeOff size={18} />}
+            {isVisible ? <Eye size={actionIconSize} /> : <EyeOff size={actionIconSize} />}
           </button>
           <button
             onClick={() => onEdit?.(id)}
-            className="h-10 w-10 rounded-xl bg-white/80 backdrop-blur-md text-slate-900 border border-slate-100 shadow-sm flex items-center justify-center hover:bg-white"
+            className={`${actionButtonClass} bg-white/80 backdrop-blur-md text-slate-900 border border-slate-100 shadow-sm flex items-center justify-center hover:bg-white`}
           >
-            <Edit3 size={18} />
+            <Edit3 size={actionIconSize} />
           </button>
           <button
             onClick={() => onDelete?.(id)}
-            className="h-10 w-10 rounded-xl bg-rose-500 text-white shadow-lg shadow-rose-100 flex items-center justify-center hover:bg-rose-600"
+            className={`${actionButtonClass} bg-rose-500 text-white shadow-lg shadow-rose-100 flex items-center justify-center hover:bg-rose-600`}
           >
-            <Trash2 size={18} />
+            <Trash2 size={actionIconSize} />
           </button>
         </div>
       )}

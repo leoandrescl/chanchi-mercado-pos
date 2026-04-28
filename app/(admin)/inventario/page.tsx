@@ -72,14 +72,14 @@ const SortableProductItem = ({ product, viewMode, onEdit, onDelete }: SortableIt
           {...attributes}
           {...listeners}
           className={`
-            w-10 rounded-2xl flex items-center justify-center transition-all shrink-0 cursor-grab active:cursor-grabbing touch-none
+            w-8 sm:w-10 rounded-2xl flex items-center justify-center transition-all shrink-0 cursor-grab active:cursor-grabbing touch-none
             ${isDragging
               ? 'bg-amber-400 text-white shadow-lg shadow-amber-200'
               : 'bg-slate-50 border border-slate-100 text-slate-300 hover:bg-amber-50 hover:border-amber-100 hover:text-amber-400'}
           `}
           title="Arrastre para reordenar"
         >
-          <GripVertical size={20} />
+          <GripVertical size={18} />
         </div>
       )}
 
@@ -262,37 +262,64 @@ export default function InventoryPage() {
             <p className="font-serif italic text-slate-300 text-lg">No encontramos productos...</p>
           </div>
         ) : (
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragEnd={handleDragEnd}
-          >
-            <SortableContext
-              items={sortedAndFilteredProducts.map(p => p.id)}
-              strategy={verticalListSortingStrategy}
-            >
+          <AnimatePresence mode="wait" initial={false}>
+            {viewMode === 'list' ? (
               <motion.div
-                layout
-                transition={{ type: 'spring', bounce: 0, duration: 0.3 }}
-                className={viewMode === 'grid'
-                  ? "grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6"
-                  : "flex flex-col gap-3"
-                }
+                key="inventory-list"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.2, ease: 'easeOut' }}
               >
-                <AnimatePresence mode="popLayout" initial={false}>
-                  {sortedAndFilteredProducts.map((p) => (
-                    <SortableProductItem
-                      key={p.id}
-                      product={p}
-                      viewMode={viewMode}
-                      onEdit={() => setEditingProduct(p)}
-                      onDelete={() => setProductToDelete(p)}
-                    />
-                  ))}
-                </AnimatePresence>
+                <DndContext
+                  sensors={sensors}
+                  collisionDetection={closestCenter}
+                  onDragEnd={handleDragEnd}
+                >
+                  <SortableContext
+                    items={sortedAndFilteredProducts.map((p) => p.id)}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    <div className="flex flex-col gap-3">
+                      {sortedAndFilteredProducts.map((p) => (
+                        <SortableProductItem
+                          key={p.id}
+                          product={p}
+                          viewMode="list"
+                          onEdit={() => setEditingProduct(p)}
+                          onDelete={() => setProductToDelete(p)}
+                        />
+                      ))}
+                    </div>
+                  </SortableContext>
+                </DndContext>
               </motion.div>
-            </SortableContext>
-          </DndContext>
+            ) : (
+              <motion.div
+                key="inventory-grid"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.2, ease: 'easeOut' }}
+                className="grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6"
+              >
+                {sortedAndFilteredProducts.map((p) => (
+                  <ProductCard
+                    key={p.id}
+                    id={p.id}
+                    name={p.name}
+                    price={p.price}
+                    image={p.image}
+                    category={p.category}
+                    isVisible={p.is_visible}
+                    viewMode="grid"
+                    onEdit={() => setEditingProduct(p)}
+                    onDelete={() => setProductToDelete(p)}
+                  />
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
         )}
       </main>
 
