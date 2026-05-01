@@ -12,6 +12,7 @@ import GlobalDashboard from '@/components/pos/GlobalDashboard';
 import { LayoutGrid, List as ListIcon, ShoppingBag } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import InputSearch from '@/components/ui/InputSearch';
+import { mergeMoneyAdjustmentIntoCatalog } from '@/lib/constants/moneyAdjustment';
 
 export default function AdminPOSPage() {
   const [isAbonoOpen, setIsAbonoOpen] = useState(false);
@@ -28,10 +29,7 @@ export default function AdminPOSPage() {
     fetchProducts();
   }, [fetchCustomers, fetchGlobalMetrics, fetchProducts]);
 
-  const filteredProducts = products.filter(p =>
-    p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.category?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredProducts = mergeMoneyAdjustmentIntoCatalog(products, searchTerm);
 
   return (
     <div className="flex flex-col min-h-screen bg-[#FDFCF9]">

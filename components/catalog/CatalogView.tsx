@@ -9,6 +9,7 @@ import InputSearch from '@/components/ui/InputSearch';
 import Link from 'next/link';
 import FloatingCart from '@/components/pos/FloatingCart';
 import PWAInstallButton from '@/components/pwa/PWAInstallButton';
+import { mergeMoneyAdjustmentIntoCatalog } from '@/lib/constants/moneyAdjustment';
 
 interface CatalogViewProps {
   isAdmin?: boolean;
@@ -23,10 +24,7 @@ export default function CatalogView({ isAdmin = false }: CatalogViewProps) {
     fetchProducts();
   }, [fetchProducts]);
 
-  const filteredProducts = products.filter(p =>
-    p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.category?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredProducts = mergeMoneyAdjustmentIntoCatalog(products, searchTerm);
 
   return (
     <div className={`flex flex-col ${!isAdmin ? 'min-h-screen bg-white' : ''}`}>

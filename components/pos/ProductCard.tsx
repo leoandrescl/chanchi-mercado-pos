@@ -3,7 +3,12 @@
 import React, { memo } from 'react';
 import { useCart } from '@/store/useCart';
 import { useInventory } from '@/store/useInventory';
-import { ShoppingBag, Eye, EyeOff, Edit3, Trash2 } from 'lucide-react';
+import { ShoppingBag, Eye, EyeOff, Edit3, Trash2, Banknote } from 'lucide-react';
+import {
+  isMoneyAdjustmentProductId,
+  MONEY_ADJUSTMENT_PRODUCT_ID,
+  MONEY_ADJUSTMENT_PRODUCT_NAME,
+} from '@/lib/constants/moneyAdjustment';
 import { motion, AnimatePresence } from 'framer-motion';
 import { playPop } from '@/lib/audio';
 import Image from 'next/image';
@@ -38,8 +43,33 @@ const ProductCard = memo(({
   const handleAdd = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (isPublic && !isVisible) return;
-    
-    // Trigger animation via event or global state if needed, but for now we just add
+
+    if (isMoneyAdjustmentProductId(id)) {
+      const raw = typeof window !== 'undefined' ? window.prompt('Monto del ajuste (CLP)', '') : null;
+      if (raw === null) return;
+      const digits = raw.replace(/\D/g, '');
+      const amount = parseInt(digits, 10);
+      if (!Number.isFinite(amount) || amount <= 0) {
+        if (typeof window !== 'undefined' && digits !== '') {
+          window.alert('Ingresa un monto válido mayor a cero.');
+        }
+        return;
+      }
+      const lineId = `${MONEY_ADJUSTMENT_PRODUCT_ID}_${Date.now()}`;
+      addItem({ id: lineId, name: `${MONEY_ADJUSTMENT_PRODUCT_NAME} x1`, price: amount });
+      playPop();
+      const card = document.getElementById(`product-card-${id}`);
+      if (card) {
+        const rect = card.getBoundingClientRect();
+        window.dispatchEvent(
+          new CustomEvent('product-added', {
+            detail: { id: lineId, name: MONEY_ADJUSTMENT_PRODUCT_NAME, image: undefined, rect },
+          })
+        );
+      }
+      return;
+    }
+
     addItem({ id, name, price });
     playPop();
 
@@ -92,7 +122,11 @@ const ProductCard = memo(({
         `}
       >
         <AnimatePresence mode="popLayout">
-          {image ? (
+          {isMoneyAdjustmentProductId(id) ? (
+            <div className="flex items-center justify-center w-full h-full bg-gradient-to-br from-amber-100 to-amber-50 text-amber-700">
+              <Banknote size={isList ? 36 : 48} strokeWidth={1.5} className="opacity-90" />
+            </div>
+          ) : image ? (
             <motion.div
               key="image"
               initial={{ scale: 1.2, opacity: 0 }}
@@ -134,7 +168,11 @@ const ProductCard = memo(({
 
         <div className={`flex items-center gap-2 ${isList ? '' : 'justify-center'}`}>
           <span className={`${isList ? 'text-xl sm:text-2xl' : 'text-xl'} font-black text-slate-950 tabular-nums tracking-tight whitespace-nowrap leading-none`}>
-            {formatPrice(price)}
+            {isMoneyAdjustmentProductId(id) && price === 0 ? (
+              <span className="text-amber-700 font-bold text-base sm:text-lg">Monto libre</span>
+            ) : (
+              formatPrice(price)
+            )}
           </span>
         </div>
       </div>
