@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useCustomers, Customer } from '@/store/useCustomers';
-import { History, Wallet, Users, Search, X, ChevronDown } from 'lucide-react';
+import { History, Wallet, Users, Search, X, ChevronDown, Pencil } from 'lucide-react';
 import { toast } from 'sonner';
 import CustomerHistory from '@/components/customers/CustomerHistory';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -177,11 +177,15 @@ export default function CustomerSelector({ onOpenAbono }: CustomerSelectorProps)
                       <div className="grid grid-cols-2 gap-2.5">
                         <motion.button
                           whileTap={{ scale: 0.97 }}
-                          onClick={() => { setIsOpen(true); setIsInfoExpanded(false); }}
+                          onClick={() => {
+                            if (selectedCustomer) handleEdit(selectedCustomer);
+                            setIsInfoExpanded(false);
+                          }}
                           className="flex items-center justify-center gap-2.5 h-14 rounded-2xl bg-slate-900 text-white shadow-lg shadow-slate-900/25 transition-all"
+                          title="Editar Datos"
                         >
-                          <Users size={17} strokeWidth={2} />
-                          <span className="text-[11px] font-black uppercase tracking-widest">Cambiar Cliente</span>
+                          <Pencil size={17} strokeWidth={2} />
+                          <span className="text-[11px] font-black uppercase tracking-widest">Editar Datos</span>
                         </motion.button>
                         <motion.button
                           whileTap={{ scale: 0.97 }}
