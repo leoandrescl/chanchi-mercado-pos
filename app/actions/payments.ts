@@ -69,11 +69,35 @@ export async function registerAbono(
       return { success: false, error: 'Error al aplicar el abono sobre las deudas pendientes.' };
     }
 
+    const rows = unpaidDebts || [];
+    if (rows.length === 0 && currentBalance > 0) {
+      return {
+        success: false,
+        error:
+          'Hay saldo en la cuenta pero no hay compras pendientes (debts con amount > 0 e is_paid = false). Revisá Supabase: debts y debtors para este cliente.',
+      };
+    }
+
     let remainingToApply = amount;
-    for (const debt of unpaidDebts || []) {
+    for (const debt of rows) {
       if (remainingToApply <= 0) break;
 
-      const currentRemaining = debt.remaining_amount ?? debt.amount;
+      const amt = Number(debt.amount);
+      if (!Number.isFinite(amt) || amt <= 0) continue;
+
+      const rawRem =
+        debt.remaining_amount != null && debt.remaining_amount !== ''
+          ? Number(debt.remaining_amount)
+          : null;
+      let currentRemaining: number;
+      if (rawRem == null || Number.isNaN(rawRem)) {
+        currentRemaining = amt;
+      } else if (rawRem <= 0 && !debt.is_paid && amt > 0) {
+        // Migración / datos viejos: impaga pero remaining en 0 → usar monto de la compra
+        currentRemaining = amt;
+      } else {
+        currentRemaining = Math.min(Math.max(rawRem, 0), amt);
+      }
       if (currentRemaining <= 0) continue;
 
       const applied = Math.min(remainingToApply, currentRemaining);
@@ -88,11 +112,25 @@ export async function registerAbono(
         .eq('id', debt.id);
 
       if (updateError) {
-        console.error('Error updating debt during FIFO allocation:', updateError);
-        return { success: false, error: 'Error al actualizar deudas con el abono parcial.' };
+        console.error('Error updating debt during FIFO allocation:', updateError, { debtId: debt.id });
+        const hint = updateError.message?.trim();
+        return {
+          success: false,
+          error: hint
+            ? `Error al actualizar deudas con el abono: ${hint}`
+            : 'Error al actualizar deudas con el abono parcial.',
+        };
       }
 
       remainingToApply -= applied;
+    }
+
+    if (remainingToApply > 0) {
+      return {
+        success: false,
+        error:
+          'No se pudo aplicar todo el monto sobre compras pendientes (remaining en cero pero is_paid=false, u otra inconsistencia). Revisá debts en Supabase.',
+      };
     }
 
     // 4. Register the payment as a negative debt record
