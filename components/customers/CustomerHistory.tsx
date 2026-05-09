@@ -196,12 +196,6 @@ export default function CustomerHistory({ debtorId }: CustomerHistoryProps) {
                 <div className="flex items-center justify-between border-b border-slate-100 pb-4 px-1">
                   <div>
                     <h4 className="font-sans text-lg font-black capitalize text-slate-900">{group.label}</h4>
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400">Balance:</span>
-                      <span className={`text-sm font-bold tabular-nums ${group.subtotal > 0 ? 'text-slate-950' : 'text-emerald-600'}`}>
-                        {formatPrice(group.subtotal)}
-                      </span>
-                    </div>
                   </div>
                 </div>
 
