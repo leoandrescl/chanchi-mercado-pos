@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import AdaptiveDialog from '@/components/ui/AdaptiveDialog';
 import Button from '@/components/ui/Button';
 import { addProductWithImage, updateProductWithImage } from '@/app/actions/products';
+import { isCheeseCatalogProductId } from '@/lib/constants/cheeseProduct';
 
 interface ProductModalProps {
   product?: Product;
@@ -16,8 +17,9 @@ interface ProductModalProps {
 }
 
 export default function ProductModal({ product, onClose, onRefresh }: ProductModalProps) {
+  const isCheese = product ? isCheeseCatalogProductId(product.id) : false;
   const [name, setName] = useState(product?.name || '');
-  const [price, setPrice] = useState(product?.price?.toString() || '');
+  const [price, setPrice] = useState(isCheese ? '0' : product?.price?.toString() || '');
   const [category, setCategory] = useState(product?.category || '');
   const [imagePreview, setImagePreview] = useState<string | null>(product?.image || null);
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -41,9 +43,11 @@ export default function ProductModal({ product, onClose, onRefresh }: ProductMod
     e.preventDefault();
     setError(null);
 
-    const priceNum = parseInt(price);
+    const priceNum = isCheese ? 0 : parseInt(price);
     if (!name.trim()) return setError('El nombre es obligatorio.');
-    if (isNaN(priceNum) || priceNum <= 0) return setError('El precio debe ser mayor a $0.');
+    if (!isCheese && (isNaN(priceNum) || priceNum <= 0)) {
+      return setError('El precio debe ser mayor a $0.');
+    }
 
     setIsSaving(true);
     try {
@@ -104,20 +108,31 @@ export default function ProductModal({ product, onClose, onRefresh }: ProductMod
               />
             </div>
 
-            <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 block px-4">Precio (CLP)</label>
-              <div className="relative">
-                <span className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 font-bold">$</span>
-                <input
-                  required
-                  type="number"
-                  placeholder="0"
-                  className="w-full h-14 rounded-xl border border-slate-100 bg-slate-50 pl-12 pr-6 text-slate-950 text-sm font-black tabular-nums focus:bg-white focus:border-amber-300 focus:ring-4 focus:ring-amber-50 focus:outline-none transition-all shadow-sm"
-                  value={price}
-                  onChange={(e) => setPrice(e.target.value)}
-                />
+            {isCheese ? (
+              <div className="rounded-xl border border-amber-100 bg-amber-50 px-6 py-4">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-amber-700">
+                  Precio en caja
+                </p>
+                <p className="text-sm font-medium text-amber-900 mt-1">
+                  Monto libre: al vender en el POS se ingresa el peso en pesos chilenos.
+                </p>
               </div>
-            </div>
+            ) : (
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 block px-4">Precio (CLP)</label>
+                <div className="relative">
+                  <span className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 font-bold">$</span>
+                  <input
+                    required
+                    type="number"
+                    placeholder="0"
+                    className="w-full h-14 rounded-xl border border-slate-100 bg-slate-50 pl-12 pr-6 text-slate-950 text-sm font-black tabular-nums focus:bg-white focus:border-amber-300 focus:ring-4 focus:ring-amber-50 focus:outline-none transition-all shadow-sm"
+                    value={price}
+                    onChange={(e) => setPrice(e.target.value)}
+                  />
+                </div>
+              </div>
+            )}
 
             <div className="space-y-2">
               <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 block px-4">Categoría</label>

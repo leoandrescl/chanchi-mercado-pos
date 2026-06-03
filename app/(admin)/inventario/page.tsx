@@ -10,6 +10,9 @@ import { toast } from 'sonner';
 import HeaderPage from '@/components/ui/HeaderPage';
 import InputSearch from '@/components/ui/InputSearch';
 import ProductCard from '@/components/pos/ProductCard';
+import { ensureCheeseProduct } from '@/app/actions/products';
+import { mergeCheeseIntoInventoryList } from '@/lib/constants/inventoryCatalog';
+import { isCheeseCatalogProductId } from '@/lib/constants/cheeseProduct';
 
 // DND Kit Imports
 import {
@@ -129,13 +132,13 @@ export default function InventoryPage() {
   );
 
   useEffect(() => {
-    fetchProducts();
+    (async () => {
+      await ensureCheeseProduct();
+      await fetchProducts();
+    })();
   }, [fetchProducts]);
 
-  const sortedAndFilteredProducts = products.filter(p =>
-    p.name.toLowerCase().includes(search.toLowerCase()) ||
-    p.category?.toLowerCase().includes(search.toLowerCase())
-  );
+  const sortedAndFilteredProducts = mergeCheeseIntoInventoryList(products, search);
 
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
@@ -156,6 +159,11 @@ export default function InventoryPage() {
   };
 
   const handleDelete = async () => {
+    if (productToDelete && isCheeseCatalogProductId(productToDelete.id)) {
+      toast.error('El ítem Queso no se puede eliminar; solo editar nombre e imagen.');
+      setProductToDelete(null);
+      return;
+    }
     if (!productToDelete) return;
     setIsDeleting(true);
     try {

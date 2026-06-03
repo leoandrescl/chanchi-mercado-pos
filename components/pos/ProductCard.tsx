@@ -90,9 +90,10 @@ const ProductCard = memo(({
       const amount = promptAmountClp('Monto del queso (CLP)');
       if (amount === null) return;
       const lineId = `${CHEESE_PRODUCT_ID}_${Date.now()}`;
-      addItem({ id: lineId, name: `${CHEESE_PRODUCT_NAME} x1`, price: amount });
+      const lineName = name.trim() ? `${name.trim()} x1` : `${CHEESE_PRODUCT_NAME} x1`;
+      addItem({ id: lineId, name: lineName, price: amount });
       playPop();
-      dispatchProductAdded(lineId, CHEESE_PRODUCT_NAME);
+      dispatchProductAdded(lineId, lineName, image);
       return;
     }
 
@@ -152,6 +153,22 @@ const ProductCard = memo(({
             <div className="flex items-center justify-center w-full h-full bg-gradient-to-br from-amber-100 to-amber-50 text-amber-700">
               <Banknote size={isList ? 36 : 48} strokeWidth={1.5} className="opacity-90" />
             </div>
+          ) : isCheeseCatalogProductId(id) && image ? (
+            <motion.div
+              key="cheese-image"
+              initial={{ scale: 1.2, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="absolute inset-0"
+            >
+              <Image
+                src={image}
+                alt={name}
+                fill
+                sizes={isList ? '80px' : '400px'}
+                priority={priority}
+                className="object-cover transition-transform duration-700 group-hover:scale-110"
+              />
+            </motion.div>
           ) : isCheeseCatalogProductId(id) ? (
             <div className="flex items-center justify-center w-full h-full bg-gradient-to-br from-slate-100 to-amber-50 text-slate-700">
               <Scale size={isList ? 36 : 48} strokeWidth={1.5} className="opacity-90" />

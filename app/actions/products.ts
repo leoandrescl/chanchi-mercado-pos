@@ -2,6 +2,12 @@
 
 import { supabase } from '@/lib/supabase';
 import { revalidatePath } from 'next/cache';
+import {
+  CHEESE_DEFAULT_CATEGORY,
+  CHEESE_PRODUCT_ID,
+  CHEESE_PRODUCT_NAME,
+  isCheeseCatalogProductId,
+} from '@/lib/constants/cheeseProduct';
 
 /**
  * Toggle the visibility status of a product directly in the database.
@@ -24,6 +30,49 @@ export async function toggleProductVisibility(productId: string, currentState: b
   } catch (err) {
     console.error('Unexpected error in toggleProductVisibility:', err);
     return { success: false, error: 'Internal Server Error' };
+  }
+}
+
+/**
+ * Crea la fila de Queso en `products` si aún no existe (id UUID fijo).
+ */
+export async function ensureCheeseProduct() {
+  try {
+    const { data: existing, error: selectError } = await supabase
+      .from('products')
+      .select('id')
+      .eq('id', CHEESE_PRODUCT_ID)
+      .maybeSingle();
+
+    if (selectError) {
+      console.error('ensureCheeseProduct select:', selectError);
+      return { success: false, error: selectError.message };
+    }
+
+    if (existing) {
+      return { success: true, created: false };
+    }
+
+    const { error: insertError } = await supabase.from('products').insert({
+      id: CHEESE_PRODUCT_ID,
+      name: CHEESE_PRODUCT_NAME,
+      price: 0,
+      category: CHEESE_DEFAULT_CATEGORY,
+      is_visible: true,
+      order_index: 0,
+    });
+
+    if (insertError) {
+      console.error('ensureCheeseProduct insert:', insertError);
+      return { success: false, error: insertError.message };
+    }
+
+    revalidatePath('/');
+    revalidatePath('/inventario');
+    return { success: true, created: true };
+  } catch (err) {
+    console.error('ensureCheeseProduct:', err);
+    return { success: false, error: 'Error inesperado del servidor.' };
   }
 }
 
@@ -196,7 +245,8 @@ export async function updateProductWithImage(formData: FormData) {
   try {
     const id = formData.get('id') as string;
     const name = formData.get('name') as string;
-    const price = parseInt(formData.get('price') as string);
+    const isCheese = isCheeseCatalogProductId(id);
+    const price = isCheese ? 0 : parseInt(formData.get('price') as string);
     const category = formData.get('category') as string;
     const imagePreview = formData.get('imagePreview') as string | null;
     const imageFile = formData.get('imageFile') as File | null;
