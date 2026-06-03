@@ -3,12 +3,17 @@
 import React, { memo } from 'react';
 import { useCart } from '@/store/useCart';
 import { useInventory } from '@/store/useInventory';
-import { ShoppingBag, Eye, EyeOff, Edit3, Trash2, Banknote } from 'lucide-react';
+import { ShoppingBag, Eye, EyeOff, Edit3, Trash2, Banknote, Scale } from 'lucide-react';
 import {
   isMoneyAdjustmentProductId,
   MONEY_ADJUSTMENT_PRODUCT_ID,
   MONEY_ADJUSTMENT_PRODUCT_NAME,
 } from '@/lib/constants/moneyAdjustment';
+import {
+  isCheeseCatalogProductId,
+  CHEESE_PRODUCT_ID,
+  CHEESE_PRODUCT_NAME,
+} from '@/lib/constants/cheeseProduct';
 import { motion, AnimatePresence } from 'framer-motion';
 import { playPop } from '@/lib/audio';
 import Image from 'next/image';
@@ -40,33 +45,54 @@ const ProductCard = memo(({
   const formatPrice = (amount: number) =>
     new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(amount);
 
+  const isVariablePriceCatalog = isMoneyAdjustmentProductId(id) || isCheeseCatalogProductId(id);
+
+  const promptAmountClp = (label: string): number | null => {
+    const raw = typeof window !== 'undefined' ? window.prompt(label, '') : null;
+    if (raw === null) return null;
+    const digits = raw.replace(/\D/g, '');
+    const amount = parseInt(digits, 10);
+    if (!Number.isFinite(amount) || amount <= 0) {
+      if (typeof window !== 'undefined' && digits !== '') {
+        window.alert('Ingresa un monto válido mayor a cero.');
+      }
+      return null;
+    }
+    return amount;
+  };
+
+  const dispatchProductAdded = (lineId: string, lineName: string, lineImage?: string) => {
+    const card = document.getElementById(`product-card-${id}`);
+    if (!card) return;
+    const rect = card.getBoundingClientRect();
+    window.dispatchEvent(
+      new CustomEvent('product-added', {
+        detail: { id: lineId, name: lineName, image: lineImage, rect },
+      })
+    );
+  };
+
   const handleAdd = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (isPublic && !isVisible) return;
 
     if (isMoneyAdjustmentProductId(id)) {
-      const raw = typeof window !== 'undefined' ? window.prompt('Monto del ajuste (CLP)', '') : null;
-      if (raw === null) return;
-      const digits = raw.replace(/\D/g, '');
-      const amount = parseInt(digits, 10);
-      if (!Number.isFinite(amount) || amount <= 0) {
-        if (typeof window !== 'undefined' && digits !== '') {
-          window.alert('Ingresa un monto válido mayor a cero.');
-        }
-        return;
-      }
+      const amount = promptAmountClp('Monto del ajuste (CLP)');
+      if (amount === null) return;
       const lineId = `${MONEY_ADJUSTMENT_PRODUCT_ID}_${Date.now()}`;
       addItem({ id: lineId, name: `${MONEY_ADJUSTMENT_PRODUCT_NAME} x1`, price: amount });
       playPop();
-      const card = document.getElementById(`product-card-${id}`);
-      if (card) {
-        const rect = card.getBoundingClientRect();
-        window.dispatchEvent(
-          new CustomEvent('product-added', {
-            detail: { id: lineId, name: MONEY_ADJUSTMENT_PRODUCT_NAME, image: undefined, rect },
-          })
-        );
-      }
+      dispatchProductAdded(lineId, MONEY_ADJUSTMENT_PRODUCT_NAME);
+      return;
+    }
+
+    if (isCheeseCatalogProductId(id)) {
+      const amount = promptAmountClp('Monto del queso (CLP)');
+      if (amount === null) return;
+      const lineId = `${CHEESE_PRODUCT_ID}_${Date.now()}`;
+      addItem({ id: lineId, name: `${CHEESE_PRODUCT_NAME} x1`, price: amount });
+      playPop();
+      dispatchProductAdded(lineId, CHEESE_PRODUCT_NAME);
       return;
     }
 
@@ -126,6 +152,10 @@ const ProductCard = memo(({
             <div className="flex items-center justify-center w-full h-full bg-gradient-to-br from-amber-100 to-amber-50 text-amber-700">
               <Banknote size={isList ? 36 : 48} strokeWidth={1.5} className="opacity-90" />
             </div>
+          ) : isCheeseCatalogProductId(id) ? (
+            <div className="flex items-center justify-center w-full h-full bg-gradient-to-br from-slate-100 to-amber-50 text-slate-700">
+              <Scale size={isList ? 36 : 48} strokeWidth={1.5} className="opacity-90" />
+            </div>
           ) : image ? (
             <motion.div
               key="image"
@@ -168,7 +198,7 @@ const ProductCard = memo(({
 
         <div className={`flex items-center gap-2 ${isList ? '' : 'justify-center'}`}>
           <span className={`${isList ? 'text-xl sm:text-2xl' : 'text-xl'} font-black text-slate-950 tabular-nums tracking-tight whitespace-nowrap leading-none`}>
-            {isMoneyAdjustmentProductId(id) && price === 0 ? (
+            {isVariablePriceCatalog && price === 0 ? (
               <span className="text-amber-700 font-bold text-base sm:text-lg">Monto libre</span>
             ) : (
               formatPrice(price)
