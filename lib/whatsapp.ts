@@ -69,65 +69,57 @@ export function generateFullAuditMessage({
   finalBalance,
 }: FullAuditDetails): string {
   const cleanPhone = phone.replace(/\D/g, '');
-  const now = new Date();
-  const thresholdDate = new Date(now.getFullYear(), now.getMonth(), 1);
 
   let reportContent = '';
-  let subtotalMesActual = 0;
-  let currentMonthName = '';
+  const monthSubtotals: { name: string; total: number }[] = [];
 
   monthsData.forEach((month) => {
-    let monthPurchases = 0;
-    let monthAbonos = 0;
+    let monthRemaining = 0;
     let monthEntriesContent = '';
-    let hasDetailedEntries = false;
 
     month.entries.forEach((entry) => {
-      const entryDate = new Date(entry.date);
-      if (entryDate >= thresholdDate) {
-        hasDetailedEntries = true;
-        const dateLabel = getFormattedDate(entry.date);
+      const dateLabel = getFormattedDate(entry.date);
 
-        if (entry.type === 'DEBT') {
-          monthPurchases += entry.amount;
-          const itemsStr = entry.items && entry.items.length > 0
-            ? entry.items.map(i => `${i.name} x${i.quantity}`).join(', ')
-            : entry.description.replace(/^Compra: /, '');
+      if (entry.type === 'DEBT') {
+        const remaining = entry.remaining_amount ?? entry.amount;
+        monthRemaining += remaining;
+        const itemsStr = entry.items && entry.items.length > 0
+          ? entry.items.map(i => `${i.name} x${i.quantity}`).join(', ')
+          : entry.description.replace(/^Compra: /, '');
 
-          monthEntriesContent += `- [${dateLabel}] Compra: ${itemsStr}: ${formatPrice(entry.amount)}${entry.is_paid ? ' ✅' : ''}\n`;
-        } else {
-          monthAbonos += entry.amount;
-          const motivo = getExactAbonoMotivo(entry.description);
-          monthEntriesContent += motivo
-            ? `- [${dateLabel}] 💰 PAGO (${motivo}): ${formatPrice(entry.amount)}\n`
-            : `- [${dateLabel}] 💰 PAGO: ${formatPrice(entry.amount)}\n`;
+        monthEntriesContent += `- [${dateLabel}] Compra: ${itemsStr}: ${formatPrice(entry.amount)}${entry.is_paid ? ' ✅' : ''}\n`;
+        if (remaining < entry.amount) {
+          monthEntriesContent += `  ↳ 📌 Queda pendiente: ${formatPrice(remaining)}\n`;
         }
+      } else {
+        const motivo = getExactAbonoMotivo(entry.description);
+        monthEntriesContent += motivo
+          ? `- [${dateLabel}] 💰 PAGO (${motivo}): ${formatPrice(entry.amount)}\n`
+          : `- [${dateLabel}] 💰 PAGO: ${formatPrice(entry.amount)}\n`;
       }
     });
 
-    if (hasDetailedEntries) {
-      const monthSubtotal = monthPurchases - monthAbonos;
-      subtotalMesActual += monthSubtotal;
-      currentMonthName = month.monthName.charAt(0).toUpperCase() + month.monthName.slice(1).split(' ')[0];
+    if (month.entries.length > 0) {
+      const monthShort = month.monthName.charAt(0).toUpperCase() + month.monthName.slice(1).split(' ')[0];
+      monthSubtotals.push({ name: monthShort, total: monthRemaining });
 
       reportContent += `*# ${month.monthName.toUpperCase()} #*\n\n`;
       reportContent += monthEntriesContent;
       reportContent += `--------------------------\n`;
-      reportContent += `📈 Subtotal ${currentMonthName}: ${formatPrice(monthSubtotal)}\n\n`;
+      reportContent += `📈 Subtotal ${monthShort}: ${formatPrice(monthRemaining)}\n\n`;
     }
   });
 
-  const saldoAnterior = finalBalance - subtotalMesActual;
-  const historicalLine = saldoAnterior > 0
-    ? `⌛ Saldo Anterior: ${formatPrice(saldoAnterior)}\n`
-    : '';
+  const subtotalLines = monthSubtotals
+    .map(m => `📈 Subtotal ${m.name}: ${formatPrice(m.total)}`)
+    .join('\n');
 
   const message = `📦 *Resumen de cuenta:*
 
 ${reportContent}==========================
    💰 *RESUMEN DE CUENTA*
 ==========================
-${historicalLine}📈 Subtotal ${currentMonthName}: ${formatPrice(subtotalMesActual)}
+${subtotalLines}
 
 *TOTAL PENDIENTE: ${formatPrice(finalBalance)}*
 ==========================
