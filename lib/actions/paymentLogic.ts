@@ -11,6 +11,7 @@ export interface Debt {
   amount: number;
   date: string;
   is_paid: boolean;
+  remaining_amount?: number | null;
   created_at?: string;
 }
 

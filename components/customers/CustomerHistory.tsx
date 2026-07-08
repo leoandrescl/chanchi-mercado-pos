@@ -32,17 +32,13 @@ function debtDateToInputValue(iso: string | undefined): string {
 }
 
 export default function CustomerHistory({ debtorId }: CustomerHistoryProps) {
-  const { customers, deleteDebtSupabase, quickPayDebtSupabase, updateDebtSupabase } = useCustomers();
+  const { deleteDebtSupabase, updateDebtSupabase } = useCustomers();
   const [debts, setDebts] = useState<Debt[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<'all' | 'unpaid' | 'paid'>('all');
   const [viewMode, setViewMode] = useState<'all' | 'currentMonth'>('currentMonth');
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingDebt, setEditingDebt] = useState<Debt | null>(null);
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
-  const [isPaying, setIsPaying] = useState<string | null>(null);
-
-  const customer = customers.find(c => c.id === debtorId);
 
   const fetchHistory = async () => {
     setLoading(true);
@@ -64,30 +60,31 @@ export default function CustomerHistory({ debtorId }: CustomerHistoryProps) {
     }
   }, [debtorId]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const handleDelete = async (debt: any) => {
-    if (!confirm('¿Seguro que quieres eliminar este registro? Esto afectará el balance.')) return;
+  const handleDelete = async (debt: Debt) => {
+    const isAbono = debt.amount < 0;
+    const remaining =
+      debt.amount > 0 && !debt.is_paid
+        ? debt.remaining_amount ?? debt.amount
+        : 0;
+
+    const impactMsg = isAbono
+      ? `Se sumará ${Math.abs(debt.amount).toLocaleString('es-CL')} al Total Fiado (se anula el abono).`
+      : remaining > 0
+        ? `Se restará ${remaining.toLocaleString('es-CL')} del Total Fiado.`
+        : 'Este registro ya estaba pagado; el total no debería cambiar.';
+
+    if (!confirm(`¿Eliminar este registro?\n\n${impactMsg}`)) return;
+
     setIsDeleting(debt.id);
     try {
       await deleteDebtSupabase(debt.id, debt.debtor_id, debt.amount, debt.description);
-      toast.success('Pedido eliminado correctamente 🗑️');
+      toast.success('Registro eliminado');
       await fetchHistory();
-    } catch (err: any) {
-      toast.error('Error al eliminar: ' + err.message);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Error desconocido';
+      toast.error('Error al eliminar: ' + message);
     } finally {
       setIsDeleting(null);
-    }
-  };
-
-  const handleQuickPay = async (debt: any) => {
-    setIsPaying(debt.id);
-    try {
-      await quickPayDebtSupabase(debt.id, debt.debtor_id, debt.amount, debt.description);
-      toast.success('Saldo actualizado (Pago Rápido) 💰');
-      await fetchHistory();
-    } catch (err: any) {
-      toast.error('Error al pagar: ' + err.message);
-    } finally {
-      setIsPaying(null);
     }
   };
 
@@ -121,7 +118,6 @@ export default function CustomerHistory({ debtorId }: CustomerHistoryProps) {
 
   const currentMonthKey = getMonthLabel(new Date().toISOString()).toLowerCase().replace(/\s/g, '-');
 
-
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-20 space-y-4">
@@ -141,20 +137,19 @@ export default function CustomerHistory({ debtorId }: CustomerHistoryProps) {
 
   return (
     <div className="space-y-8">
-      {/* Header & Controls */}
       <div className="space-y-4">
-        {/* Title row */}
         <div className="flex items-center gap-3">
           <div className="h-11 w-11 rounded-2xl bg-slate-900 flex items-center justify-center text-white shrink-0">
             <History size={20} strokeWidth={1.5} />
           </div>
           <div>
             <h3 className="font-sans text-xl font-black text-slate-900">Estado de Cuenta</h3>
-            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.15em] mt-0.5">Detalle de movimientos</p>
+            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.15em] mt-0.5">
+              Consulta · editar o eliminar registros
+            </p>
           </div>
         </div>
 
-        {/* Controls row: view mode only */}
         <div className="flex items-center gap-3">
           <div className="flex bg-slate-100 p-1.5 rounded-full">
             <button
@@ -173,7 +168,6 @@ export default function CustomerHistory({ debtorId }: CustomerHistoryProps) {
         </div>
       </div>
 
-      {/* Grouped List */}
       <div className="space-y-10">
         {displayKeys.length === 0 ? (
           <div className="text-center py-16 bg-slate-50/50 rounded-[2.5rem] border border-dashed border-slate-200">
@@ -182,26 +176,15 @@ export default function CustomerHistory({ debtorId }: CustomerHistoryProps) {
         ) : (
           displayKeys.map((key) => {
             const group = groupedData[key];
-            const filteredItems = group.items.filter(d => {
-              if (filter === 'unpaid') return !d.is_paid;
-              if (filter === 'paid') return d.is_paid;
-              return true;
-            });
-
-            if (filteredItems.length === 0 && filter !== 'all') return null;
 
             return (
               <div key={key} className="space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                {/* Month Header */}
                 <div className="flex items-center justify-between border-b border-slate-100 pb-4 px-1">
-                  <div>
-                    <h4 className="font-sans text-lg font-black capitalize text-slate-900">{group.label}</h4>
-                  </div>
+                  <h4 className="font-sans text-lg font-black capitalize text-slate-900">{group.label}</h4>
                 </div>
 
-                {/* Items */}
                 <div className="grid gap-4">
-                  {filteredItems.map((debt: any) => {
+                  {group.items.map((debt) => {
                     const isCharge = debt.amount > 0;
                     const remainingAmount = debt.remaining_amount ?? (debt.is_paid ? 0 : debt.amount);
                     const isPartial = isCharge && !debt.is_paid && remainingAmount < debt.amount;
@@ -213,7 +196,6 @@ export default function CustomerHistory({ debtorId }: CustomerHistoryProps) {
                           debt.is_paid ? 'border-slate-50 opacity-60' : 'border-slate-200'
                         }`}
                       >
-                        {/* Top Row: Desc & Amount */}
                         <div className="flex items-start justify-between gap-4">
                           <div className="flex-1">
                             <p className="text-slate-900 font-bold text-sm leading-snug">
@@ -249,35 +231,19 @@ export default function CustomerHistory({ debtorId }: CustomerHistoryProps) {
                           </div>
                         </div>
 
-                        {/* Bottom Row: Metadata & Actions — ALWAYS VISIBLE */}
-                        <div className="mt-4 pt-4 border-t border-slate-100">
-                          {/* Date row */}
-                          <div className="flex items-center gap-2 mb-3">
-                            <Calendar size={12} className="text-slate-300" />
-                            <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                        <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between gap-3">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <Calendar size={12} className="text-slate-300 shrink-0" />
+                            <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 truncate">
                               {formatDate(debt.date).split(',')[0]}
                             </span>
-                            <span className="h-1 w-1 rounded-full bg-slate-200 mx-1" />
-                            <span className="text-[10px] font-medium text-slate-400">
+                            <span className="h-1 w-1 rounded-full bg-slate-200 shrink-0" />
+                            <span className="text-[10px] font-medium text-slate-400 truncate">
                               {formatDate(debt.date).split(',')[1]}
                             </span>
                           </div>
 
-                          {/* Action buttons — always visible, no hover required */}
-                          <div className="flex items-center gap-2">
-                            {!debt.is_paid && debt.amount > 0 && (
-                              <button
-                                onClick={() => handleQuickPay(debt)}
-                                disabled={isPaying === debt.id}
-                                className="flex-1 h-10 rounded-xl bg-emerald-500 text-white text-[11px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 active:scale-95 transition-all disabled:opacity-50"
-                              >
-                                {isPaying === debt.id
-                                  ? <Loader2 size={14} className="animate-spin" />
-                                  : <Check size={14} />
-                                }
-                                Pagar
-                              </button>
-                            )}
+                          <div className="flex items-center gap-2 shrink-0">
                             <button
                               onClick={() => { setEditingDebt(debt); setIsEditModalOpen(true); }}
                               className="h-10 w-10 rounded-xl bg-slate-100 text-slate-500 flex items-center justify-center active:scale-95 transition-all hover:bg-slate-200"
@@ -289,7 +255,7 @@ export default function CustomerHistory({ debtorId }: CustomerHistoryProps) {
                               onClick={() => handleDelete(debt)}
                               disabled={isDeleting === debt.id}
                               className="h-10 w-10 rounded-xl bg-rose-100 text-rose-500 flex items-center justify-center active:scale-95 transition-all hover:bg-rose-200 disabled:opacity-50"
-                              title="Eliminar"
+                              title="Eliminar registro"
                             >
                               {isDeleting === debt.id
                                 ? <Loader2 size={14} className="animate-spin" />
@@ -308,7 +274,6 @@ export default function CustomerHistory({ debtorId }: CustomerHistoryProps) {
         )}
       </div>
 
-      {/* Edit Modal */}
       {isEditModalOpen && editingDebt && (
         <EditDebtModal
           debt={editingDebt}
@@ -329,16 +294,17 @@ function EditDebtModal({ debt, onClose, onSuccess }: { debt: Debt; onClose: () =
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const newAmount = parseInt(amount);
-    if (isNaN(newAmount)) return;
+    const newAmount = parseInt(amount, 10);
+    if (Number.isNaN(newAmount)) return;
 
     setIsSubmitting(true);
     try {
       await updateDebtSupabase(debt.id, debt.debtor_id, newAmount, debt.amount, description, dateInput);
-      toast.success('Pedido actualizado correctamente ✨');
+      toast.success('Registro actualizado');
       onSuccess();
-    } catch (err: any) {
-      toast.error('Error al actualizar: ' + err.message);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Error desconocido';
+      toast.error('Error al actualizar: ' + message);
     } finally {
       setIsSubmitting(false);
     }

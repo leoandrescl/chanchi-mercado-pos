@@ -28,7 +28,6 @@ interface CustomerStore {
   showGlobalBalance: boolean;
   toggleGlobalBalance: () => void;
   deleteDebtSupabase: (debtId: string, debtorId: string, amount: number, description: string) => Promise<void>;
-  quickPayDebtSupabase: (debtId: string, debtorId: string, amount: number, description: string) => Promise<void>;
   updateDebtSupabase: (
     debtId: string,
     debtorId: string,
@@ -166,18 +165,7 @@ export const useCustomers = create<CustomerStore>()(
         const { deleteDebtAction } = await import('@/app/actions/history');
         const res = await deleteDebtAction(debtId, debtorId, amount, description);
         if (res.success) {
-          get().updateBalance(debtorId, -amount);
-          await get().fetchGlobalMetrics();
-        } else {
-          throw new Error(res.error);
-        }
-      },
-      quickPayDebtSupabase: async (debtId, debtorId, amount, description) => {
-        const { quickPayDebtAction } = await import('@/app/actions/history');
-        const res = await quickPayDebtAction(debtId, debtorId, amount, description);
-        if (res.success) {
-          get().updateBalance(debtorId, -amount);
-          await get().fetchGlobalMetrics();
+          await get().fetchCustomers();
         } else {
           throw new Error(res.error);
         }
@@ -186,8 +174,7 @@ export const useCustomers = create<CustomerStore>()(
         const { updateDebtAction } = await import('@/app/actions/history');
         const res = await updateDebtAction(debtId, debtorId, newAmount, oldAmount, newDescription, newDateInput);
         if (res.success) {
-          get().updateBalance(debtorId, newAmount - oldAmount);
-          await get().fetchGlobalMetrics();
+          await get().fetchCustomers();
         } else {
           throw new Error(res.error);
         }
