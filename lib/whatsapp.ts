@@ -257,7 +257,7 @@ export function generateSummaryMessage({
   const monthSubtotals: { name: string; total: number }[] = [];
 
   for (const [monthName, items] of Object.entries(grouped)) {
-    const monthTotal = items.reduce((s, i) => s + i.originalAmount, 0);
+    const monthTotal = items.reduce((s, i) => s + i.remainingAmount, 0);
     const monthShort = monthName.charAt(0).toUpperCase() + monthName.slice(1).split(' ')[0];
     monthSubtotals.push({ name: monthShort, total: monthTotal });
 
@@ -266,7 +266,7 @@ export function generateSummaryMessage({
     for (const item of items) {
       const dateLabel = `${new Date(item.date).getDate()}/${new Date(item.date).getMonth() + 1}`;
       const desc = item.description.replace(/^Compra: /, '');
-      body += `- [${dateLabel}] ${desc}: ${formatPrice(item.originalAmount)}\n`;
+      body += `- [${dateLabel}] ${desc}: ${formatPrice(item.remainingAmount)}\n`;
     }
 
     body += `--------------------------\n`;

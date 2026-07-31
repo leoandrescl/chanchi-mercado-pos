@@ -1,5 +1,10 @@
 'use server';
 
+import {
+  getActiveMonthKeys,
+  isDateInActiveMonths,
+  selectActiveDebtsForBalance,
+} from '@/lib/debt/selectActiveDebtsForBalance';
 import { supabase } from '@/lib/supabase';
 
 export interface AuditEntry {
@@ -30,6 +35,31 @@ function isInRecentMonths(dateStr: string): boolean {
   return d >= cutoff;
 }
 
+/**
+ * Compras recientes que explican el Total Fiado (más nuevas primero).
+ * Si julio cubre todo el saldo, junio pagado no aparece.
+ */
+function activePurchasesForBalance(
+  debts: { date: string; description: string; amount: number; created_at?: string }[],
+  totalBalance: number
+) {
+  const recentPurchases = debts
+    .filter((d) => d.amount > 0 && isInRecentMonths(d.date))
+    .map((d) => ({
+      date: d.date,
+      description: d.description,
+      originalAmount: d.amount,
+      remainingAmount: d.amount,
+      isPartial: false,
+      createdAt: d.created_at,
+    }));
+
+  return selectActiveDebtsForBalance(recentPurchases, totalBalance).map((d) => ({
+    ...d,
+    isPartial: d.remainingAmount < d.originalAmount,
+  }));
+}
+
 export async function getDebtorFullAudit(debtorId: string) {
   try {
     const { data: debtor, error: debtorFetchError } = await supabase
@@ -49,39 +79,28 @@ export async function getDebtorFullAudit(debtorId: string) {
 
     if (debtError) throw debtError;
 
-    const entries: AuditEntry[] = [];
+    const debts = allDebts || [];
     let totalPurchases = 0;
     let totalAbonos = 0;
-
-    for (const debt of allDebts || []) {
-      if (debt.amount > 0) {
-        totalPurchases += debt.amount;
-        entries.push({
-          type: 'DEBT',
-          date: debt.date,
-          description: debt.description,
-          amount: debt.amount,
-        });
-      } else if (debt.amount < 0) {
-        const absAmount = Math.abs(debt.amount);
-        totalAbonos += absAmount;
-        entries.push({
-          type: 'PAYMENT',
-          date: debt.date,
-          description: debt.description.includes('Favor')
-            ? 'Saldo a Favor'
-            : debt.description,
-          amount: absAmount,
-        });
-      }
+    for (const debt of debts) {
+      if (debt.amount > 0) totalPurchases += debt.amount;
+      else if (debt.amount < 0) totalAbonos += Math.abs(debt.amount);
     }
 
-    entries.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    const activePurchases = activePurchasesForBalance(debts, realBalance);
 
-    const recent = entries.filter((e) => isInRecentMonths(e.date));
+    // Solo compras que explican el saldo (sin mes anterior ya pagado)
+    const entries: AuditEntry[] = activePurchases
+      .map((d) => ({
+        type: 'DEBT' as const,
+        date: d.date,
+        description: d.description,
+        amount: d.remainingAmount,
+      }))
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
     const grouped: MonthlyAuditData[] = [];
-    for (const entry of recent) {
+    for (const entry of entries) {
       const name = monthKey(entry.date);
       let monthGroup = grouped.find((g) => g.monthName === name);
       if (!monthGroup) {
@@ -108,7 +127,8 @@ export async function getDebtorFullAudit(debtorId: string) {
 }
 
 /**
- * Resumen WhatsApp: compras y abonos recientes + Total Fiado (debtors.balance).
+ * Resumen WhatsApp: solo compras que explican el Total Fiado
+ * (mes actual; mes anterior solo si hay deuda arrastrada).
  */
 export async function getDebtorSummary(debtorId: string) {
   try {
@@ -128,20 +148,12 @@ export async function getDebtorSummary(debtorId: string) {
 
     if (debtsError) throw debtsError;
 
-    const recent = (debts || []).filter((d) => isInRecentMonths(d.date));
+    const totalBalance = debtor.balance || 0;
+    const pendingDebts = activePurchasesForBalance(debts || [], totalBalance);
+    const activeMonths = getActiveMonthKeys(pendingDebts.map((d) => d.date));
 
-    const pendingDebts = recent
-      .filter((d) => d.amount > 0)
-      .map((d) => ({
-        date: d.date,
-        description: d.description,
-        originalAmount: d.amount,
-        remainingAmount: d.amount,
-        isPartial: false,
-      }));
-
-    const payments = recent
-      .filter((d) => d.amount < 0)
+    const payments = (debts || [])
+      .filter((d) => d.amount < 0 && isDateInActiveMonths(d.date, activeMonths))
       .map((d) => ({
         date: d.date,
         description: typeof d.description === 'string' ? d.description : 'Abono Registrado',
@@ -153,7 +165,7 @@ export async function getDebtorSummary(debtorId: string) {
       data: {
         pendingDebts,
         payments,
-        totalBalance: debtor.balance || 0,
+        totalBalance,
         name: debtor.name,
         phone: debtor.phone || '',
       },
