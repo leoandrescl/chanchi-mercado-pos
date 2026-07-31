@@ -1,14 +1,14 @@
 'use server';
 
 import { supabase } from '@/lib/supabase';
-import { saleDateInputToIso } from '@/lib/date/saleCalendar';
-import { recalculateDebtorBalance } from '@/lib/debt/recalculateDebtorBalance';
+import { setDebtorBalance } from '@/lib/debt/adjustDebtorBalance';
 import { logAuditAction } from './audit';
 import { revalidatePath } from 'next/cache';
 
 /**
- * Elimina un movimiento del historial y recalcula el saldo del mismo cliente
- * desde compras impagas (evita desfase con el trigger legacy).
+ * Elimina un movimiento y deshace su efecto en el Total Fiado:
+ * - compra (+N): balance -= N
+ * - abono (-N): balance += N
  */
 export async function deleteDebtAction(
   debtId: string,
@@ -19,7 +19,7 @@ export async function deleteDebtAction(
   try {
     const { data: debt, error: fetchError } = await supabase
       .from('debts')
-      .select('amount, remaining_amount, is_paid')
+      .select('amount, description')
       .eq('id', debtId)
       .single();
 
@@ -27,12 +27,30 @@ export async function deleteDebtAction(
       throw fetchError ?? new Error('Registro no encontrado.');
     }
 
+    const rowAmount = Number(debt.amount);
+    if (!Number.isFinite(rowAmount)) {
+      throw new Error('Monto de registro inválido.');
+    }
+
+    const { data: debtor, error: debtorError } = await supabase
+      .from('debtors')
+      .select('balance')
+      .eq('id', debtorId)
+      .single();
+
+    if (debtorError || !debtor) {
+      throw debtorError ?? new Error('Cliente no encontrado.');
+    }
+
+    const previousBalance = debtor.balance || 0;
+    const newBalance = Math.max(0, previousBalance - rowAmount);
+
     const { error: deleteError } = await supabase.from('debts').delete().eq('id', debtId);
     if (deleteError) throw deleteError;
 
-    const sync = await recalculateDebtorBalance(debtorId);
+    const sync = await setDebtorBalance(debtorId, newBalance);
     if (!sync.success) {
-      throw new Error(sync.error || 'No se pudo recalcular el saldo del cliente.');
+      throw new Error(sync.error || 'No se pudo actualizar el saldo del cliente.');
     }
 
     await logAuditAction({
@@ -41,87 +59,19 @@ export async function deleteDebtAction(
       entityId: debtorId,
       details: {
         debtId,
-        amount,
-        description,
-        previousAmount: debt.amount,
-        previousRemaining: debt.remaining_amount,
-        previousIsPaid: debt.is_paid,
-        newBalance: sync.balance,
+        amount: rowAmount,
+        description: debt.description || description,
+        previousBalance,
+        newBalance,
         timestamp: new Date().toISOString(),
       },
     });
 
     revalidatePath('/');
-    return { success: true, balance: sync.balance };
+    return { success: true, balance: newBalance };
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Error al eliminar';
     console.error('Error deleting debt:', err);
-    return { success: false, error: message };
-  }
-}
-
-/**
- * Updates the amount or description of a debt record.
- */
-export async function updateDebtAction(
-  debtId: string,
-  debtorId: string,
-  newAmount: number,
-  oldAmount: number,
-  newDescription: string,
-  newDateInput?: string
-) {
-  try {
-    const now = new Date().toISOString();
-    const payload: Record<string, unknown> = {
-      amount: newAmount,
-      remaining_amount: newAmount,
-      description: newDescription,
-      updated_at: now,
-    };
-
-    if (newDateInput) {
-      const ts = saleDateInputToIso(newDateInput);
-      payload.date = ts;
-      payload.created_at = ts;
-    }
-
-    if (newAmount < 0) {
-      payload.is_paid = true;
-      payload.remaining_amount = 0;
-    } else if (newAmount > 0) {
-      payload.is_paid = false;
-    }
-
-    const { error } = await supabase.from('debts').update(payload).eq('id', debtId);
-    if (error) throw error;
-
-    const sync = await recalculateDebtorBalance(debtorId);
-    if (!sync.success) {
-      throw new Error(sync.error || 'No se pudo recalcular el saldo del cliente.');
-    }
-
-    await logAuditAction({
-      actionType: 'UPDATE_DEBT',
-      entityType: 'debtors',
-      entityId: debtorId,
-      details: {
-        debtId,
-        oldAmount,
-        newAmount,
-        diff: newAmount - oldAmount,
-        newDescription,
-        newDateInput: newDateInput ?? null,
-        newBalance: sync.balance,
-        timestamp: now,
-      },
-    });
-
-    revalidatePath('/');
-    return { success: true, balance: sync.balance };
-  } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : 'Error al actualizar';
-    console.error('Error updating debt:', err);
     return { success: false, error: message };
   }
 }

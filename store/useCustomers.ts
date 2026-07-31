@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { supabase } from '@/lib/supabase';
+import { balanceAfterByMovementId } from '@/lib/debt/balanceAfterMovements';
 
 export interface Customer {
   id: string;
@@ -29,14 +30,6 @@ interface CustomerStore {
   showGlobalBalance: boolean;
   toggleGlobalBalance: () => void;
   deleteDebtSupabase: (debtId: string, debtorId: string, amount: number, description: string) => Promise<void>;
-  updateDebtSupabase: (
-    debtId: string,
-    debtorId: string,
-    newAmount: number,
-    oldAmount: number,
-    newDescription: string,
-    newDateInput?: string
-  ) => Promise<void>;
 }
 
 export const useCustomers = create<CustomerStore>()(
@@ -117,14 +110,52 @@ export const useCustomers = create<CustomerStore>()(
         // 2. Fetch recent movements (debts ledger)
         const { data: movements, error: movementsError } = await supabase
           .from('debts')
-          .select('*, debtors(name)')
+          .select('*, debtors(name, balance)')
           .order('date', { ascending: false })
           .order('created_at', { ascending: false })
           .order('id', { ascending: false })
           .limit(50);
 
-        if (!movementsError && movements) {
-          set({ lastMovements: movements });
+        if (!movementsError && movements && movements.length > 0) {
+          const debtorIds = [...new Set(movements.map((m: { debtor_id: string }) => m.debtor_id))];
+
+          // Full ledger for those clients → Total Fiado after each movement
+          const ledgerRows: {
+            id: string;
+            debtor_id: string;
+            amount: number;
+            date: string;
+            created_at?: string | null;
+          }[] = [];
+          const pageSize = 1000;
+          for (let from = 0; ; from += pageSize) {
+            const { data: page, error: ledgerError } = await supabase
+              .from('debts')
+              .select('id, debtor_id, amount, date, created_at')
+              .in('debtor_id', debtorIds)
+              .range(from, from + pageSize - 1);
+            if (ledgerError) break;
+            if (!page || page.length === 0) break;
+            ledgerRows.push(...page);
+            if (page.length < pageSize) break;
+          }
+
+          const balanceByDebtor: Record<string, number> = {};
+          for (const m of movements) {
+            const bal = (m as { debtors?: { balance?: number } }).debtors?.balance;
+            if (typeof bal === 'number') balanceByDebtor[m.debtor_id] = bal;
+          }
+
+          const afterMap = balanceAfterByMovementId(ledgerRows, balanceByDebtor);
+
+          set({
+            lastMovements: movements.map((m) => ({
+              ...m,
+              balance_after: afterMap.get(m.id) ?? (m as { debtors?: { balance?: number } }).debtors?.balance ?? 0,
+            })),
+          });
+        } else if (!movementsError) {
+          set({ lastMovements: movements || [] });
         }
         set({ isFetchingMetrics: false });
       },
@@ -172,15 +203,6 @@ export const useCustomers = create<CustomerStore>()(
       deleteDebtSupabase: async (debtId, debtorId, amount, description) => {
         const { deleteDebtAction } = await import('@/app/actions/history');
         const res = await deleteDebtAction(debtId, debtorId, amount, description);
-        if (res.success) {
-          await get().fetchCustomers();
-        } else {
-          throw new Error(res.error);
-        }
-      },
-      updateDebtSupabase: async (debtId, debtorId, newAmount, oldAmount, newDescription, newDateInput) => {
-        const { updateDebtAction } = await import('@/app/actions/history');
-        const res = await updateDebtAction(debtId, debtorId, newAmount, oldAmount, newDescription, newDateInput);
         if (res.success) {
           await get().fetchCustomers();
         } else {

@@ -26,10 +26,7 @@ export interface FullAuditDetails {
       date: string;
       description: string;
       amount: number;
-      remaining_amount?: number;
-      is_paid?: boolean;
       items?: { name: string; quantity: number }[];
-      liquidationNote?: string;
     }[];
   }[];
   totalPurchases: number;
@@ -81,17 +78,14 @@ export function generateFullAuditMessage({
       const dateLabel = getFormattedDate(entry.date);
 
       if (entry.type === 'DEBT') {
-        const remaining = entry.remaining_amount ?? entry.amount;
-        monthRemaining += remaining;
+        monthRemaining += entry.amount;
         const itemsStr = entry.items && entry.items.length > 0
           ? entry.items.map(i => `${i.name} x${i.quantity}`).join(', ')
           : entry.description.replace(/^Compra: /, '');
 
-        monthEntriesContent += `- [${dateLabel}] Compra: ${itemsStr}: ${formatPrice(entry.amount)}${entry.is_paid ? ' ✅' : ''}\n`;
-        if (remaining < entry.amount) {
-          monthEntriesContent += `  ↳ 📌 Queda pendiente: ${formatPrice(remaining)}\n`;
-        }
+        monthEntriesContent += `- [${dateLabel}] Compra: ${itemsStr}: ${formatPrice(entry.amount)}\n`;
       } else {
+        monthRemaining -= entry.amount;
         const motivo = getExactAbonoMotivo(entry.description);
         monthEntriesContent += motivo
           ? `- [${dateLabel}] 💰 PAGO (${motivo}): ${formatPrice(entry.amount)}\n`
@@ -263,7 +257,7 @@ export function generateSummaryMessage({
   const monthSubtotals: { name: string; total: number }[] = [];
 
   for (const [monthName, items] of Object.entries(grouped)) {
-    const monthTotal = items.reduce((s, i) => s + i.remainingAmount, 0);
+    const monthTotal = items.reduce((s, i) => s + i.originalAmount, 0);
     const monthShort = monthName.charAt(0).toUpperCase() + monthName.slice(1).split(' ')[0];
     monthSubtotals.push({ name: monthShort, total: monthTotal });
 
@@ -272,14 +266,7 @@ export function generateSummaryMessage({
     for (const item of items) {
       const dateLabel = `${new Date(item.date).getDate()}/${new Date(item.date).getMonth() + 1}`;
       const desc = item.description.replace(/^Compra: /, '');
-
-      if (item.isPartial) {
-        // Show the original amount and what's still owed
-        body += `- [${dateLabel}] ${desc}: ${formatPrice(item.originalAmount)}\n`;
-        body += `  ↳ 📌 Queda pendiente: ${formatPrice(item.remainingAmount)}\n`;
-      } else {
-        body += `- [${dateLabel}] ${desc}: ${formatPrice(item.remainingAmount)}\n`;
-      }
+      body += `- [${dateLabel}] ${desc}: ${formatPrice(item.originalAmount)}\n`;
     }
 
     body += `--------------------------\n`;

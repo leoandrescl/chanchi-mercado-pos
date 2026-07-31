@@ -159,29 +159,45 @@ export default function GlobalDashboard({ onAddCustomer }: GlobalDashboardProps)
               <p className="font-serif italic text-slate-400">No hay actividad reciente</p>
             </div>
           ) : (
-            lastMovements.map((item: any) => (
+            lastMovements.map((item: any) => {
+              const isAbono = item.amount < 0;
+              const moveLabel = isAbono ? 'Abono registrado' : 'Compra';
+              const moveAmount = formatPrice(Math.abs(item.amount));
+              const totalFiado = formatPrice(item.balance_after ?? item.debtors?.balance ?? 0);
+
+              return (
               <div key={item.id} className="flex items-center justify-between p-5 hover:bg-white/80 transition-colors">
-                <div className="flex items-center gap-4">
-                  <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${item.amount < 0 ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'
+                <div className="flex items-center gap-4 min-w-0">
+                  <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${isAbono ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'
                     }`}>
-                    {item.amount < 0 ? <ArrowDownRight size={18} /> : <ArrowUpRight size={18} />}
+                    {isAbono ? <ArrowDownRight size={18} /> : <ArrowUpRight size={18} />}
                   </div>
-                  <div className="leading-tight">
-                    <p className="font-medium text-slate-900 text-sm">
+                  <div className="leading-tight min-w-0">
+                    <p className="font-medium text-slate-900 text-sm truncate">
                       {item.debtors?.name || 'Desconocido'}
                     </p>
                     <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-tighter mt-1">
-                      {item.description} • {formatMovementTime(item)}
+                      {moveLabel} {moveAmount}
+                      <span className="text-slate-300"> — </span>
+                      <span className="text-slate-600">Total Fiado {totalFiado}</span>
+                      <span className="text-slate-300"> • </span>
+                      {formatMovementTime(item)}
                     </p>
+                    {item.description && !isAbono && (
+                      <p className="text-[10px] text-slate-400 mt-0.5 truncate normal-case tracking-normal font-medium">
+                        {String(item.description).replace(/^Compra:\s*/i, '')}
+                      </p>
+                    )}
                   </div>
                 </div>
-                <div className="text-right">
-                  <p className={`font-mono font-bold ${item.amount < 0 ? 'text-emerald-600' : 'text-slate-900'}`}>
-                    {formatPrice(Math.abs(item.amount))}
+                <div className="text-right shrink-0 pl-3">
+                  <p className={`font-mono font-bold ${isAbono ? 'text-emerald-600' : 'text-slate-900'}`}>
+                    {moveAmount}
                   </p>
                 </div>
               </div>
-            ))
+              );
+            })
           )}
         </div>
       </div>
