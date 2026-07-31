@@ -16,6 +16,7 @@ interface CustomerStore {
   addCustomer: (customer: Omit<Customer, 'id' | 'balance' | 'legacy_id'>) => void;
   selectCustomer: (id: string | null) => void;
   updateBalance: (id: string, amount: number) => void;
+  setBalance: (id: string, balance: number) => void;
   getSelectedCustomer: () => Customer | undefined;
   fetchCustomers: () => Promise<void>;
   addCustomerSupabase: (name: string, phone: string) => Promise<any>;
@@ -60,6 +61,13 @@ export const useCustomers = create<CustomerStore>()(
         set((state: CustomerStore) => ({
           customers: state.customers.map((c: Customer) =>
             c.id === id ? { ...c, balance: c.balance + amount } : c
+          ),
+        }));
+      },
+      setBalance: (id: string, balance: number) => {
+        set((state: CustomerStore) => ({
+          customers: state.customers.map((c: Customer) =>
+            c.id === id ? { ...c, balance } : c
           ),
         }));
       },

@@ -15,7 +15,7 @@ interface AbonoModalProps {
 }
 
 export default function AbonoModal({ onClose }: AbonoModalProps) {
-  const { customers, selectedCustomerId, updateBalance, fetchGlobalMetrics } = useCustomers();
+  const { customers, selectedCustomerId, setBalance, fetchGlobalMetrics, fetchCustomers } = useCustomers();
   const { addTransaction } = useTransactions();
   const [amount, setAmount] = useState('');
   const [motivo, setMotivo] = useState('');
@@ -57,9 +57,13 @@ export default function AbonoModal({ onClose }: AbonoModalProps) {
         return;
       }
 
+      if (typeof res.balance === 'number') {
+        setBalance(customer.id, res.balance);
+      } else {
+        await fetchCustomers();
+      }
       await fetchGlobalMetrics();
 
-      updateBalance(customer.id, -val);
       addTransaction({
         customerId: customer.id,
         customerName: customer.name,

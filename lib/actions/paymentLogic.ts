@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabase';
 import { logAuditAction } from '@/app/actions/audit';
 import { debtTimestampForSaleDate } from '@/lib/date/saleCalendar';
+import { recalculateDebtorBalance } from '@/lib/debt/recalculateDebtorBalance';
 
 export { saleDateInputToIso } from '@/lib/date/saleCalendar';
 
@@ -133,13 +134,17 @@ export async function addConsolidatedDebt(
 
   if (error) throw error;
 
-  // AUDIT LOG
+  const sync = await recalculateDebtorBalance(debtorId);
+  if (!sync.success) {
+    throw new Error(sync.error || 'Compra registrada pero no se pudo sincronizar el saldo.');
+  }
+
   await logAuditAction({
     actionType: 'FIADO',
     entityType: 'debtors',
     entityId: debtorId,
-    details: { amount: total, description, items, timestamp }
+    details: { amount: total, description, items, timestamp, newBalance: sync.balance }
   });
 
-  return { success: true };
+  return { success: true, balance: sync.balance };
 }

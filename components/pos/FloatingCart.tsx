@@ -20,7 +20,7 @@ export default function FloatingCart({ isPublic = false }: FloatingCartProps) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [shouldBounce, setShouldBounce] = useState(false);
 
-  const { customers, selectedCustomerId, updateBalance, fetchGlobalMetrics } = useCustomers();
+  const { customers, selectedCustomerId, updateBalance, setBalance, fetchGlobalMetrics } = useCustomers();
   const { addTransaction } = useTransactions();
 
   const total = getTotal();
@@ -52,9 +52,13 @@ export default function FloatingCart({ isPublic = false }: FloatingCartProps) {
     
     try {
       const previousBalance = selectedCustomer.balance;
-      await addConsolidatedDebt(selectedCustomer.id, items, total, saleDate);
+      const saleRes = await addConsolidatedDebt(selectedCustomer.id, items, total, saleDate);
 
-      updateBalance(selectedCustomer.id, total);
+      if (typeof saleRes?.balance === 'number') {
+        setBalance(selectedCustomer.id, saleRes.balance);
+      } else {
+        updateBalance(selectedCustomer.id, total);
+      }
       addTransaction({
         customerId: selectedCustomer.id,
         customerName: selectedCustomer.name,

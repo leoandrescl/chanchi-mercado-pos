@@ -2,6 +2,7 @@
 
 import { supabase } from '@/lib/supabase';
 import { ABONO_MOTIVO_MAX_LENGTH } from '@/lib/constants/abono';
+import { recalculateDebtorBalance } from '@/lib/debt/recalculateDebtorBalance';
 import { logAuditAction } from './audit';
 import { revalidatePath } from 'next/cache';
 
@@ -29,7 +30,7 @@ export async function registerAbono(
         ? `Abono Registrado — ${motivoTrimmed}`
         : 'Abono Registrado';
 
-    // 1. Fetch current balance to validate
+    // 1. Fetch debtor + sync THIS client's balance from unpaid remainings
     const { data: debtor, error: fetchError } = await supabase
       .from('debtors')
       .select('balance, name')
@@ -40,7 +41,15 @@ export async function registerAbono(
       return { success: false, error: 'No se pudo encontrar al cliente.' };
     }
 
-    const currentBalance = debtor.balance || 0;
+    const preSync = await recalculateDebtorBalance(debtorId);
+    if (!preSync.success) {
+      return {
+        success: false,
+        error: preSync.error || 'No se pudo verificar el saldo del cliente.',
+      };
+    }
+
+    const currentBalance = preSync.balance ?? debtor.balance ?? 0;
 
     // 2. Strict Validations
     if (currentBalance === 0) {
@@ -144,6 +153,7 @@ export async function registerAbono(
         date: timestamp,
         created_at: timestamp,
         is_paid: true,
+        remaining_amount: 0,
       });
 
     if (insertError) {
@@ -151,7 +161,17 @@ export async function registerAbono(
       return { success: false, error: 'Error al registrar el abono en la base de datos.' };
     }
 
-    // 5. Log Audit Action
+    // 5. Balance = suma remaining de este cliente (no confiar en el trigger legacy)
+    const sync = await recalculateDebtorBalance(debtorId);
+    if (!sync.success) {
+      return {
+        success: false,
+        error: sync.error || 'Abono aplicado pero no se pudo sincronizar el saldo. Revisá el cliente.',
+      };
+    }
+
+    const newBalance = sync.balance ?? Math.max(0, currentBalance - amount);
+
     await logAuditAction({
       actionType: 'ABONO',
       entityType: 'debtors',
@@ -159,7 +179,7 @@ export async function registerAbono(
       details: {
         amount,
         previousBalance: currentBalance,
-        newBalance: currentBalance - amount,
+        newBalance,
         customerName: debtor.name,
         timestamp,
         ...(motivoTrimmed.length > 0 ? { motivo: motivoTrimmed } : {}),
@@ -167,7 +187,7 @@ export async function registerAbono(
     });
 
     revalidatePath('/');
-    return { success: true };
+    return { success: true, balance: newBalance };
     
   } catch (err) {
     console.error('Unexpected error in registerAbono:', err);
