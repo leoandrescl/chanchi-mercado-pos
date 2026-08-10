@@ -108,7 +108,7 @@ export function generateFullAuditMessage({
     .map(m => `📈 Subtotal ${m.name}: ${formatPrice(m.total)}`)
     .join('\n');
 
-  const message = `📦 *Resumen de cuenta:*
+  const message = `📦 *Detalle completo de cuenta:*
 
 ${reportContent}==========================
    💰 *RESUMEN DE CUENTA*

@@ -60,6 +60,10 @@ function activePurchasesForBalance(
   }));
 }
 
+/**
+ * Completo: historial íntegro (todas las compras y abonos de todos los meses).
+ * El TOTAL PENDIENTE sigue siendo debtors.balance.
+ */
 export async function getDebtorFullAudit(debtorId: string) {
   try {
     const { data: debtor, error: debtorFetchError } = await supabase
@@ -71,33 +75,59 @@ export async function getDebtorFullAudit(debtorId: string) {
     if (debtorFetchError) throw debtorFetchError;
     const realBalance = debtor.balance || 0;
 
-    const { data: allDebts, error: debtError } = await supabase
-      .from('debts')
-      .select('*')
-      .eq('debtor_id', debtorId)
-      .order('date', { ascending: true });
+    const debts: {
+      date: string;
+      description: string;
+      amount: number;
+      created_at?: string;
+    }[] = [];
+    const pageSize = 1000;
+    for (let from = 0; ; from += pageSize) {
+      const { data: page, error: debtError } = await supabase
+        .from('debts')
+        .select('date, description, amount, created_at')
+        .eq('debtor_id', debtorId)
+        .order('date', { ascending: true })
+        .order('created_at', { ascending: true })
+        .range(from, from + pageSize - 1);
 
-    if (debtError) throw debtError;
-
-    const debts = allDebts || [];
-    let totalPurchases = 0;
-    let totalAbonos = 0;
-    for (const debt of debts) {
-      if (debt.amount > 0) totalPurchases += debt.amount;
-      else if (debt.amount < 0) totalAbonos += Math.abs(debt.amount);
+      if (debtError) throw debtError;
+      if (!page || page.length === 0) break;
+      debts.push(...page);
+      if (page.length < pageSize) break;
     }
 
-    const activePurchases = activePurchasesForBalance(debts, realBalance);
+    let totalPurchases = 0;
+    let totalAbonos = 0;
+    const entries: AuditEntry[] = [];
 
-    // Solo compras que explican el saldo (sin mes anterior ya pagado)
-    const entries: AuditEntry[] = activePurchases
-      .map((d) => ({
-        type: 'DEBT' as const,
-        date: d.date,
-        description: d.description,
-        amount: d.remainingAmount,
-      }))
-      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    for (const debt of debts) {
+      if (debt.amount > 0) {
+        totalPurchases += debt.amount;
+        entries.push({
+          type: 'DEBT',
+          date: debt.date,
+          description: debt.description,
+          amount: debt.amount,
+        });
+      } else if (debt.amount < 0) {
+        const absAmount = Math.abs(debt.amount);
+        totalAbonos += absAmount;
+        entries.push({
+          type: 'PAYMENT',
+          date: debt.date,
+          description: debt.description.includes('Favor')
+            ? 'Saldo a Favor'
+            : debt.description,
+          amount: absAmount,
+        });
+      }
+    }
+
+    entries.sort((a, b) => {
+      const t = new Date(a.date).getTime() - new Date(b.date).getTime();
+      return t !== 0 ? t : 0;
+    });
 
     const grouped: MonthlyAuditData[] = [];
     for (const entry of entries) {
