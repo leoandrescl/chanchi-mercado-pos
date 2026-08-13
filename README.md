@@ -1,36 +1,59 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Chanchi Mercado POS
 
-## Getting Started
+Sistema web para un comercio de comida: **catálogo público, pedidos, fiados, inventario y panel admin**.
 
-First, run the development server:
+Los clientes pueden pedir desde la web y retirar en el local. La dueña administra ventas, deudas (fiados), abonos y stock sin llevar todo en papel. Incluye mensajes de WhatsApp para pedidos y estados de cuenta.
+
+**Demo:** [chanchi-mercado-pos.vercel.app](https://chanchi-mercado-pos.vercel.app)
+
+## Stack
+
+- **Next.js** (App Router) + TypeScript + Tailwind CSS
+- **Supabase** (Postgres + API)
+- **Zustand**, Framer Motion, @dnd-kit
+
+## Funcionalidades
+
+- Catálogo público y flujo de pedido
+- Admin: inventario, historial, clientes / fiados y abonos
+- Checkout con fiado y conciliación de deudas
+- Mensajes WhatsApp (pedido / estado de cuenta)
+- Auth por PIN de acceso admin
+
+## Requisitos
+
+- Node.js 20+
+- Proyecto Supabase (o variables apuntando a uno existente)
+
+## Setup
 
 ```bash
+npm install
+cp .env.example .env.local
+# Completa NEXT_PUBLIC_SUPABASE_URL y NEXT_PUBLIC_SUPABASE_ANON_KEY
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abre [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Variables de entorno
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Ver [`.env.example`](./.env.example).
 
-## Learn More
+| Variable | Uso |
+|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | URL del proyecto Supabase |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Anon key |
+| `NEXT_PUBLIC_APP_PIN` | PIN del panel admin (opcional; default de desarrollo) |
+| `SUPABASE_SERVICE_ROLE_KEY` | Solo scripts de migración/admin (no exponer al cliente) |
 
-To learn more about Next.js, take a look at the following resources:
+## Estructura (resumen)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `app/` — catálogo público y rutas admin
+- `components/` — UI, auth, PWA
+- `lib/supabase.ts` — cliente Supabase
+- `scripts/` — utilidades de sync / diagnóstico (requieren env)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Nota
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Proyecto de producto real orientado a operación de un negocio local. No subas dumps ni backups con datos de clientes al repositorio.
