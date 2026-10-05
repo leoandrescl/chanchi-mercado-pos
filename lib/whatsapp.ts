@@ -108,7 +108,7 @@ export function generateFullAuditMessage({
     .map(m => `📈 Subtotal ${m.name}: ${formatPrice(m.total)}`)
     .join('\n');
 
-  const message = `📦 *Detalle completo de cuenta:*
+  const message = `🎃📦 *Detalle completo de cuenta:*
 
 ${reportContent}==========================
    💰 *RESUMEN DE CUENTA*
@@ -118,7 +118,8 @@ ${subtotalLines}
 *TOTAL PENDIENTE: ${formatPrice(finalBalance)}*
 ==========================
 
-¡Muchas gracias por su preferencia!`;
+🎃 ¡Muchas gracias por su preferencia! 🦇
+— ChanchiMercado 🎀🐷`;
 
   return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
 }
@@ -139,7 +140,7 @@ export function generateWhatsAppLink({
     .map((item) => `* ${item.name} (x${item.quantity}) - ${formatPrice(item.price || 0)}`)
     .join('\n');
 
-  const message = `*Detalle de compra (${dateStr}):*
+  const message = `🎃 *Detalle de compra (${dateStr}):*
 
 ${itemsList}
 
@@ -149,7 +150,8 @@ ${itemsList}
 *TOTAL ACTUAL:* ${formatPrice(newBalance)}
 --------------------------
 
-¡Muchas gracias por su preferencia!`;
+🎃 ¡Muchas gracias por su preferencia! 🦇
+— ChanchiMercado 🎀🐷`;
 
   return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
 }
@@ -169,7 +171,7 @@ export function generateMonthlyReport({
     .map((item) => `- [${getFormattedDate(item.date)}] ${item.description}: ${formatPrice(item.amount)}`)
     .join('\n');
 
-  const message = `Hola ${customerName}, resumen de consumos en ChanchiMercado:
+  const message = `Hola ${customerName}, resumen de consumos en ChanchiMercado 🎃:
 
 Cuenta de ${monthName}:
 
@@ -181,7 +183,7 @@ Total del Mes: ${formatPrice(monthlyTotal)}
 TOTAL FIADO AL DIA: ${formatPrice(historicalBalance)}
 --------------------------
 
-*** ChanchiMercado ***`;
+*** ChanchiMercado 🎀🐷 ***`;
 
   return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
 }
@@ -201,7 +203,7 @@ export function generateCustomerOrderLink({
     .map((item) => `* ${item.name} (x${item.quantity}) - ${formatPrice(item.price)}`)
     .join('\n');
 
-  const message = `*¡Hola! Me gustaría hacer un pedido:*
+  const message = `🎃 *¡Hola! Me gustaría hacer un pedido:*
 
 ${itemsList}
 
@@ -210,7 +212,8 @@ ${itemsList}
 --------------------------
 Fecha: ${dateStr}
 
-Muchas gracias.`;
+🎃 Muchas gracias. 🦇
+— ChanchiMercado 🎀🐷`;
 
   return `https://wa.me/${CHANCHI_PHONE}?text=${encodeURIComponent(message)}`;
 }
@@ -290,7 +293,7 @@ export function generateSummaryMessage({
     ? `\n🧾 *Abonos:*\n${paymentLines}\n`
     : '';
 
-  const message = `📦 *Resumen de cuenta:*\n\n${body}${paymentSection}==========================\n   💰 *RESUMEN DE CUENTA*\n==========================\n${subtotalLines}\n\n*TOTAL PENDIENTE: ${formatPrice(totalBalance)}*\n==========================\n\n¡Muchas gracias por su preferencia!`;
+  const message = `🎃📦 *Resumen de cuenta:*\n\n${body}${paymentSection}==========================\n   💰 *RESUMEN DE CUENTA*\n==========================\n${subtotalLines}\n\n*TOTAL PENDIENTE: ${formatPrice(totalBalance)}*\n==========================\n\n🎃 ¡Muchas gracias por su preferencia! 🦇\n— ChanchiMercado 🎀🐷`;
 
   return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
 }

@@ -54,7 +54,7 @@ export default function AdminNavbar({ onAddProduct }: AdminNavbarProps) {
           className="flex flex-col items-center text-center leading-none group mx-auto"
         >
           <span className="font-serif text-2xl text-slate-900 tracking-tight transition-all group-hover:text-amber-600">ChanchiMercado</span>
-          <span className="text-[9px] font-bold uppercase tracking-[0.35em] text-amber-400 mt-1">Mercado & Punto de Venta</span>
+          <span className="text-[9px] font-bold uppercase tracking-[0.35em] text-amber-400 mt-1">Mercado & Punto de Venta 🎃</span>
         </Link>
 
         {/* Actions & Navigation */}

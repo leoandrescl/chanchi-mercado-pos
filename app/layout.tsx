@@ -15,6 +15,7 @@ const playfair = Playfair_Display({
 
 import { Toaster } from 'sonner';
 import ServiceWorkerRegister from '@/components/pwa/ServiceWorkerRegister';
+import HalloweenAmbient from '@/components/halloween/HalloweenAmbient';
 
 export const metadata: Metadata = {
   title: "ChanchiMercado - Mercado & Punto de Venta",
@@ -50,6 +51,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col font-sans">
         <ServiceWorkerRegister />
+        <HalloweenAmbient />
         {children}
         <Toaster position="top-center" expand={false} richColors />
       </body>

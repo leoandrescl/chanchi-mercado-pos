@@ -49,3 +49,44 @@ html {
 .glass-cart {
   @apply bg-white/80 backdrop-blur-md border border-white/40 shadow-2xl;
 }
+
+/* ─── HALLOWEEN TOUCHES ─── */
+@keyframes hv-float {
+  0%, 100% { transform: translateY(0) rotate(-5deg); }
+  50% { transform: translateY(-14px) rotate(5deg); }
+}
+
+@keyframes hv-swing {
+  0%, 100% { transform: rotate(-9deg); }
+  50% { transform: rotate(9deg); }
+}
+
+@keyframes hv-flicker {
+  0%, 100% { opacity: 0.85; }
+  45% { opacity: 0.55; }
+}
+
+.hv-float {
+  animation: hv-float 7s ease-in-out infinite;
+}
+
+.hv-swing {
+  animation: hv-swing 4.5s ease-in-out infinite;
+  transform-origin: top center;
+}
+
+.hv-flicker {
+  animation: hv-flicker 3.5s ease-in-out infinite;
+}
+
+.hv-delay-1 { animation-delay: 1s; }
+.hv-delay-2 { animation-delay: 2s; }
+.hv-delay-3 { animation-delay: 3s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hv-float,
+  .hv-swing,
+  .hv-flicker {
+    animation: none;
+  }
+}

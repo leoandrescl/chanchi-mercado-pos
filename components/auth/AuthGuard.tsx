@@ -70,6 +70,14 @@ export default function AuthGuard({ children }: AuthGuardProps) {
       <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-amber-100/40 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-slate-200/40 rounded-full blur-[120px] pointer-events-none" />
 
+      {/* Halloween Decor */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden select-none">
+        <span className="absolute left-8 top-10 text-3xl hv-float opacity-70">🦇</span>
+        <span className="absolute right-10 top-24 text-3xl hv-float hv-delay-2 opacity-70">🕷️</span>
+        <span className="absolute left-12 bottom-16 text-3xl hv-float hv-delay-3 opacity-70">🎃</span>
+        <span className="absolute right-14 bottom-24 text-3xl hv-float opacity-70">👻</span>
+      </div>
+
       <div className="relative w-full max-w-sm px-8 py-12 rounded-[2.5rem] bg-white/40 backdrop-blur-2xl border border-white/60 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] text-center animate-in fade-in zoom-in-95 duration-700">
         
         {/* Grain Overlay */}
@@ -86,7 +94,7 @@ export default function AuthGuard({ children }: AuthGuardProps) {
             </div>
           </div>
 
-          <h1 className="font-serif text-4xl italic text-slate-900 tracking-tight mb-2">Chanchi Mercado</h1>
+          <h1 className="font-serif text-4xl italic text-slate-900 tracking-tight mb-2">Chanchi Mercado 🎃</h1>
           <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-slate-400">Security Protocol Required</p>
         </div>
 

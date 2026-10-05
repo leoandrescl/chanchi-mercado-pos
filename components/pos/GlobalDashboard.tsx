@@ -70,7 +70,7 @@ export default function GlobalDashboard({ onAddCustomer }: GlobalDashboardProps)
       {/* Onboarding Greeting */}
       <div className="px-2 pt-0.5">
         <h1 className="font-serif text-2xl text-slate-900 italic leading-tight">
-          ¡Hola Viejita! 👋
+          ¡Hola Viejita! 🎃👋
         </h1>
         <p className="text-slate-400 font-sans text-[11px] mt-1 leading-relaxed">
           Para empezar a fiar, haga clic en el botón <strong className="text-amber-500 font-bold underline decoration-amber-200 underline-offset-4 uppercase">buscar</strong> que está arriba para seleccionar un cliente.
@@ -229,7 +229,7 @@ export default function GlobalDashboard({ onAddCustomer }: GlobalDashboardProps)
       <div className="flex flex-col items-center pt-8 opacity-20">
         <Wallet size={20} strokeWidth={1} className="text-slate-900 mb-2" />
         <p className="text-[9px] font-medium uppercase tracking-[0.3em] text-slate-900 italic font-serif">
-          ChanchiMercado | Hecho con infinito Amor por su hijo
+          ChanchiMercado | Hecho con infinito Amor por su hijo 🦇
         </p>
       </div>
     </div>

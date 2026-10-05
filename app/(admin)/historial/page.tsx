@@ -79,7 +79,7 @@ export default function Historial() {
                 Historial de Movimientos
               </h1>
               <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-400 mt-1.5">
-                Libreta global (base de datos)
+                Libreta global (base de datos) 🎃
               </p>
             </div>
           </div>
@@ -181,7 +181,7 @@ export default function Historial() {
 
         <div className="mt-8 flex items-center justify-center gap-2">
           <div className="h-px w-8 bg-slate-200" />
-          <p className="font-serif italic text-xs text-slate-400">Fin del registro maestro</p>
+          <p className="font-serif italic text-xs text-slate-400">Fin del registro maestro 🦇</p>
           <div className="h-px w-8 bg-slate-200" />
         </div>
       </main>

@@ -83,7 +83,8 @@ export default function CustomersPage() {
 \u{1F4B0} TOTAL FIADO ACTUAL: ${formatPrice(customer.balance)}
 --------------------------
 
-¡Muchas gracias por su preferencia! \u{1F437}`;
+¡Muchas gracias por su preferencia! 🎀🐷
+— ChanchiMercado 🎃🦇`;
       const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
       window.open(url, '_blank');
     } finally {

@@ -245,12 +245,13 @@ export default function InventoryPage() {
 
       <main className="mx-auto w-full max-w-5xl px-6 py-4 pb-32">
         {/* Instruction Banner for Mom */}
-        <div className="mb-6 bg-slate-50 border border-slate-100 p-4 rounded-2xl flex items-start gap-4">
+        <div className="relative mb-6 bg-slate-50 border border-slate-100 p-4 rounded-2xl flex items-start gap-4 overflow-hidden">
+          <span className="absolute -right-1 -top-2 text-2xl opacity-60 hv-float pointer-events-none select-none">🕷️</span>
           <div className="h-10 w-10 rounded-full bg-slate-200 flex items-center justify-center shrink-0 text-slate-500 shadow-sm">
             <GripVertical size={20} />
           </div>
           <div>
-            <h4 className="text-xs font-black uppercase tracking-widest text-slate-500 mb-1">Tip de Organización</h4>
+            <h4 className="text-xs font-black uppercase tracking-widest text-slate-500 mb-1">Tip de Organización 🎃</h4>
             <p className="text-sm text-slate-700 font-medium leading-tight">
               Viejita: Para ordenar, arrastre desde la <strong>franja gris de la izquierda</strong> de cada producto hacia arriba o abajo donde quiera posicionarlo.
             </p>
