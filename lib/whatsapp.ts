@@ -119,7 +119,7 @@ ${subtotalLines}
 ==========================
 
 🎃 ¡Muchas gracias por su preferencia! 🦇
-— ChanchiMercado 🎀🐷`;
+— ChanchiMercado 🐷`;
 
   return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
 }
@@ -151,7 +151,7 @@ ${itemsList}
 --------------------------
 
 🎃 ¡Muchas gracias por su preferencia! 🦇
-— ChanchiMercado 🎀🐷`;
+— ChanchiMercado 🐷`;
 
   return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
 }
@@ -183,7 +183,7 @@ Total del Mes: ${formatPrice(monthlyTotal)}
 TOTAL FIADO AL DIA: ${formatPrice(historicalBalance)}
 --------------------------
 
-*** ChanchiMercado 🎀🐷 ***`;
+*** ChanchiMercado 🐷 ***`;
 
   return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
 }
@@ -213,7 +213,7 @@ ${itemsList}
 Fecha: ${dateStr}
 
 🎃 Muchas gracias. 🦇
-— ChanchiMercado 🎀🐷`;
+— ChanchiMercado 🐷`;
 
   return `https://wa.me/${CHANCHI_PHONE}?text=${encodeURIComponent(message)}`;
 }
@@ -293,7 +293,7 @@ export function generateSummaryMessage({
     ? `\n🧾 *Abonos:*\n${paymentLines}\n`
     : '';
 
-  const message = `🎃📦 *Resumen de cuenta:*\n\n${body}${paymentSection}==========================\n   💰 *RESUMEN DE CUENTA*\n==========================\n${subtotalLines}\n\n*TOTAL PENDIENTE: ${formatPrice(totalBalance)}*\n==========================\n\n🎃 ¡Muchas gracias por su preferencia! 🦇\n— ChanchiMercado 🎀🐷`;
+  const message = `🎃📦 *Resumen de cuenta:*\n\n${body}${paymentSection}==========================\n   💰 *RESUMEN DE CUENTA*\n==========================\n${subtotalLines}\n\n*TOTAL PENDIENTE: ${formatPrice(totalBalance)}*\n==========================\n\n🎃 ¡Muchas gracias por su preferencia! 🦇\n— ChanchiMercado 🐷`;
 
   return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
 }
